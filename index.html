@@ -52,7 +52,7 @@
       cursor: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16"><circle cx="8" cy="8" r="4" fill="%23D9383A"/></svg>') 8 8, pointer;
     }
 
-    /* GAYA REKA BENTUK KHUSUS UNTUK CETAKAN LAPORAN PDF RASMI */
+    /* SISTEM GAYA CETAKAN KHUSUS: MENYOLASI KANVAS CONTENGAN MERAH */
     @media print {
       body {
         background-color: #ffffff !important;
@@ -60,17 +60,41 @@
         padding: 0 !important;
         margin: 0 !important;
       }
-      header, #pdfNavigationControls, #btnCetakDoc, #btnSimpan, #canvasContainer, .papan-alur-kerja, #lecturerControls, .no-print {
+      /* Sembunyikan semua elemen navigasi, form input, bar sisi, dan bar atas */
+      header, main > section:last-child, .no-print, #pdfNavigationControls, #loginOverlay, #topControlsBlock {
         display: none !important;
       }
-      #printReportView {
+      /* Paksa seksyen kanvas memuatkan saiz penuh cetakan */
+      main, section {
         display: block !important;
+        width: 100% !important;
+        border: none !important;
+        box-shadow: none !important;
+        padding: 0 !important;
+        margin: 0 !important;
       }
-      .page-break {
-        page-break-before: always;
+      #canvasContainer {
+        background-color: #ffffff !important;
+        padding: 0 !important;
+        overflow: visible !important;
+        display: flex !important;
+        justify-content: center !important;
+      }
+      #scriptCanvas {
+        display: block !important;
+        box-shadow: none !important;
+        max-width: 100% !important;
+        page-break-after: always;
+      }
+      /* Paparkan rekap skor kecil di penghujung mukasurat bukti semakan */
+      #printFooterSummary {
+        display: block !important;
+        margin-top: 20px;
+        border-top: 2px solid #000000;
+        padding-top: 10px;
       }
     }
-    #printReportView {
+    #printFooterSummary {
       display: none;
     }
   </style>
@@ -78,38 +102,44 @@
 <body class="min-h-screen flex flex-col p-4 md:p-8">
 
   <div id="loginOverlay" class="fixed inset-0 bg-neutral-900/90 backdrop-blur-md z-50 flex justify-center items-center p-4">
-    <div class="bg-white max-w-md w-full p-8 rounded-2xl border border-neutral-200 shadow-2xl flex flex-col gap-6">
+    <div class="bg-white max-w-md w-full p-8 rounded-2xl border border-neutral-200 shadow-2xl flex flex-col gap-5">
       <div class="text-center">
         <span class="text-xs font-bold tracking-widest uppercase text-red-600">Sistem Pengesahan Kualiti IPG</span>
         <h2 class="text-2xl font-display font-extrabold mt-1 text-[#1E2229]">Daftar Masuk Moderasi</h2>
-        <p class="text-xs text-gray-500 mt-1">Sila pilih profil emel rasmi anda untuk memulakan semakan kualiti skrip pelajar.</p>
+        <p class="text-xs text-gray-500 mt-1">Sila masukkan emel rasmi dan kata laluan anda untuk pengesahan rekod sulit.</p>
       </div>
 
-      <div class="flex flex-col gap-2">
-        <label class="text-xs font-bold text-gray-600">Emel Rasmi Pensyarah Semak:</label>
-        <select id="lecturerEmailSelect" class="w-full px-3 py-3 border rounded-xl text-xs bg-[#FDFBF7] font-medium focus:outline-none focus:ring-1 focus:ring-black">
-          <option value="" disabled selected>-- Sila Pilih Emel Anda --</option>
-          <option value="haniff.faizal@ipgm.edu.my">haniff.faizal@ipgm.edu.my (HANIFF FAIZAL - ADMIN MASTER)</option>
-          <option value="amirah@ipgm.edu.my">amirah@ipgm.edu.my (AMIRAH BINTI SALIM)</option>
-          <option value="mohdazman@ipgm.edu.my">mohdazman@ipgm.edu.my (AZMAN BIN BASIRUN)</option>
-          <option value="yusainy@ipgm.edu.my">yusainy@ipgm.edu.my (YUSAINI BIN AZIZAN)</option>
-          <option value="azizi.ismail@ipgm.edu.my">azizi.ismail@ipgm.edu.my (AZIZI BIN ISMAIL)</option>
-          <option value="abdulsatar@ipgm.edu.my">abdulsatar@ipgm.edu.my (ABDUL SATAR BIN HAMZAH)</option>
-          <option value="yusri.yusoff@ipgm.edu.my">yusri.yusoff@ipgm.edu.my (YUSRI BIN YUSOFF - KU JHEP)</option>
-          <option value="kholid@ipgm.edu.my">kholid@ipgm.edu.my (KHOLID BIN SALLEH)</option>
-          <option value="rusliza@ipgm.edu.my">rusliza@ipgm.edu.my (RUSLIZA BINTI OTHMAN - KU JPPI)</option>
-          <option value="mohammadhafedz@ipgm.edu.my">mohammadhafedz@ipgm.edu.my (MOHAMMAD HAFEDZ)</option>
-          <option value="abrahman@ipgm.edu.my">abrahman@ipgm.edu.my (AB RAHMAN BIN ISMAIL)</option>
-          <option value="sayuti@ipgm.edu.my">sayuti@ipgm.edu.my (MUHAMMAD SAYUTI BIN ABDUL SHUKOR)</option>
-          <option value="shahrizad.ghozali@ipgm.edu.my">shahrizad.ghozali@ipgm.edu.my (MOHD SHAHRIZAD)</option>
-          <option value="amalinamunirah@ipgm.edu.my">amalinamunirah@ipgm.edu.my (HJH. AMALINA MUNIRAH)</option>
-          <option value="anita.mdsaman@ipgm.edu.my">anita.mdsaman@ipgm.edu.my (DR. ANITA BINTI MD SAMAN)</option>
-          <option value="mohdfikri@ipgm.edu.my">mohdfikri@ipgm.edu.my (DR. MOHD FIKRI BIN ISMAIL)</option>
-        </select>
+      <div class="flex flex-col gap-3">
+        <div>
+          <label class="text-xs font-bold text-gray-600 block mb-1">Pilih Emel Rasmi:</label>
+          <select id="lecturerEmailSelect" class="w-full px-3 py-2.5 border rounded-xl text-xs bg-[#FDFBF7] font-medium focus:outline-none">
+            <option value="" disabled selected>-- Sila Pilih Emel Anda --</option>
+            <option value="haniff.faizal@ipgm.edu.my">haniff.faizal@ipgm.edu.my (HANIFF FAIZAL - ADMIN)</option>
+            <option value="amirah@ipgm.edu.my">amirah@ipgm.edu.my (AMIRAH BINTI SALIM)</option>
+            <option value="mohdazman@ipgm.edu.my">mohdazman@ipgm.edu.my (AZMAN BIN BASIRUN)</option>
+            <option value="yusainy@ipgm.edu.my">yusainy@ipgm.edu.my (YUSAINI BIN AZIZAN)</option>
+            <option value="azizi.ismail@ipgm.edu.my">azizi.ismail@ipgm.edu.my (AZIZI BIN ISMAIL)</option>
+            <option value="abdulsatar@ipgm.edu.my">abdulsatar@ipgm.edu.my (ABDUL SATAR BIN HAMZAH)</option>
+            <option value="yusri.yusoff@ipgm.edu.my">yusri.yusoff@ipgm.edu.my (YUSRI BIN YUSOFF - KU JHEP)</option>
+            <option value="kholid@ipgm.edu.my">kholid@ipgm.edu.my (KHOLID BIN SALLEH)</option>
+            <option value="rusliza@ipgm.edu.my">rusliza@ipgm.edu.my (RUSLIZA BINTI OTHMAN - KU JPPI)</option>
+            <option value="mohammadhafedz@ipgm.edu.my">mohammadhafedz@ipgm.edu.my (MOHAMMAD HAFEDZ)</option>
+            <option value="abrahman@ipgm.edu.my">abrahman@ipgm.edu.my (AB RAHMAN BIN ISMAIL)</option>
+            <option value="sayuti@ipgm.edu.my">sayuti@ipgm.edu.my (MUHAMMAD SAYUTI BIN ABDUL SHUKOR)</option>
+            <option value="shahrizad.ghozali@ipgm.edu.my">shahrizad.ghozali@ipgm.edu.my (MOHD SHAHRIZAD)</option>
+            <option value="amalinamunirah@ipgm.edu.my">amalinamunirah@ipgm.edu.my (HJH. AMALINA MUNIRAH)</option>
+            <option value="anita.mdsaman@ipgm.edu.my">anita.mdsaman@ipgm.edu.my (DR. ANITA BINTI MD SAMAN)</option>
+            <option value="mohdfikri@ipgm.edu.my">mohdfikri@ipgm.edu.my (DR. MOHD FIKRI BIN ISMAIL)</option>
+          </select>
+        </div>
+        <div>
+          <label class="text-xs font-bold text-gray-600 block mb-1">Kata Laluan (Password):</label>
+          <input type="password" id="lecturerPasswordInput" placeholder="Masukkan kata laluan keselamatan" class="w-full px-3 py-2.5 border rounded-xl text-xs bg-[#FDFBF7] focus:outline-none focus:border-black font-mono">
+        </div>
       </div>
 
       <button onclick="sahkanLoginPensyarah()" class="w-full bg-[#1E2229] hover:bg-black text-white font-bold py-3 px-4 rounded-xl text-sm transition-all shadow-md">
-        Mula Menyemak & Mengakses Skrip
+        Sahkan Identiti & Masuk
       </button>
     </div>
   </div>
@@ -119,13 +149,13 @@
       <div>
         <span class="text-xs font-bold tracking-widest uppercase text-red-600">Sistem Digital IPG</span>
         <h1 class="text-3xl md:text-4xl font-display font-extrabold tracking-tight mt-1">Moderasi Pentaksiran Berterusan</h1>
-        <p class="text-sm text-gray-500 mt-1">Mod Identiti Semasa: <span id="activeLecturerBadge" class="font-bold text-red-600 underline">Belum Log Masuk</span></p>
+        <p class="text-sm text-gray-500 mt-1">Akaun Semakan Semasa: <span id="activeLecturerBadge" class="font-bold text-red-600 underline">Belum Log Masuk</span></p>
       </div>
       
-      <div id="lecturerControls" class="w-full lg:w-auto flex flex-col sm:flex-row gap-2">
+      <div id="topControlsBlock" class="w-full lg:w-auto flex flex-col sm:flex-row gap-2">
         <input type="text" id="apiUrlInput" value="https://script.google.com/macros/s/AKfycbxwUIQpQ66obbKr_Wttws6e1Gwe5lu5oZbAWpkqh40GEgwXfgSPbkIVse_gfJM3iJI5/exec" class="hidden">
         <button onclick="logoutPensyarah()" class="border border-neutral-300 hover:bg-red-50 hover:text-red-600 px-4 py-2 text-xs font-bold rounded-lg transition-all">
-          Keluar / Tukar Akun
+          Log Keluar Akun
         </button>
       </div>
     </div>
@@ -139,48 +169,74 @@
     </div>
   </header>
 
-  <main class="w-full max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-12 gap-8 flex-grow items-start no-print">
+  <section id="adminDashboardPanel" class="hidden w-full max-w-7xl mx-auto mb-8 bg-amber-50/60 p-6 rounded-xl border border-amber-200 shadow-sm no-print">
+    <div class="flex items-center gap-2 mb-3">
+      <span class="p-1 rounded bg-amber-200 text-amber-900 font-bold text-[10px] uppercase tracking-wider">Akses Terpelihara</span>
+      <h3 class="font-display font-bold text-lg text-amber-900">Dashboard Pengurusan Skrip Pentadbir (Admin Master)</h3>
+    </div>
+    <p class="text-xs text-amber-800 mb-4 leading-relaxed">Sebagai Admin, anda bertanggungjawab memuat naik skrip PDF asal pelajar ke server awan (Google Drive) terlebih dahulu sebelum dikaji oleh pensyarah lain.</p>
+    
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-4 items-end bg-white p-4 rounded-xl border border-amber-200 text-xs">
+      <div>
+        <label class="font-bold text-gray-600 block mb-1">1. Pilih Angka Giliran Skrip:</label>
+        <select id="adminStudentSelect" class="w-full p-2 border rounded-lg bg-neutral-50 font-mono">
+          <option value="" disabled selected>-- Pilih Pelajar --</option>
+        </select>
+      </div>
+      <div>
+        <label class="font-bold text-gray-600 block mb-1">2. Pilih Fail PDF Skrip Pelajar:</label>
+        <input type="file" id="adminFileUploader" accept="application/pdf" class="w-full p-1.5 border rounded-lg bg-neutral-50 text-[11px]">
+      </div>
+      <div>
+        <button onclick="lakukanUploadAdminKeDrive()" id="btnAdminUpload" class="w-full bg-amber-600 hover:bg-amber-700 text-white font-bold py-2 px-4 rounded-lg transition-all flex justify-center items-center gap-2 shadow-sm">
+          Muat Naik Skrip Ke Cloud Drive
+        </button>
+      </div>
+    </div>
+  </section>
+
+  <main class="w-full max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-12 gap-8 flex-grow items-start">
     
     <section class="lg:col-span-7 xl:col-span-8 flex flex-col gap-4">
-      <div class="flex flex-col sm:flex-row justify-between sm:items-center bg-white p-4 rounded-xl border-editorial shadow-sm gap-4">
+      <div class="flex flex-col sm:flex-row justify-between sm:items-center bg-white p-4 rounded-xl border-editorial shadow-sm gap-4 no-print">
         <div class="flex items-center gap-3">
           <span class="inline-block w-3 h-3 rounded-full bg-[#D9383A]"></span>
-          <h2 class="font-display font-bold text-lg">Helaian Semakan Skrip (Automasi Admin)</h2>
+          <h2 class="font-display font-bold text-lg">Helaian Canvas Penandaan Skrip</h2>
         </div>
         <div class="flex gap-2">
           <button onclick="clearCanvasPageOnly()" class="px-3 py-1.5 text-xs font-semibold border-editorial rounded-md bg-[#FDFBF7] hover:bg-neutral-100 transition-all">
-            Padam Lakaran Halaman Ini
+            Padam Halaman Ini
           </button>
         </div>
       </div>
 
       <div id="pdfNavigationControls" class="hidden flex justify-between items-center bg-white px-5 py-3 rounded-xl border-editorial shadow-sm text-xs font-medium">
-        <button onclick="tukarHalamanPdf(-1)" class="px-3 py-2 border rounded-lg bg-neutral-50 hover:bg-neutral-100 font-bold transition-all">
+        <button onclick="tukarHalamanPdf(-1)" class="px-3 py-2 border rounded-lg bg-neutral-50 hover:bg-neutral-100 font-bold transition-all no-print">
           ← Halaman Sebelum
         </button>
         <span class="text-gray-600 bg-neutral-100 px-4 py-1.5 rounded-full font-semibold">
           Muka Surat <span id="pdfCurrentPageNum" class="font-bold text-red-600 font-mono text-sm mx-1">-</span> daripada <span id="pdfTotalPagesNum" class="font-bold text-black font-mono text-sm mx-1">-</span>
         </span>
-        <button onclick="tukarHalamanPdf(1)" class="px-3 py-2 border rounded-lg bg-neutral-50 hover:bg-neutral-100 font-bold transition-all">
+        <button onclick="tukarHalamanPdf(1)" class="px-3 py-2 border rounded-lg bg-neutral-50 hover:bg-neutral-100 font-bold transition-all no-print">
           Halaman Seterusnya →
         </button>
       </div>
 
       <div id="canvasContainer" class="w-full rounded-xl border-editorial shadow-inner overflow-auto flex flex-col justify-center items-center min-h-[640px] p-4 bg-[#EBE7DF]">
         <canvas id="scriptCanvas" class="shadow-xl bg-white hidden"></canvas>
-        <div id="canvasPlaceholder" class="text-center text-gray-400 max-w-md p-6">
+        <div id="canvasPlaceholder" class="text-center text-gray-400 max-w-md p-6 no-print">
           <svg class="mx-auto h-12 w-12 text-gray-300 mb-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.168.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
           </svg>
-          <p class="font-medium text-sm text-[#1E2229]">Skrip Bersedia dari Database</p>
-          <p class="text-xs mt-1 text-gray-500">Sila klik mana-mana angka giliran pelajar pada papan kerja di sebelah kanan. Sistem akan memuatkan skrip PDF berpusat secara automatik.</p>
+          <p class="font-medium text-sm text-[#1E2229]">Sila Pilih Skrip Pelajar</p>
+          <p class="text-xs mt-1 text-gray-500">Klik nombor angka giliran pelajar pada papan kerja kanan. Sistem akan memuat naik fail PDF pusat yang telah disediakan oleh Pentadbir secara automatik.</p>
         </div>
       </div>
     </section>
 
-    <section class="lg:col-span-5 xl:col-span-4 flex flex-col gap-6">
+    <section class="lg:col-span-5 xl:col-span-4 flex flex-col gap-6 no-print">
       
-      <div class="bg-white p-4 rounded-xl border-editorial shadow-sm papan-alur-kerja">
+      <div class="bg-white p-4 rounded-xl border-editorial shadow-sm">
         <h3 class="text-xs font-bold tracking-wider uppercase text-gray-400 mb-3">Papan Alur Kerja Moderasi</h3>
         <div class="grid grid-cols-2 gap-1 bg-[#FDFBF7] p-1 rounded-lg border-editorial mb-3">
           <button onclick="tukarFasa('Fasa1')" id="tabFasa1" class="fasa-tab py-2 text-xs font-medium rounded-md active">Fasa 1: P1 (1 Sampel)</button>
@@ -198,25 +254,25 @@
       <div id="rubricPanel" class="bg-white p-5 rounded-xl border-editorial shadow-sm flex flex-col gap-3">
         <div class="divider-editorial pb-2">
           <h3 class="font-display font-bold text-sm text-red-700 uppercase tracking-wider">Kriteria Pemarkahan Tugasan (Max 30M)</h3>
-          <p class="text-[11px] text-gray-400">Skor kriteria tugasan pengurusan persatuan & kelab</p>
+          <p class="text-[11px] text-gray-400">Markah pecahan berdasarkan gred rubrik tugasan kelab</p>
         </div>
         
         <div class="space-y-2 bg-neutral-50 p-3 rounded-lg border border-neutral-200">
-          <p class="text-xs font-bold text-[#1E2229]">Bahagian A: Asas & Identiti (Max 10M)</p>
+          <p class="text-xs font-bold text-[#1E2229]">Bahagian A: Asas & Identiti (Max 10 Markah)</p>
           <div class="flex justify-between items-start gap-3">
             <span class="text-[11px] text-gray-500 leading-tight">• Pengenalan, konsep, tujuan, objektif, dan rasional penubuhan.</span>
             <input type="number" id="rubricA1" min="0" max="5" oninput="kiraSkorRubrik()" class="w-14 text-center text-xs font-bold border rounded p-1 bg-white" placeholder="/5">
           </div>
           <div class="flex justify-between items-start gap-3">
-            <span class="text-[11px] text-gray-500 leading-tight">• Rekaan Logo & Moto inovatif beserta huraian kepentingan ekosistem.</span>
+            <span class="text-[11px] text-gray-500 leading-tight">• Rekaan Logo dan Moto inovatif beserta huraian kepentingan ekosistem.</span>
             <input type="number" id="rubricA2" min="0" max="5" oninput="kiraSkorRubrik()" class="w-14 text-center text-xs font-bold border rounded p-1 bg-white" placeholder="/5">
           </div>
         </div>
 
         <div class="space-y-2 bg-neutral-50 p-3 rounded-lg border border-neutral-200">
-          <p class="text-xs font-bold text-[#1E2229]">Bahagian B: Operasi & Takwim (Max 10M)</p>
+          <p class="text-xs font-bold text-[#1E2229]">Bahagian B: Operasi & Takwim (Max 10 Markah)</p>
           <div class="flex justify-between items-start gap-3">
-            <span class="text-[11px] text-gray-500 leading-tight">• Struktur Jawatankuasa organisasi & Perlembagaan/Peraturan Kelab.</span>
+            <span class="text-[11px] text-gray-500 leading-tight">• Struktur Jawatankuasa organisasi & Perlembagaan/Peraturan Kelab lengkap.</span>
             <input type="number" id="rubricB1" min="0" max="5" oninput="kiraSkorRubrik()" class="w-14 text-center text-xs font-bold border rounded p-1 bg-white" placeholder="/5">
           </div>
           <div class="flex justify-between items-start gap-3">
@@ -226,7 +282,7 @@
         </div>
 
         <div class="space-y-2 bg-neutral-50 p-3 rounded-lg border border-neutral-200">
-          <p class="text-xs font-bold text-[#1E2229]">Bahagian C: Artifak & Risiko (Max 10M)</p>
+          <p class="text-xs font-bold text-[#1E2229]">Bahagian C: Artifak & Risiko (Max 10 Markah)</p>
           <div class="flex justify-between items-start gap-3">
             <span class="text-[11px] text-gray-500 leading-tight">• Lampiran Carta Alir & draf Surat Permohonan Penubuhan sah.</span>
             <input type="number" id="rubricC1" min="0" max="5" oninput="kiraSkorRubrik()" class="w-14 text-center text-xs font-bold border rounded p-1 bg-white" placeholder="/5">
@@ -238,7 +294,7 @@
         </div>
 
         <div class="flex justify-between items-center pt-2 text-xs font-bold border-t">
-          <span>Jumlah Skor Kriteria Semasa:</span>
+          <span>Jumlah Skor Kriteria:</span>
           <span id="rubricTotalDisplay" class="bg-red-600 text-white px-2.5 py-1 rounded font-mono text-sm">0 / 30</span>
         </div>
       </div>
@@ -246,7 +302,7 @@
       <div class="bg-white p-5 rounded-xl border-editorial shadow-sm flex flex-col gap-3 text-xs">
         <div class="divider-editorial pb-2">
           <h3 class="font-display font-bold text-base">Keputusan Borang LAM-PT-04-02</h3>
-          <p class="text-[11px] text-gray-400">Skrip Terpilih: <span id="formAngkaGiliran" class="font-bold text-black font-mono bg-neutral-100 px-1.5 py-0.5 rounded">-</span></p>
+          <p class="text-[11px] text-gray-400">Skrip: <span id="formAngkaGiliran" class="font-bold text-black font-mono bg-neutral-100 px-1.5 py-0.5 rounded">-</span></p>
         </div>
 
         <div class="flex justify-between items-center bg-[#FDFBF7] p-2.5 rounded border-editorial">
@@ -258,9 +314,7 @@
         </div>
 
         <div class="flex justify-between items-center bg-white p-2.5 rounded border-editorial">
-          <div>
-            <label class="font-bold text-red-700 block">(b) Markah Moderasi P1</label>
-          </div>
+          <label class="font-bold text-red-700">(b) Markah Moderasi P1</label>
           <input type="number" id="markahB" oninput="kiraPerbezaanP1()" class="w-16 text-center font-bold border-red-300 py-1 rounded bg-red-50/20" disabled>
         </div>
 
@@ -296,124 +350,41 @@
           <button id="btnSimpan" onclick="simpanRekodKeSheets()" class="w-full bg-[#1E2229] hover:bg-black text-white py-2.5 px-4 font-bold rounded-lg transition-all flex justify-center items-center gap-2">
             Sahkan & Hantar Skor Ke Sheets
           </button>
-          <button id="btnCetakDoc" onclick="janadanCetakPDF()" class="w-full border border-neutral-300 bg-white hover:bg-neutral-50 text-neutral-800 py-2.5 px-4 font-bold rounded-lg transition-all flex justify-center items-center gap-2">
-            🖨️ Cetak Laporan Moderasi (PDF)
+          
+          <button id="btnCetakDoc" onclick="cetakSkripDanContengan()" class="w-full border border-red-300 bg-white hover:bg-red-50 text-red-700 py-2.5 px-4 font-bold rounded-lg transition-all flex justify-center items-center gap-2">
+            🖨️ Cetak Skrip Terconteng (Bukti Fisikal PDF)
           </button>
         </div>
       </div>
     </section>
   </main>
 
-  <div id="printReportView" class="p-8 max-w-4xl mx-auto hidden">
-    <div class="text-center border-b-4 border-double pb-4 mb-6">
-      <h2 class="text-xl font-bold uppercase tracking-wide">Institut Pendidikan Guru Kampus Sultan Mizan</h2>
-      <h3 class="text-lg font-bold uppercase mt-1">Borang Moderasi Pentaksiran Berterusan (LAM-PT-04-02)</h3>
-      <p class="text-xs text-gray-500 mt-1 font-mono">Diterbitkan Secara Digital Melalui Sistem Pengesahan Kualiti Digital</p>
-    </div>
-
-    <table class="w-full border-collapse border border-black text-xs mb-6">
-      <tr>
-        <td class="border border-black p-2 font-bold w-1/4">Nama Kursus:</td>
-        <td id="pCourseName" class="border border-black p-2 w-1/4">-</td>
-        <td class="border border-black p-2 font-bold w-1/4">Kod Kursus:</td>
-        <td id="pCourseCode" class="border border-black p-2 w-1/4">-</td>
-      </tr>
-      <tr>
-        <td class="border border-black p-2 font-bold">Program Pengajian:</td>
-        <td id="pProgram" class="border border-black p-2">-</td>
-        <td class="border border-black p-2 font-bold">Semester / Tahun:</td>
-        <td id="pSemester" class="border border-black p-2">-</td>
-      </tr>
-      <tr>
-        <td class="border border-black p-2 font-bold">Moderator Terlibat:</td>
-        <td id="pLecturer" class="border border-black p-2 font-bold text-red-700" colspan="3">-</td>
-      </tr>
-    </table>
-
-    <h4 class="text-sm font-bold uppercase mb-2 bg-neutral-100 p-1.5 border border-black">1. Rekapitulasi Pecahan Skor Rubrik Kriteria</h4>
-    <table class="w-full border-collapse border border-black text-xs mb-6 text-center">
-      <thead>
-        <tr class="bg-neutral-50 font-bold">
-          <th class="border border-black p-2 w-1/3">Kriteria Penilaian Tugasan</th>
-          <th class="border border-black p-2">Sub 1</th>
-          <th class="border border-black p-2">Sub 2</th>
-          <th class="border border-black p-2">Jumlah Skor Terkumpul</th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr>
-          <td class="border border-black p-2 text-left font-bold">Bahagian A: Asas & Identiti</td>
-          <td id="pA1" class="border border-black p-2">-</td>
-          <td id="pA2" class="border border-black p-2">-</td>
-          <td id="pATotal" class="border border-black p-2 font-bold">- / 10M</td>
-        </tr>
-        <tr>
-          <td class="border border-black p-2 text-left font-bold">Bahagian B: Operasi & Takwim</td>
-          <td id="pB1" class="border border-black p-2">-</td>
-          <td id="pB2" class="border border-black p-2">-</td>
-          <td id="pBTotal" class="border border-black p-2 font-bold">- / 10M</td>
-        </tr>
-        <tr>
-          <td class="border border-black p-2 text-left font-bold">Bahagian C: Artifak & Risiko</td>
-          <td id="pC1" class="border border-black p-2">-</td>
-          <td id="pC2" class="border border-black p-2">-</td>
-          <td id="pCTotal" class="border border-black p-2 font-bold">- / 10M</td>
-        </tr>
-        <tr class="bg-neutral-100 font-bold">
-          <td class="border border-black p-2 text-left uppercase" colspan="3">Jumlah Markah Saringan Kriteria:</td>
-          <td id="pGrandTotal" class="border border-black p-2 text-sm text-red-700 font-mono">- / 30M</td>
-        </tr>
-      </tbody>
-    </table>
-
-    <h4 class="text-sm font-bold uppercase mb-2 bg-neutral-100 p-1.5 border border-black">2. Ringkasan Pematuhan Format Standard LAM-PT-04-02</h4>
-    <table class="w-full border-collapse border border-black text-xs text-center mb-12">
-      <thead>
-        <tr class="bg-neutral-50 font-bold">
-          <th class="border border-black p-2">Angka Giliran Pelajar</th>
-          <th class="border border-black p-2">Fasa Saringan</th>
-          <th class="border border-black p-2">(a) Markah Pemeriksa</th>
-          <th class="border border-black p-2">(b) Markah Moderasi P1</th>
-          <th class="border border-black p-2">(c) Perbezaan (b-a)</th>
-          <th class="border border-black p-2">(d) Markah Moderasi P2</th>
-          <th class="border border-black p-2">(e) Perbezaan (d-a)</th>
-          <th class="border border-black p-2">(f) Penyelarasan (+/-)</th>
-          <th class="border border-black p-2 bg-neutral-100 text-sm">(g) Markah Akhir</th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr class="font-medium">
-          <td id="pStudentId" class="border border-black p-3 font-bold font-mono">-</td>
-          <td id="pFasa" class="border border-black p-3">-</td>
-          <td id="pMarkA" class="border border-black p-3 font-bold">-</td>
-          <td id="pMarkB" class="border border-black p-3 font-bold text-red-700">-</td>
-          <td id="pMarkC" class="border border-black p-3">-</td>
-          <td id="pMarkD" class="border border-black p-3">-</td>
-          <td id="pMarkE" class="border border-black p-3">-</td>
-          <td id="pMarkF" class="border border-black p-3">-</td>
-          <td id="pMarkG" class="border border-black p-3 font-bold bg-neutral-100 text-sm font-mono">-</td>
-        </tr>
-      </tbody>
-    </table>
-
-    <div class="grid grid-cols-2 gap-12 text-xs pt-8">
-      <div class="text-center">
-        <p class="mb-16">.......................................................................</p>
-        <p class="font-bold uppercase" id="pLecturerSignName">Pemeriksa / Moderator Semak</p>
-        <p class="text-gray-500">Tarikh Cetakan: <span id="pPrintDate">-</span></p>
+  <div id="printFooterSummary" class="text-xs font-medium w-full">
+    <div class="grid grid-cols-2 gap-6 p-4 border border-black rounded-lg">
+      <div>
+        <p class="font-bold uppercase text-sm mb-2">Maklumat Pengesahan Semakan Digital</p>
+        <p>Angka Giliran: <span id="pStudent" class="font-mono font-bold">-</span></p>
+        <p>Fasa Contoh Semakan: <span id="pFasa" class="font-bold">-</span></p>
+        <p>Moderator Pemeriksa: <span id="pLecturer" class="font-bold">-</span></p>
       </div>
-      <div class="text-center">
-        <p class="mb-16">.......................................................................</p>
-        <p class="font-bold uppercase">Pengesahan Ketua Pemeriksa / Admin Master</p>
-        <p class="text-gray-500">Jabatan Pengurusan Kualiti Akademik</p>
+      <div class="text-right flex flex-col justify-between">
+        <div>
+          <p class="font-bold text-sm">Skor Akhir Rekod Pentaksiran</p>
+          <p class="text-xl font-bold text-red-600 font-mono mt-1"><span id="pScore">-</span> / 30 Markah</p>
+        </div>
+        <p class="text-[10px] text-gray-400">Dicetak secara automatik daripada Sistem Kanvas Moderasi Digital IPG.</p>
       </div>
     </div>
   </div>
 
   <script>
+    pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.4.120/pdf.worker.min.js';
+
     let emelPensyarahAktif = '';
+    let globalLecturers = [];
     let globalSkripInduk = [];
     let globalHasilSemakan = [];
+    
     let fasaSemasa = 'Fasa1';
     let subArasSemasa = 'Semua';
     let pelajarSemasa = null;
@@ -429,33 +400,61 @@
     let isDrawing = false;
     let pageStrokes = []; 
 
-    // 1. KENDALIAN LOGIN & LOGOUT IDENTITI
+    // MUAT REKOD AWAL SECARA PASIF UNTUK DROPDOWN & PASSWORD CHECK
+    window.onload = function() {
+      fetch(urlAPI)
+        .then(res => res.json())
+        .then(data => {
+          globalLecturers = data.pensyarah;
+          globalSkripInduk = data.skripInduk;
+          globalHasilSemakan = data.hasilSemakan;
+          
+          // Isi senarai dropdown untuk admin panel
+          const adminSelect = document.getElementById('adminStudentSelect');
+          globalSkripInduk.forEach(p => {
+            let opt = document.createElement('option');
+            opt.value = p.angkaGiliran;
+            opt.innerText = `${p.angkaGiliran} (${p.fasaModerasi})`;
+            adminSelect.appendChild(opt);
+          });
+        });
+    };
+
+    // 1. PENGESAHAN DUA ARAS LOG IN (EMAIL + PASSWORD)
     function sahkanLoginPensyarah() {
       const email = document.getElementById('lecturerEmailSelect').value;
-      if (!email) {
-        alert("Sila pilih emel berdaftar anda.");
+      const password = document.getElementById('lecturerPasswordInput').value.trim();
+
+      if (!email || !password) {
+        alert("Sila lengkapkan emel rasmi dan kata laluan.");
         return;
       }
-      emelPensyarahAktif = email;
-      document.getElementById('activeLecturerBadge').innerText = email;
-      document.getElementById('loginOverlay').classList.add('hidden');
-      
-      sambungkanAPI();
+
+      // Validasi terhadap pangkalan data live Google Sheet
+      let padananUser = globalLecturers.find(l => l.email === email);
+      if (padananUser && padananUser.password.toString() === password) {
+        emelPensyarahAktif = email;
+        document.getElementById('activeLecturerBadge').innerText = `${padananUser.nama} (${padananUser.peranan})`;
+        document.getElementById('loginOverlay').classList.add('hidden');
+        
+        // JIKA ADMIN: Buka panel pengurusan admin muat naik skrip
+        if (padananUser.peranan === "Admin" || email === "haniff.faizal@ipgm.edu.my") {
+          document.getElementById('adminDashboardPanel').classList.remove('hidden');
+        }
+        
+        sambungkanAPI();
+      } else {
+        alert("Ralat Keselamatan: Gandingan Emel atau Kata Laluan adalah Salah.");
+      }
     }
 
     function logoutPensyarah() {
-      if(confirm("Adakah anda pasti untuk keluar dari akun semasa?")) {
-        document.getElementById('loginOverlay').classList.remove('hidden');
-        document.getElementById('activeLecturerBadge').innerText = "Belum Log Masuk";
-        document.getElementById('canvasPlaceholder').classList.remove('hidden');
-        canvas.classList.add('hidden');
-        document.getElementById('pdfNavigationControls').classList.add('hidden');
-        pelajarSemasa = null;
-        binaSenaraiPelajar();
+      if(confirm("Adakah anda pasti untuk keluar akun keselamatan?")) {
+        window.location.reload();
       }
     }
 
-    // 2. HUBUNGAN REKOD DATA SHEET
+    // 2. AMBI DATA LIVE REKOD DARI API
     function sambungkanAPI() {
       fetch(urlAPI)
         .then(res => res.json())
@@ -469,11 +468,10 @@
           globalSkripInduk = data.skripInduk;
           globalHasilSemakan = data.hasilSemakan;
           binaSenaraiPelajar();
-        })
-        .catch(err => console.error("Ralat komunikasi pangkalan data:", err));
+        });
     }
 
-    // 3. GENERASI SENARAI PAPAN ALUR KERJA
+    // 3. GENERATOR SENARAI PAPAN ATUR KERJA
     function binaSenaraiPelajar() {
       const container = document.getElementById('studentList');
       container.innerHTML = '';
@@ -489,9 +487,7 @@
       }
 
       dataDitapis.forEach(p => {
-        // Cari sekiranya emel pensyarah aktif ini sudah mempunyai baris semakan khusus bagi skrip ini
         let padananSemakanSediaAda = globalHasilSemakan.find(item => item.angkaGiliran === p.angkaGiliran && item.emelPensyarah === emelPensyarahAktif);
-        
         let statusSemakan = padananSemakanSediaAda ? '✓ Selesai' : 'Belum Semak';
         let warnaStatus = padananSemakanSediaAda ? 'text-green-600 font-bold' : 'text-gray-400';
 
@@ -533,13 +529,10 @@
 
     function setSubAras(aras) {
       subArasSemasa = aras;
-      ['All', 'Cem', 'Sed', 'Lem'].forEach(id => document.getElementById(`sub${id}`).className = "py-1 rounded text-gray-600");
-      const mapId = aras === 'Semua' ? 'All' : (aras === 'Amat Cemerlang' ? 'Cem' : (aras === 'Sederhana' ? 'Sed' : 'Lem'));
-      document.getElementById(`sub${mapId}`).className = "py-1 font-bold rounded bg-white border shadow-sm text-black";
       binaSenaraiPelajar();
     }
 
-    // 4. PEMILIHAN PELAJAR & IMPLEMENTASI BLIND MODERATION
+    // 4. PENYEMAKAN BERPUSAT (AUTOMATIC VIEW SKRIP DARI ADMIN)
     function pilihPelajar(indukPelajar, rekodSediaAda) {
       pelajarSemasa = JSON.parse(JSON.stringify(indukPelajar));
       binaSenaraiPelajar();
@@ -547,7 +540,7 @@
       document.getElementById('formAngkaGiliran').innerText = indukPelajar.angkaGiliran;
       document.getElementById('markahA').value = indukPelajar.markahPemeriksa;
 
-      // STRICT BLIND MODERATION CONTROLLER
+      // HAK AKSES MARKAH ASAL (a)
       if (emelPensyarahAktif === 'haniff.faizal@ipgm.edu.my') {
         document.getElementById('markahAMasked').classList.add('hidden');
         document.getElementById('markahA').className = "w-16 text-center font-bold bg-gray-100 text-gray-700 py-1 rounded border block";
@@ -557,7 +550,6 @@
         document.getElementById('markahAMasked').value = "SULIT (Blind Mode)";
       }
 
-      // Isian Nilai Semakan Sedia Ada Sekiranya Wujud
       document.getElementById('markahB').value = rekodSediaAda ? rekodSediaAda.markahModerasiP1 : '';
       document.getElementById('markahC').value = rekodSediaAda ? rekodSediaAda.perbezaanP1 : '';
       document.getElementById('markahD').value = rekodSediaAda ? rekodSediaAda.markahModerasiP2 : '';
@@ -565,13 +557,9 @@
       document.getElementById('markahF').value = rekodSediaAda ? rekodSediaAda.markahPenyelarasan : '';
       document.getElementById('markahG').value = rekodSediaAda ? rekodSediaAda.markahAkhir : indukPelajar.markahPemeriksa;
 
-      // Isian Rubrik
-      document.getElementById('rubricA1').value = rekodSediaAda ? rekodSediaAda.a1 : '';
-      document.getElementById('rubricA2').value = rekodSediaAda ? rekodSediaAda.a2 : '';
-      document.getElementById('rubricB1').value = rekodSediaAda ? rekodSediaAda.b1 : '';
-      document.getElementById('rubricB2').value = rekodSediaAda ? rekodSediaAda.b2 : '';
-      document.getElementById('rubricC1').value = rekodSediaAda ? rekodSediaAda.c1 : '';
-      document.getElementById('rubricC2').value = rekodSediaAda ? rekodSediaAda.c2 : '';
+      ['A1','A2','B1','B2','C1','C2'].forEach(id => {
+        document.getElementById(`rubric${id}`).value = rekodSediaAda ? rekodSediaAda[`rubric${id}`.toLowerCase()] : '';
+      });
       
       if(rekodSediaAda) {
         let j = (parseFloat(rekodSediaAda.a1)||0)+(parseFloat(rekodSediaAda.a2)||0)+(parseFloat(rekodSediaAda.b1)||0)+(parseFloat(rekodSediaAda.b2)||0)+(parseFloat(rekodSediaAda.c1)||0)+(parseFloat(rekodSediaAda.c2)||0);
@@ -582,8 +570,8 @@
 
       kiraPerbezaanP1();
 
-      // AUTOMATIK UTK PULL & RENDER PDF SKRIP DARI ADMIN MASTER STORAGE
-      document.getElementById('canvasPlaceholder').innerText = "Sedang memuatkan fail skrip PDF berpusat dari pelayan...";
+      // PULL SEGERA SKRIP DARI ADMIN CENTER (GOOGLE DRIVE)
+      document.getElementById('canvasPlaceholder').innerHTML = `<p class="font-bold text-amber-700">Membuka fail PDF rasmi dari Google Drive Admin...</p>`;
       canvas.classList.add('hidden');
       document.getElementById('pdfNavigationControls').classList.add('hidden');
       
@@ -595,11 +583,55 @@
         try { allPagesAnnotations = JSON.parse(rekodSediaAda.dataLakaran); } catch(e) {}
       }
 
-      // Memuatkan pautan URL PDF yang telah ditetapkan awal oleh admin master
+      // Membaca link Google Drive yang telah disediakan awal oleh admin master
       muatPdfBerpusatDariAdmin(indukPelajar.urlSkrip);
     }
 
-    // 5. KALKULASI INTERAKTIF SKOR RUBRIK
+    // 5. PENUKAR BASE64 KUSUS UNTUK ADMIN UPLOAD SKRIP KE DRIVE
+    function lakukanUploadAdminKeDrive() {
+      const studentId = document.getElementById('adminStudentSelect').value;
+      const fileInput = document.getElementById('adminFileUploader').files[0];
+      const btn = document.getElementById('btnAdminUpload');
+
+      if (!studentId || !fileInput) {
+        alert("Sila pilih angka giliaran dan fail PDF terlebih dahulu.");
+        return;
+      }
+
+      btn.innerText = "Memproses & Upload...";
+      btn.disabled = true;
+
+      const reader = new FileReader();
+      reader.onload = function(e) {
+        const payload = {
+          action: "adminUploadScript",
+          angkaGiliran: studentId,
+          fileData: e.target.result
+        };
+
+        fetch(urlAPI, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(payload)
+        })
+        .then(res => res.json())
+        .then(() => {
+          alert(`Sukses! Skrip Pelajar ${studentId} berjaya dihantar ke Google Drive & dihubungkan.`);
+          btn.innerText = "Muat Naik Skrip Ke Cloud Drive";
+          btn.disabled = false;
+          sambungkanAPI();
+        })
+        .catch(err => {
+          console.error(err);
+          alert("Gagal memuat naik fail.");
+          btn.innerText = "Muat Naik Skrip Ke Cloud Drive";
+          btn.disabled = false;
+        });
+      };
+      reader.readAsDataURL(fileInput);
+    }
+
+    // 6. ENGINE PENGIRAAN AUTOMATIK RUBRIK PENILAIAN
     function kiraSkorRubrik() {
       const a1 = parseFloat(document.getElementById('rubricA1').value) || 0;
       const a2 = parseFloat(document.getElementById('rubricA2').value) || 0;
@@ -627,10 +659,10 @@
       }
     }
 
-    // 6. ENGINE MOZILLA PDF.JS - AUTOMATIC INTERACTIVE LOADER
+    // 7. RENDER PDF CONTROLLER
     function muatPdfBerpusatDariAdmin(urlPdf) {
-      if (!urlPdf) {
-        document.getElementById('canvasPlaceholder').innerText = "Ralat: Tiada pautan PDF skrip yang dikesan dari admin master.";
+      if (!urlPdf || urlPdf === "") {
+        document.getElementById('canvasPlaceholder').innerHTML = `<span class="text-red-600 font-bold">Skrip Belum Tersedia.</span><br><p class="text-xs p-1 text-gray-500">Admin belum memuat naik dokumen PDF skrip bagi pelajar ini.</p>`;
         return;
       }
 
@@ -644,13 +676,13 @@
         
         renderHalamanPdfSemasa();
       }).catch(err => {
-        console.error(err);
-        document.getElementById('canvasPlaceholder').innerHTML = `<span class="text-red-600 font-bold">Ralat Sekatan CORS Server / Fail Tidak Wujud.</span><br><p class="text-xs p-2 text-gray-500">Sila pastikan fail PDF diletakkan pada storan awan bebas (seperti GitHub atau server IPG) yang membenarkan akses terbuka.</p>`;
+        document.getElementById('canvasPlaceholder').innerHTML = `<span class="text-red-500 font-bold">Isu Muat Turun Fail Cloud.</span><br><p class="text-[11px] text-gray-400 p-2">Ralat ini biasanya disebabkan oleh polisi sekatan CORS pelayar web anda. Sila pastikan pelayan GAS anda membenarkan perkongsian fail secara universal.</p>`;
       });
     }
 
     function renderHalamanPdfSemasa() {
       if (!currentPdfDoc) return;
+      document.getElementById('pdfCurrentPageNum').innerText = currentPdfPageNum;
 
       currentPdfDoc.getPage(currentPdfPageNum).then(function(page) {
         const viewport = page.getViewport({ scale: 1.5 });
@@ -672,7 +704,7 @@
           ctx.lineCap = 'round';
           ctx.lineJoin = 'round';
 
-          // Asingkan strok mengikut index halaman aktif
+          // Asingkan lakaran per-muka surat
           pageStrokes = allPagesAnnotations[currentPdfPageNum] || [];
           lukisSemulaLakaranHalaman();
           
@@ -690,7 +722,7 @@
       }
     }
 
-    // 7. KENDALIAN PEN LAKARAN CANVAS
+    // 8. CANVAS STROKES ENGINE
     function setupCanvasEventListeners() {
       canvas.onmousedown = (e) => { isDrawing = true; mulakanLakaran(e); };
       canvas.onmousemove = (e) => { jikaMelakar(e); };
@@ -721,7 +753,7 @@
     }
 
     function clearCanvasPageOnly() {
-      if(confirm("Kosongkan semua contengan merah pada muka surat ini?")) {
+      if(confirm("Kosongkan semua lakaran merah pada muka surat ini?")) {
         pageStrokes = [];
         renderHalamanPdfSemasa();
       }
@@ -739,7 +771,7 @@
       });
     }
 
-    // 8. LOGIK KIRA AUTOMATIK BORANG RASMI
+    // 9. LOGIK MATEMATIK AUTOMASI FORM
     function kiraPerbezaanP1() {
       const a = parseFloat(document.getElementById('markahA').value) || 0;
       const b = parseFloat(document.getElementById('markahB').value) || 0;
@@ -782,7 +814,7 @@
       document.getElementById('markahG').value = a + f;
     }
 
-    // 9. HANTAR DATA KE DEPLICATED REVIEW SHEET (MULTI-TENANT SAFE)
+    // 10. SIMPAN REKOD DATA CONTENGAN KE GOOGLE SHEETS REVIEW TAB
     function simpanRekodKeSheets() {
       if (!pelajarSemasa || !urlAPI || !emelPensyarahAktif) return;
 
@@ -821,81 +853,35 @@
         body: JSON.stringify(payload)
       })
       .then(() => {
-        alert(`Berjaya! Skor saringan rasmi anda telah selamat direkodkan ke dalam helaian 'Hasil_Semakan_Pensyarah'.`);
+        alert(`Berjaya! Rekod semakan telah selamat disimpan ke dalam Helaian 'Hasil_Semakan_Pensyarah'.`);
         btn.innerText = `Sahkan & Hantar Skor Ke Sheets`;
         btn.disabled = false;
-        
-        // Refresh data lokal dari database
         sambungkanAPI();
       })
       .catch(err => {
         console.error(err);
-        alert("Gagal menghubungi database.");
         btn.innerText = `Sahkan & Hantar Skor Ke Sheets`;
         btn.disabled = false;
       });
     }
 
-    // 10. GENERASI & FORMAT CETAKAN PDF DOKUMEN INSTITUSI
-    function janadanCetakPDF() {
-      if (!pelajarSemasa) {
-        alert("Sila pilih salah satu angka giliran pelajar.");
+    // 11. CETAK REAL SKRIP TERCONTENG MERAH (FISIKAL BUKTI SEMAKAN)
+    function cetakSkripDanContengan() {
+      if (!pelajarSemasa || !currentPdfDoc) {
+        alert("Sila pilih angka giliran dan pastikan dokumen PDF skrip telah ter-render di atas kanvas.");
         return;
       }
 
-      // Pemindahan Nilai Konten ke Sektor Paparan Cetak
-      document.getElementById('pCourseName').innerText = document.getElementById('infoKursus').innerText;
-      document.getElementById('pCourseCode').innerText = document.getElementById('infoKod').innerText;
-      document.getElementById('pProgram').innerText = document.getElementById('infoProgram').innerText;
-      document.getElementById('pSemester').innerText = document.getElementById('infoSemester').innerText;
-      document.getElementById('pLecturer').innerText = emelPensyarahAktif;
-      document.getElementById('pLecturerSignName').innerText = emelPensyarahAktif + " (Moderator Semak)";
+      // Pastikan data lakaran halaman semasa dipack ke objek sebelum print dimulakan
+      allPagesAnnotations[currentPdfPageNum] = pageStrokes;
 
-      // Nilai Skor Pecahan Rubrik
-      const a1 = document.getElementById('rubricA1').value || '0';
-      const a2 = document.getElementById('rubricA2').value || '0';
-      const b1 = document.getElementById('rubricB1').value || '0';
-      const b2 = document.getElementById('rubricB2').value || '0';
-      const c1 = document.getElementById('rubricC1').value || '0';
-      const c2 = document.getElementById('rubricC2').value || '0';
-
-      document.getElementById('pA1').innerText = a1 + " / 5M";
-      document.getElementById('pA2').innerText = a2 + " / 5M";
-      document.getElementById('pATotal').innerText = (parseFloat(a1)+parseFloat(a2)) + " / 10M";
-
-      document.getElementById('pB1').innerText = b1 + " / 5M";
-      document.getElementById('pB2').innerText = b2 + " / 5M";
-      document.getElementById('pBTotal').innerText = (parseFloat(b1)+parseFloat(b2)) + " / 10M";
-
-      document.getElementById('pC1').innerText = c1 + " / 5M";
-      document.getElementById('pC2').innerText = c2 + " / 5M";
-      document.getElementById('pCTotal').innerText = (parseFloat(c1)+parseFloat(c2)) + " / 10M";
-
-      document.getElementById('pGrandTotal').innerText = (parseFloat(a1)+parseFloat(a2)+parseFloat(b1)+parseFloat(b2)+parseFloat(c1)+parseFloat(c2)) + " / 30M";
-
-      // Nilai Rasmi LAM-PT-04-02
-      document.getElementById('pStudentId').innerText = pelajarSemasa.angkaGiliran;
+      // Pindahkan maklumat teks ke bahagian footer ringkasan cetak rasmi
+      document.getElementById('pStudent').innerText = pelajarSemasa.angkaGiliran;
       document.getElementById('pFasa').innerText = pelajarSemasa.fasaModerasi;
-      document.getElementById('pMarkA').innerText = document.getElementById('markahA').value || '0';
-      document.getElementById('pMarkB').innerText = document.getElementById('markahB').value || '0';
-      
-      const beza1 = parseFloat(document.getElementById('markahB').value || 0) - parseFloat(document.getElementById('markahA').value || 0);
-      document.getElementById('pMarkC').innerText = beza1 + " M";
-      
-      document.getElementById('pMarkD').innerText = document.getElementById('markahD').value || '-';
-      
-      if(document.getElementById('markahD').value) {
-        const beza2 = parseFloat(document.getElementById('markahD').value || 0) - parseFloat(document.getElementById('markahA').value || 0);
-        document.getElementById('pMarkE').innerText = beza2 + " M";
-      } else {
-        document.getElementById('pMarkE').innerText = '-';
-      }
+      document.getElementById('pLecturer').innerText = emelPensyarahAktif;
+      document.getElementById('pScore').innerText = document.getElementById('markahG').value || '0';
 
-      document.getElementById('pMarkF').innerText = document.getElementById('markahF').value || '0';
-      document.getElementById('pMarkG').innerText = document.getElementById('markahG').value || '0';
-      document.getElementById('pPrintDate').innerText = new Date().toLocaleDateString('ms-MY');
-
-      // Lancarkan Window Print Pelayar Web
+      // Panggil fungsi cetak pelayar (ia akan menyembunyikan elemen borang & menyerlahkan kanvas contengan merah)
       window.print();
     }
   </script>
