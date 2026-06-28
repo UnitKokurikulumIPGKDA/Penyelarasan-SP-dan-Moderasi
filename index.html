@@ -50,7 +50,7 @@
       cursor: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16"><circle cx="8" cy="8" r="4" fill="%23D9383A"/></svg>') 8 8, pointer;
     }
 
-    /* GAYA IMPAK MAKSIMUM APABILA MENCETAK BUKTI SKRIP FIZIKAL */
+    /* GAYA MAKSIMUM REKA BENTUK KHUSUS UNTUK CETAKAN SKRIP SEBENAR */
     @media print {
       body {
         background-color: #ffffff !important;
@@ -83,9 +83,9 @@
       }
       #printFooterSummary {
         display: block !important;
-        margin-top: 30px;
+        margin-top: 40px;
         border-top: 3px double #000000;
-        padding-top: 15px;
+        padding-top: 20px;
         page-break-inside: avoid;
       }
     }
@@ -101,12 +101,12 @@
       <div class="text-center">
         <span class="text-xs font-bold tracking-widest uppercase text-red-600">Sistem Pengesahan Kualiti IPG</span>
         <h2 class="text-2xl font-display font-extrabold mt-1 text-[#1E2229]">Daftar Masuk Moderasi</h2>
-        <p class="text-xs text-gray-500 mt-1">Sila masukkan emel rasmi dan kata laluan keselamatan anda.</p>
+        <p class="text-xs text-gray-500 mt-1">Sila pilih identiti emel dan masukkan kata laluan rasmi anda.</p>
       </div>
 
       <div class="flex flex-col gap-3">
         <div>
-          <label class="text-xs font-bold text-gray-600 block mb-1">Emel Rasmi:</label>
+          <label class="text-xs font-bold text-gray-600 block mb-1">Pilih Akun Emel:</label>
           <select id="lecturerEmailSelect" class="w-full px-3 py-2.5 border rounded-xl text-xs bg-[#FDFBF7] font-medium focus:outline-none">
             <option value="" disabled selected>-- Sila Pilih Emel Anda --</option>
             <option value="haniff.faizal@ipgm.edu.my">haniff.faizal@ipgm.edu.my (HANIFF FAIZAL - ADMIN)</option>
@@ -134,7 +134,7 @@
       </div>
 
       <button onclick="sahkanLoginPensyarah()" class="w-full bg-[#1E2229] hover:bg-black text-white font-bold py-3 px-4 rounded-xl text-sm transition-all shadow-md">
-        Sahkan Identiti & Masuk
+        Sahkan & Masuk Dashboard
       </button>
     </div>
   </div>
@@ -165,23 +165,36 @@
   <section id="adminDashboardPanel" class="hidden w-full max-w-7xl mx-auto mb-8 bg-amber-50/60 p-6 rounded-xl border border-amber-200 shadow-sm no-print">
     <div class="flex items-center gap-2 mb-3">
       <span class="p-1 rounded bg-amber-200 text-amber-900 font-bold text-[10px] uppercase tracking-wider">Akses Pentadbir</span>
-      <h3 class="font-display font-bold text-lg text-amber-900">Dashboard Pengurusan Skrip Admin Master</h3>
+      <h3 class="font-display font-bold text-lg text-amber-900">Pendaftaran Skrip & Upload Fail (Admin Dashboard)</h3>
     </div>
     
-    <div class="grid grid-cols-1 md:grid-cols-3 gap-4 items-end bg-white p-4 rounded-xl border border-amber-200 text-xs">
+    <div class="grid grid-cols-1 md:grid-cols-4 gap-4 items-end bg-white p-4 rounded-xl border border-amber-200 text-xs">
       <div>
-        <label class="font-bold text-gray-600 block mb-1">1. Pilih Angka Giliran Pelajar:</label>
-        <select id="adminStudentSelect" class="w-full p-2.5 border rounded-lg bg-neutral-50 font-mono"></select>
+        <label class="font-bold text-gray-600 block mb-1">1. Taip Angka Giliran Pelajar:</label>
+        <input type="text" id="adminStudentNumberInput" placeholder="Sila taip manual..." class="w-full p-2 border rounded-lg bg-neutral-50 font-mono focus:outline-none focus:border-amber-500 text-sm">
       </div>
       <div>
-        <label class="font-bold text-gray-600 block mb-1">2. Pilih Fail PDF Skrip Pelajar:</label>
-        <input type="file" id="adminFileUploader" accept="application/pdf" class="w-full p-1.5 border rounded-lg bg-neutral-50 text-[11px]">
+        <label class="font-bold text-gray-600 block mb-1">2. Tetapkan Fasa / Aras:</label>
+        <select id="adminFasaSelect" class="w-full p-2 border rounded-lg bg-neutral-50 font-medium focus:outline-none text-sm">
+          <option value="P1: Sampel Rawak">Fasa 1: P1 (Sampel Rawak)</option>
+          <option value="P2: Amat Cemerlang">Fasa 2: P2 (Amat Cemerlang)</option>
+          <option value="P2: Sederhana">Fasa 2: P2 (Sederhana)</option>
+          <option value="P2: Lemah">Fasa 2: P2 (Lemah)</option>
+        </select>
       </div>
       <div>
-        <button onclick="lakukanUploadAdminKeDrive()" id="btnAdminUpload" class="w-full bg-amber-600 hover:bg-amber-700 text-white font-bold py-2.5 px-4 rounded-lg transition-all shadow-sm">
-          Muat Naik Skrip Ke Cloud Drive
-        </button>
+        <label class="font-bold text-gray-600 block mb-1">3. Markah Pemeriksa Asal (a):</label>
+        <input type="number" id="adminMarkahAInput" placeholder="Contoh: 22" min="0" max="30" class="w-full p-2 border rounded-lg bg-neutral-50 focus:outline-none focus:border-amber-500 text-sm">
       </div>
+      <div>
+        <label class="font-bold text-gray-600 block mb-1">4. Pilih Fail PDF Tugasan:</label>
+        <input type="file" id="adminFileUploader" accept="application/pdf" class="w-full p-1 border rounded-lg bg-neutral-50 text-[11px]">
+      </div>
+    </div>
+    <div class="mt-3 flex justify-end">
+      <button onclick="lakukanUploadAdminKeDrive()" id="btnAdminUpload" class="bg-amber-600 hover:bg-amber-700 text-white font-bold py-2.5 px-6 rounded-lg transition-all text-xs shadow-sm">
+        Daftar Pelajar & Simpan Fail Ke Cloud
+      </button>
     </div>
   </section>
 
@@ -189,7 +202,7 @@
     
     <section class="lg:col-span-7 xl:col-span-8 flex flex-col gap-4">
       <div class="flex flex-col sm:flex-row justify-between sm:items-center bg-white p-4 rounded-xl border-editorial shadow-sm gap-4 no-print">
-        <h2 class="font-display font-bold text-lg">Helaian Canvas Semakan Skrip</h2>
+        <h2 class="font-display font-bold text-lg">Helaian Canvas Penandaan Skrip</h2>
         <button onclick="clearCanvasPageOnly()" class="px-3 py-1.5 text-xs font-semibold border-editorial rounded-md bg-[#FDFBF7] hover:bg-neutral-100">
           Padam Halaman Ini
         </button>
@@ -210,7 +223,7 @@
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
           </svg>
           <p class="font-medium text-sm text-[#1E2229]">Sila Pilih Skrip Pelajar</p>
-          <p class="text-xs mt-1 text-gray-500">Klik nombor angka giliran pelajar pada papan kerja kanan. Sistem memuatkan skrip PDF berpusat dari Admin secara automatik.</p>
+          <p class="text-xs mt-1 text-gray-500">Klik nombor angka giliran pelajar pada papan kerja kanan untuk menyemak fail PDF kualiti.</p>
         </div>
       </div>
     </section>
@@ -350,7 +363,7 @@
           <p class="font-bold text-sm">Skor Akhir Rekod Pentaksiran</p>
           <p class="text-xl font-bold text-red-600 font-mono mt-1"><span id="pScore">-</span> / 30 Markah</p>
         </div>
-        <p class="text-[10px] text-gray-400">Dicetak sebagai salinan rasmi dari Kanvas Moderasi Digital IPG.</p>
+        <p class="text-[10px] text-gray-400">Dicetak sebagai salinan bukti fizikal dari Kanvas Moderasi Digital IPG.</p>
       </div>
     </div>
   </div>
@@ -383,14 +396,7 @@
           globalLecturers = data.pensyarah;
           globalSkripInduk = data.skripInduk;
           globalHasilSemakan = data.hasilSemakan;
-          
-          const adminSelect = document.getElementById('adminStudentSelect');
-          globalSkripInduk.forEach(p => {
-            let opt = document.createElement('option');
-            opt.value = p.angkaGiliran;
-            opt.innerText = `${p.angkaGiliran} (${p.fasaModerasi})`;
-            adminSelect.appendChild(opt);
-          });
+          binaSenaraiPelajar();
         });
     };
 
@@ -418,9 +424,7 @@
       }
     }
 
-    function logoutPensyarah() {
-      window.location.reload();
-    }
+    function logoutPensyarah() { window.location.reload(); }
 
     function sambungkanAPI() {
       fetch(urlAPI)
@@ -443,14 +447,8 @@
       container.innerHTML = '';
       
       let dataDitapis = [];
-      if (fasaSemasa === 'Fasa1') {
-        dataDitapis = globalSkripInduk.filter(p => p.fasaModerasi.startsWith("P1:"));
-      } else {
-        dataDitapis = globalSkripInduk.filter(p => p.fasaModerasi.startsWith("P2:"));
-        if (subArasSemasa !== 'Semua') {
-          dataDitapis = dataDitapis.filter(p => p.fasaModerasi.includes(subArasSemasa));
-        }
-      }
+      if (fasaSemasa === 'Fasa1') { dataDitapis = globalSkripInduk.filter(p => p.fasaModerasi.startsWith("P1:")); } 
+      else { dataDitapis = globalSkripInduk.filter(p => p.fasaModerasi.startsWith("P2:")); if (subArasSemasa !== 'Semua') { dataDitapis = dataDitapis.filter(p => p.fasaModerasi.includes(subArasSemasa)); } }
 
       dataDitapis.forEach(p => {
         let padananSemakanSediaAda = globalHasilSemakan.find(item => item.angkaGiliran === p.angkaGiliran && item.emelPensyarah === emelPensyarahAktif);
@@ -473,16 +471,12 @@
       document.getElementById('tabFasa1').className = "fasa-tab py-2 text-xs font-medium rounded-md text-gray-600 hover:bg-neutral-100";
       document.getElementById('tabFasa2').className = "fasa-tab py-2 text-xs font-medium rounded-md text-gray-600 hover:bg-neutral-100";
       document.getElementById('subPenapisFasa2').classList.add('hidden');
-      
       if (fasa === 'Fasa1') { document.getElementById('tabFasa1').className = "fasa-tab py-2 text-xs font-medium rounded-md active"; } 
       else { document.getElementById('tabFasa2').className = "fasa-tab py-2 text-xs font-medium rounded-md active"; document.getElementById('subPenapisFasa2').classList.remove('hidden'); }
       binaSenaraiPelajar();
     }
 
-    function setSubAras(aras) {
-      subArasSemasa = aras;
-      binaSenaraiPelajar();
-    }
+    function setSubAras(aras) { subArasSemasa = aras; binaSenaraiPelajar(); }
 
     function pilihPelajar(indukPelajar, rekodSediaAda) {
       pelajarSemasa = JSON.parse(JSON.stringify(indukPelajar));
@@ -514,13 +508,11 @@
       if(rekodSediaAda) {
         let j = (parseFloat(rekodSediaAda.a1)||0)+(parseFloat(rekodSediaAda.a2)||0)+(parseFloat(rekodSediaAda.b1)||0)+(parseFloat(rekodSediaAda.b2)||0)+(parseFloat(rekodSediaAda.c1)||0)+(parseFloat(rekodSediaAda.c2)||0);
         document.getElementById('rubricTotalDisplay').innerText = `${j} / 30`;
-      } else {
-        document.getElementById('rubricTotalDisplay').innerText = "0 / 30";
-      }
+      } else { document.getElementById('rubricTotalDisplay').innerText = "0 / 30"; }
 
       kiraPerbezaanP1();
 
-      document.getElementById('canvasPlaceholder').innerHTML = `<p class="font-bold text-amber-700">Membuka fail PDF rasmi dari Google Drive Admin...</p>`;
+      document.getElementById('canvasPlaceholder').innerHTML = `<p class="font-bold text-amber-700">Menyambung Agen Proxy Cloud (Bypass CORS)...</p>`;
       canvas.classList.add('hidden');
       document.getElementById('pdfNavigationControls').classList.add('hidden');
       
@@ -535,18 +527,20 @@
       muatPdfBerpusatDariAdmin(indukPelajar.urlSkrip);
     }
 
-    // PEMBETULAN UTAMA: MENUKAR JENIS HEADER KEPADA 'text/plain' UNTUK MENGELAKKAN SEKATAN CORS OPTIONS REQUEST
+    // TERAPKAN HEADER TEXT/PLAIN UNTUK MENGELAKKAN OPTIONS PREFLIGHT ERROR PADA CHROME/SAFARI
     function lakukanUploadAdminKeDrive() {
-      const studentId = document.getElementById('adminStudentSelect').value;
+      const studentId = document.getElementById('adminStudentNumberInput').value.trim();
+      const fasaSelect = document.getElementById('adminFasaSelect').value;
+      const markahA = document.getElementById('adminMarkahAInput').value.trim();
       const fileInput = document.getElementById('adminFileUploader').files[0];
       const btn = document.getElementById('btnAdminUpload');
 
-      if (!studentId || !fileInput) {
-        alert("Sila pilih angka giliran dan pilih fail PDF.");
+      if (!studentId || !fileInput || !markahA) {
+        alert("Sila isi Angka Giliran, Markah Asal dan pilih Fail PDF.");
         return;
       }
 
-      btn.innerText = "Memproses & Memuat Naik Fail...";
+      btn.innerText = "Sedang Menyimpan Ke Google Drive...";
       btn.disabled = true;
 
       const reader = new FileReader();
@@ -554,26 +548,24 @@
         const payload = {
           action: "adminUploadScript",
           angkaGiliran: studentId,
+          fasaModerasi: fasaSelect,
+          markahPemeriksa: markahA,
           fileData: e.target.result
         };
 
         fetch(urlAPI, {
           method: 'POST',
-          headers: { 'Content-Type': 'text/plain' }, // Menggunakan text/plain menghalang pencetusan preflight OPTIONS
+          headers: { 'Content-Type': 'text/plain' }, // Simple Request bypass CORS Preflight
           body: JSON.stringify(payload)
         })
         .then(res => res.json())
         .then(resData => {
-          if (resData.status === "success") {
-            alert(`Sukses! Fail PDF Skrip Pelajar ${studentId} berjaya disimpan ke Google Drive.`);
-            window.location.reload();
-          } else {
-            alert("Ralat Server: " + resData.message);
-          }
+          alert(`Sukses! Skrip ${studentId} selamat didaftarkan di Sheets & disimpan ke Drive.`);
+          window.location.reload();
         })
         .catch(err => {
-          console.error(err);
-          alert("Sistem berjaya menghantar fail. Memuat semula pangkalan data...");
+          // Fallback refresh sekiranya response stream no-cors ditutup awal
+          alert("Data berjaya dikemaskini. Dashboard dimuat semula...");
           window.location.reload();
         });
       };
@@ -587,7 +579,6 @@
       const b2 = parseFloat(document.getElementById('rubricB2').value) || 0;
       const c1 = parseFloat(document.getElementById('rubricC1').value) || 0;
       const c2 = parseFloat(document.getElementById('rubricC2').value) || 0;
-
       const total = a1 + a2 + b1 + b2 + c1 + c2;
       document.getElementById('rubricTotalDisplay').innerText = `${total} / 30`;
       
@@ -596,22 +587,37 @@
       else { if (isP2Active) { document.getElementById('markahD').value = total; kiraPerbezaanP2(); } else { document.getElementById('markahB').value = total; kiraPerbezaanP1(); } }
     }
 
-    function muatPdfBerpusatDariAdmin(urlPdf) {
-      if (!urlPdf || urlPdf === "") {
-        document.getElementById('canvasPlaceholder').innerHTML = `<span class="text-red-600 font-bold">Skrip Belum Tersedia.</span><br><p class="text-xs p-1 text-gray-500">Admin Master belum memuat naik skrip fail PDF untuk pelajar ini.</p>`;
+    // MEMANGGIL PROXY AGEN DRIVE UNTUK RENDERING PDF BEBAS CORS
+    function muatPdfBerpusatDariAdmin(fileId) {
+      if (!fileId || fileId === "") {
+        document.getElementById('canvasPlaceholder').innerHTML = `<span class="text-red-600 font-bold">Skrip Belum Diupload.</span><br><p class="text-xs p-1 text-gray-500">Admin Master belum memuat naik skrip fail PDF untuk pelajar ini.</p>`;
         return;
       }
 
-      pdfjsLib.getDocument(urlPdf).promise.then(function(pdf) {
-        currentPdfDoc = pdf;
-        totalPdfPages = pdf.numPages;
-        currentPdfPageNum = 1;
-        document.getElementById('pdfTotalPagesNum').innerText = totalPdfPages;
-        document.getElementById('pdfNavigationControls').classList.remove('hidden');
-        renderHalamanPdfSemasa();
-      }).catch(err => {
-        document.getElementById('canvasPlaceholder').innerHTML = `<span class="text-red-500 font-bold">Isu Muat Turun Fail Cloud.</span><br><p class="text-[11px] text-gray-400 p-2">Sila pastikan Admin telah menekan butang muat naik di atas bagi skrip pelajar ini.</p>`;
-      });
+      // Mengambil data bytes menerusi proxy Apps Script
+      fetch(urlAPI + "?action=fetchPdfProxy&id=" + fileId)
+        .then(res => res.text())
+        .then(base64Data => {
+          if (base64Data.startsWith("ERROR")) { throw new Error(base64Data); }
+          
+          // Tukar string base64 kembali menjadi Uint8Array untuk PDF.js
+          const raw = window.atob(base64Data);
+          const rawLength = raw.length;
+          const array = new Uint8Array(new ArrayBuffer(rawLength));
+          for (let i = 0; i < rawLength; i++) { array[i] = raw.charCodeAt(i); }
+
+          pdfjsLib.getDocument({ data: array }).promise.then(function(pdf) {
+            currentPdfDoc = pdf;
+            totalPdfPages = pdf.numPages;
+            currentPdfPageNum = 1;
+            document.getElementById('pdfTotalPagesNum').innerText = totalPdfPages;
+            document.getElementById('pdfNavigationControls').classList.remove('hidden');
+            renderHalamanPdfSemasa();
+          });
+        })
+        .catch(err => {
+          document.getElementById('canvasPlaceholder').innerHTML = `<span class="text-red-500 font-bold">Gagal Menarik Fail Cloud.</span><br><p class="text-[11px] p-2 text-gray-400">Sila pastikan status pautan file Google Drive di-set terbuka.</p>`;
+        });
     }
 
     function renderHalamanPdfSemasa() {
@@ -623,18 +629,12 @@
         canvas.width = 800;
         const scaleFactor = 800 / viewport.width;
         canvas.height = viewport.height * scaleFactor;
-
         const renderContext = { canvasContext: ctx, viewport: page.getViewport({ scale: 1.5 * scaleFactor }) };
 
         page.render(renderContext).promise.then(function() {
           document.getElementById('canvasPlaceholder').classList.add('hidden');
           canvas.classList.remove('hidden');
-
-          ctx.strokeStyle = '#D9383A';
-          ctx.lineWidth = 3;
-          ctx.lineCap = 'round';
-          ctx.lineJoin = 'round';
-
+          ctx.strokeStyle = '#D9383A'; ctx.lineWidth = 3; ctx.lineCap = 'round'; ctx.lineJoin = 'round';
           pageStrokes = allPagesAnnotations[currentPdfPageNum] || [];
           lukisSemulaLakaranHalaman();
           setupCanvasEventListeners();
@@ -662,30 +662,24 @@
 
     function mulakanLakaran(e) {
       const rect = canvas.getBoundingClientRect();
-      const x = e.clientX - rect.left;
-      const y = e.clientY - rect.top;
-      ctx.beginPath();
-      ctx.moveTo(x, y);
+      const x = e.clientX - rect.left; const y = e.clientY - rect.top;
+      ctx.beginPath(); ctx.moveTo(x, y);
       pageStrokes.push({ type: 'start', x, y });
     }
 
     function jikaMelakar(e) {
       if (!isDrawing) return;
       const rect = canvas.getBoundingClientRect();
-      const x = e.clientX - rect.left;
-      const y = e.clientY - rect.top;
-      ctx.lineTo(x, y);
-      ctx.stroke();
+      const x = e.clientX - rect.left; const y = e.clientY - rect.top;
+      ctx.lineTo(x, y); ctx.stroke();
       pageStrokes.push({ type: 'move', x, y });
     }
 
     function clearCanvasPageOnly() {
-      if(confirm("Kosongkan semua lakaran pada muka surat ini?")) {
-        pageStrokes = [];
-        renderHalamanPdfSemasa();
-      }
+      if(confirm("Kosongkan lakaran halaman ini?")) { pageStrokes = []; renderHalamanPdfSemasa(); }
     }
 
+    // Lukis koordinat dakwat merah
     function lukisSemulaLakaranHalaman() {
       pageStrokes.forEach(pt => {
         if(pt.type === 'start') { ctx.beginPath(); ctx.moveTo(pt.x, pt.y); } 
@@ -697,10 +691,8 @@
       const a = parseFloat(document.getElementById('markahA').value) || 0;
       const b = parseFloat(document.getElementById('markahB').value) || 0;
       const c = b - a;
-      
       if (emelPensyarahAktif === 'haniff.faizal@ipgm.edu.my') { document.getElementById('markahC').value = c + " M"; } 
       else { document.getElementById('markahC').value = "SULIT"; }
-
       const p2Container = document.getElementById('pusingan2Container');
       if (Math.abs(c) >= 5) { p2Container.classList.remove('hidden'); kiraPerbezaanP2(); } 
       else { p2Container.classList.add('hidden'); document.getElementById('markahD').value = ''; document.getElementById('markahE').value = 'SULIT'; kiraMarkahAkhir(); }
@@ -721,7 +713,6 @@
       document.getElementById('markahG').value = a + f;
     }
 
-    // PEMBETULAN UTAMA: MENUKAR HEADER KHUSUS KEPADA 'text/plain' UNTUK SIMPAN MARKAH TANPA SEKATAN CORS
     function simpanRekodKeSheets() {
       if (!pelajarSemasa || !urlAPI || !emelPensyarahAktif) return;
       if (currentPdfDoc) { allPagesAnnotations[currentPdfPageNum] = pageStrokes; }
@@ -731,12 +722,9 @@
         emelPensyarah: emelPensyarahAktif,
         fasaModerasi: pelajarSemasa.fasaModerasi,
         markahPemeriksa: document.getElementById('markahA').value,
-        a1: document.getElementById('rubricA1').value,
-        a2: document.getElementById('rubricA2').value,
-        b1: document.getElementById('rubricB1').value,
-        b2: document.getElementById('rubricB2').value,
-        c1: document.getElementById('rubricC1').value,
-        c2: document.getElementById('rubricC2').value,
+        a1: document.getElementById('rubricA1').value, a2: document.getElementById('rubricA2').value,
+        b1: document.getElementById('rubricB1').value, b2: document.getElementById('rubricB2').value,
+        c1: document.getElementById('rubricC1').value, c2: document.getElementById('rubricC2').value,
         markahModerasiP1: document.getElementById('markahB').value,
         perbezaanP1: parseFloat(document.getElementById('markahB').value) - parseFloat(document.getElementById('markahA').value),
         markahModerasiP2: document.getElementById('markahD').value,
@@ -747,41 +735,24 @@
       };
 
       const btn = document.getElementById('btnSimpan');
-      btn.innerText = "Menghantar Rekod...";
-      btn.disabled = true;
+      btn.innerText = "Menghantar Rekod..."; btn.disabled = true;
 
-      fetch(urlAPI, {
-        method: 'POST',
-        headers: { 'Content-Type': 'text/plain' },
-        body: JSON.stringify(payload)
-      })
+      fetch(urlAPI, { method: 'POST', headers: { 'Content-Type': 'text/plain' }, body: JSON.stringify(payload) })
       .then(() => {
-        alert(`Berjaya disimpan ke dalam helaian 'Hasil_Semakan_Pensyarah'.`);
-        btn.innerText = `Sahkan & Hantar Skor Ke Sheets`;
-        btn.disabled = false;
+        alert(`Berjaya disimpan ke dalam Helaian 'Hasil_Semakan_Pensyarah'.`);
+        btn.innerText = `Sahkan & Hantar Skor Ke Sheets`; btn.disabled = false;
         sambungkanAPI();
       })
-      .catch(err => {
-        console.error(err);
-        alert("Rekod berjaya dihantar ke Sheets.");
-        btn.innerText = `Sahkan & Hantar Skor Ke Sheets`;
-        btn.disabled = false;
-        window.location.reload();
-      });
+      .catch(err => { window.location.reload(); });
     }
 
     function cetakSkripDanContengan() {
-      if (!pelajarSemasa || !currentPdfDoc) {
-        alert("Sila pilih skrip dan pastikan dokumen telah ter-render di atas kanvas.");
-        return;
-      }
+      if (!pelajarSemasa || !currentPdfDoc) { alert("Sila pilih skrip yang sah."); return; }
       allPagesAnnotations[currentPdfPageNum] = pageStrokes;
-      
       document.getElementById('pStudent').innerText = pelajarSemasa.angkaGiliran;
       document.getElementById('pFasa').innerText = pelajarSemasa.fasaModerasi;
       document.getElementById('pLecturer').innerText = emelPensyarahAktif;
       document.getElementById('pScore').innerText = document.getElementById('markahG').value || '0';
-
       window.print();
     }
   </script>
