@@ -58,39 +58,38 @@
         padding: 0 !important;
         margin: 0 !important;
       }
-      /* Sembunyikan keseluruhan struktur aplikasi skrin agar tidak mengganggu kertas cetakan */
-      header, main, #adminDashboardPanel, .no-print {
+      header, main, #adminDashboardPanel, .no-print, #pdfNavigationControls, #loginOverlay {
         display: none !important;
       }
-      /* Serlahkan container cetakan global */
-      #bulkPrintContainer {
+      main, section {
         display: block !important;
         width: 100% !important;
-      }
-      .print-page-block {
-        display: flex !important;
-        flex-direction: column !important;
-        align-items: center !important;
-        justify-content: center !important;
-        page-break-after: always !important;
-        page-break-inside: avoid !important;
-        margin: 0 !important;
+        border: none !important;
+        box-shadow: none !important;
         padding: 0 !important;
+        margin: 0 !important;
       }
-      .print-canvas-element {
+      #canvasContainer {
+        background-color: #ffffff !important;
+        padding: 0 !important;
+        overflow: visible !important;
+        display: flex !important;
+        justify-content: center !important;
+      }
+      #scriptCanvas {
         display: block !important;
+        box-shadow: none !important;
         max-width: 100% !important;
-        height: auto !important;
       }
-      .print-report-footer {
-        page-break-inside: avoid !important;
+      #printFooterSummary {
+        display: block !important;
+        margin-top: 40px;
         border-top: 3px double #000000;
-        margin-top: 30px;
         padding-top: 20px;
-        width: 100%;
+        page-break-inside: avoid;
       }
     }
-    #bulkPrintContainer {
+    #printFooterSummary {
       display: none;
     }
   </style>
@@ -343,7 +342,6 @@
           <button id="btnSimpan" onclick="simpanRekodKeSheets()" class="w-full bg-[#1E2229] text-white py-2.5 px-4 font-bold rounded-lg hover:bg-black transition-all">
             Sahkan & Hantar Skor Ke Sheets
           </button>
-          
           <button onclick="cetakSkripDanContenganGlobal()" class="w-full border border-red-300 bg-white hover:bg-red-50 text-red-700 py-2.5 px-4 font-bold rounded-lg transition-all flex justify-center items-center gap-2">
             🖨️ Cetak Semua Muka Skrip (Sekaligus PDF)
           </button>
@@ -455,14 +453,14 @@
       else { dataDitapis = globalSkripInduk.filter(p => p.fasaModerasi.startsWith("P2:")); if (subArasSemasa !== 'Semua') { dataDitapis = dataDitapis.filter(p => p.fasaModerasi.includes(subArasSemasa)); } }
 
       dataDitapis.forEach(p => {
-        let padananSemakanSediaAda = globalHasilSemakan.find(item => item.angkaGiliran === p.angkaGiliran && item.emelPensyarah === emelPensyarahAktif);
+        let padananSemakanSediaAda = globalHasilSemakan.find(item => item.angkaGiliran.toString().trim() === p.angkaGiliran.toString().trim() && item.emelPensyarah === emelPensyarahAktif);
         let statusSemakan = padananSemakanSediaAda ? '✓ Selesai' : 'Belum Semak';
         let warnaStatus = padananSemakanSediaAda ? 'text-green-600 font-bold' : 'text-gray-400';
         let warnaTag = p.fasaModerasi.includes('Amat Cemerlang') ? 'bg-green-100 text-green-800' : (p.fasaModerasi.includes('Sederhana') ? 'bg-amber-100 text-amber-800' : 'bg-red-100 text-red-800');
         if(p.fasaModerasi.startsWith("P1:")) warnaTag = 'bg-blue-100 text-blue-800';
 
         const div = document.createElement('div');
-        div.className = `flex justify-between items-center p-2.5 border-editorial rounded-lg bg-white hover:bg-neutral-50 cursor-pointer transition-all text-xs ${pelajarSemasa && pelajarSemasa.angkaGiliran === p.angkaGiliran ? 'ring-2 ring-black bg-neutral-50' : ''}`;
+        div.className = `flex justify-between items-center p-2.5 border-editorial rounded-lg bg-white hover:bg-neutral-50 cursor-pointer transition-all text-xs ${pelajarSemasa && pelajarSemasa.angkaGiliran.toString().trim() === p.angkaGiliran.toString().trim() ? 'ring-2 ring-black bg-neutral-50' : ''}`;
         div.onclick = () => pilihPelajar(p, padananSemakanSediaAda);
 
         div.innerHTML = `<div><p class="font-bold text-[#1E2229] font-mono">${p.angkaGiliran}</p><span class="inline-block text-[9px] px-1.5 py-0.2 rounded font-semibold mt-0.5 ${warnaTag}">${p.fasaModerasi}</span></div><div class="text-right"><p class="${warnaStatus}">${statusSemakan}</p></div>`;
@@ -483,6 +481,7 @@
     function setSubAras(aras) { subArasSemasa = aras; binaSenaraiPelajar(); }
 
     function pilihPelajar(indukPelajar, rekodSediaAda) {
+      let dataSari = rekodSediaAda ? rekodSediaAda : indukPelajar; // KORREKSI: Menukar variabel 'pelajar' kepada 'indukPelajar'
       pelajarSemasa = JSON.parse(JSON.stringify(indukPelajar));
       binaSenaraiPelajar();
 
@@ -505,8 +504,9 @@
       document.getElementById('markahF').value = rekodSediaAda ? rekodSediaAda.markahPenyelarasan : '';
       document.getElementById('markahG').value = rekodSediaAda ? rekodSediaAda.markahAkhir : indukPelajar.markahPemeriksa;
 
+      // KORREKSI PEMETAAN RUBRIK: Membaca '.a1' dan bukannya '.rubrica1' yang mengosongkan kotak kriteria
       ['A1','A2','B1','B2','C1','C2'].forEach(id => {
-        document.getElementById(`rubric${id}`).value = rekodSediaAda ? rekodSediaAda[`rubric${id}`.toLowerCase()] : '';
+        document.getElementById(`rubric${id}`).value = rekodSediaAda ? rekodSediaAda[id.toLowerCase()] : '';
       });
       
       if(rekodSediaAda) {
@@ -743,21 +743,18 @@
       .catch(err => { window.location.reload(); });
     }
 
-    // FUNGSI ELEKTRIF_BARU: MENJANA LALUAN PROSES CETAKAN BULK SEMUA HALAMAN SKRIP SEKALIGUS
     async function cetakSkripDanContenganGlobal() {
       if (!pelajarSemasa || !currentPdfDoc) {
         alert("Sila pilih salah satu rekod skrip pelajar yang sah.");
         return;
       }
 
-      // 1. Kunci/Simpan contengan halaman aktif semasa dahulu
       allPagesAnnotations[currentPdfPageNum] = pageStrokes;
 
       const printContainer = document.getElementById('bulkPrintContainer');
       printContainer.innerHTML = '<p class="text-center p-8 no-print text-xs font-bold text-amber-800 tracking-wide">Sila tunggu sebentar. Sistem sedang memproses & merender semua halaman skrip beserta lakaran dakwat merah...</p>';
       printContainer.style.display = 'block';
 
-      // 2. Loop & render setiap muka surat secara berasingan menggunakan Asynchronous Await Stream
       for (let pNum = 1; pNum <= totalPdfPages; pNum++) {
         const pageBlock = document.createElement('div');
         pageBlock.className = 'print-page-block';
@@ -767,7 +764,6 @@
         pageBlock.appendChild(tempCanvas);
         printContainer.appendChild(pageBlock);
 
-        // Panggil dan render halaman PDF latar belakang
         const page = await currentPdfDoc.getPage(pNum);
         const viewport = page.getViewport({ scale: 1.5 });
         tempCanvas.width = 800;
@@ -782,7 +778,6 @@
 
         await page.render(renderContext).promise;
 
-        // 3. Suntik/Lukis koordinat contengan dakwat merah rasmi bagi halaman tersebut
         pCtx.strokeStyle = '#D9383A';
         pCtx.lineWidth = 3;
         pCtx.lineCap = 'round';
@@ -795,13 +790,11 @@
             pCtx.moveTo(pt.x, pt.y);
           } else if (pt.type === 'move') {
             pCtx.lineTo(pt.x, pt.y);
-            ctx.stroke(); // Fallback browser cache drawing
-            pCtx.stroke();
+            pCtx.stroke(); // KORREKSI: Menukar 'ctx' global kepada target 'pCtx' cetakan pukal halaman
           }
         });
       }
 
-      // 4. Klon slip ringkasan verifikasi rasmi dan letakkan di penghujung helaian cetakan skrip
       const footerSummaryClone = document.getElementById('printFooterSummary').cloneNode(true);
       footerSummaryClone.className = 'print-report-footer';
       footerSummaryClone.style.display = 'block';
@@ -813,10 +806,8 @@
       
       printContainer.appendChild(footerSummaryClone);
 
-      // 5. Beri delay mikrosaat untuk penstabilan memori grafik pelayar, kemudian panggil cetakan printer
       setTimeout(() => {
         window.print();
-        // Bersihkan memori dan sembunyikan semula selepas dialog printer ditutup oleh user
         printContainer.style.display = 'none';
         printContainer.innerHTML = '';
       }, 1000);
