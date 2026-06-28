@@ -1,0 +1,535 @@
+<!DOCTYPE html>
+<html lang="ms">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Aplikasi Moderasi Semakan Skrip (LAM-PT-04-02)</title>
+  
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,800&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+  
+  <script src="https://cdn.tailwindcss.com"></script>
+  
+  <style>
+    /* Menguatkuasakan Estetik Premium Editorial Archival */
+    :root {
+      --bg-paper: #FDFBF7;
+      --ink-dark: #1E2229;
+      --ink-muted: #6A6E75;
+      --pen-red: #D9383A;
+      --border-color: #E6E2DA;
+      --card-bg: #FFFFFF;
+    }
+
+    body {
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      background-color: var(--bg-paper);
+      color: var(--ink-dark);
+    }
+
+    .font-display {
+      font-family: 'Bricolage Grotesque', sans-serif;
+    }
+
+    /* Kemasan Sempadan Gaya Arkib Jurnal */
+    .border-editorial {
+      border: 1px solid var(--border-color);
+    }
+    
+    .divider-editorial {
+      border-bottom: 2px dashed var(--border-color);
+    }
+
+    /* Penapis Tab Fasa Moderasi Baharu */
+    .fasa-tab {
+      transition: all 0.2s ease;
+    }
+    .fasa-tab.active {
+      background-color: var(--ink-dark);
+      color: var(--bg-paper);
+      font-weight: 600;
+    }
+
+    /* Custom Scrollbar */
+    ::-webkit-scrollbar {
+      width: 6px;
+      height: 6px;
+    }
+    ::-webkit-scrollbar-track {
+      background: var(--bg-paper);
+    }
+    ::-webkit-scrollbar-thumb {
+      background: var(--ink-muted);
+      border-radius: 3px;
+    }
+
+    /* Canvas Penandaan */
+    #canvasContainer {
+      position: relative;
+      background-color: #EBE7DF;
+      cursor: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16"><circle cx="8" cy="8" r="4" fill="%23D9383A"/></svg>') 8 8, pointer;
+    }
+  </style>
+</head>
+<body class="min-h-screen flex flex-col p-4 md:p-8">
+
+  <header class="w-full max-w-7xl mx-auto mb-8 bg-white p-6 rounded-xl border-editorial shadow-sm">
+    <div class="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-6 pb-6 divider-editorial">
+      <div>
+        <span class="text-xs font-bold tracking-widest uppercase text-red-600">Sistem Digital IPG</span>
+        <h1 class="text-3xl md:text-4xl font-display font-extrabold tracking-tight mt-1">Moderasi Pentaksiran Berterusan</h1>
+        <p class="text-sm text-gray-500 mt-1">Sistem Penandaan Alur Kerja Baharu: 1 Sampel P1 & 9 Sampel P2</p>
+      </div>
+      
+      <div class="w-full lg:w-auto flex flex-col sm:flex-row gap-2">
+        <input type="text" id="apiUrlInput" value="https://script.google.com/macros/s/AKfycbxwUIQpQ66obbKr_Wttws6e1Gwe5lu5oZbAWpkqh40GEgwXfgSPbkIVse_gfJM3iJI5/exec" 
+               class="px-4 py-2 text-sm border-editorial rounded-lg w-full lg:w-96 focus:outline-none focus:border-black bg-[#FDFBF7] font-mono text-xs">
+        <button onclick="sambungkanAPI()" class="bg-[#1E2229] hover:bg-black text-white px-5 py-2 text-sm font-medium rounded-lg transition-all duration-200 shadow-sm whitespace-nowrap">
+          Sahkan & Muat Data
+        </button>
+      </div>
+    </div>
+
+    <div id="courseInfo" class="grid grid-cols-2 md:grid-cols-5 gap-4 pt-4 text-xs font-medium uppercase tracking-wider text-gray-500">
+      <div>IPG Kampus: <span id="infoIpg" class="block text-sm font-bold text-[#1E2229] normal-case mt-1">-</span></div>
+      <div>Nama Kursus: <span id="infoKursus" class="block text-sm font-bold text-[#1E2229] normal-case mt-1">-</span></div>
+      <div>Kod Kursus: <span id="infoKod" class="block text-sm font-bold text-[#1E2229] mt-1">-</span></div>
+      <div>Program: <span id="infoProgram" class="block text-sm font-bold text-[#1E2229] mt-1">-</span></div>
+      <div>Semester/Tahun: <span id="infoSemester" class="block text-sm font-bold text-[#1E2229] mt-1">-</span></div>
+    </div>
+  </header>
+
+  <main class="w-full max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-12 gap-8 flex-grow items-start">
+    
+    <section class="lg:col-span-7 xl:col-span-8 flex flex-col gap-4">
+      <div class="flex justify-between items-center bg-white p-4 rounded-xl border-editorial shadow-sm">
+        <div class="flex items-center gap-3">
+          <span class="inline-block w-3 h-3 rounded-full bg-[#D9383A]"></span>
+          <h2 class="font-display font-bold text-lg">Kanvas Semakan Pen Merah</h2>
+        </div>
+        <div class="flex gap-2">
+          <button onclick="clearCanvas()" class="px-3 py-1.5 text-xs font-semibold border-editorial rounded-md bg-[#FDFBF7] hover:bg-red-50 hover:text-red-600 transition-all">
+            Padam Semua Contengan
+          </button>
+        </div>
+      </div>
+
+      <div id="canvasContainer" class="w-full rounded-xl border-editorial shadow-inner overflow-auto flex justify-center items-center min-h-[620px] p-4 bg-[#EBE7DF]">
+        <canvas id="scriptCanvas" class="shadow-md bg-white hidden"></canvas>
+        <div id="canvasPlaceholder" class="text-center text-gray-400 max-w-md p-6">
+          <svg class="mx-auto h-12 w-12 text-gray-300 mb-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
+          </svg>
+          <p class="font-medium text-sm text-[#1E2229]">Sila Pilih Sampel Skrip</p>
+          <p class="text-xs mt-1">Klik butang "Sahkan & Muat Data" di atas, kemudian pilih angka giliran pelajar dari Fasa 1 atau Fasa 2 di sebelah kanan untuk memulakan semakan.</p>
+        </div>
+      </div>
+    </section>
+
+    <section class="lg:col-span-5 xl:col-span-4 flex flex-col gap-6 sticky top-4">
+      
+      <div class="bg-white p-5 rounded-xl border-editorial shadow-sm">
+        <h3 class="text-xs font-bold tracking-wider uppercase text-gray-400 mb-3">Papan Alur Kerja Moderasi</h3>
+        
+        <div class="grid grid-cols-2 gap-1 bg-[#FDFBF7] p-1 rounded-lg border-editorial mb-4">
+          <button onclick="tukarFasa('Fasa1')" id="tabFasa1" class="fasa-tab py-2 text-xs font-medium rounded-md active">
+            Fasa 1: P1 (1 Sampel Rawak)
+          </button>
+          <button onclick="tukarFasa('Fasa2')" id="tabFasa2" class="fasa-tab py-2 text-xs font-medium rounded-md text-gray-600 hover:bg-neutral-100">
+            Fasa 2: P2 (9 Sampel Beraras)
+          </button>
+        </div>
+
+        <div id="subPenapisFasa2" class="hidden grid grid-cols-4 gap-1 p-1 bg-neutral-50 rounded-md border-editorial mb-3 text-[11px]">
+          <button onclick="setSubAras('Semua')" id="subAll" class="py-1 font-bold rounded bg-white border shadow-sm">Semua (9)</button>
+          <button onclick="setSubAras('Amat Cemerlang')" id="subCem" class="py-1 rounded text-green-700 hover:bg-green-50">Cemerlang</button>
+          <button onclick="setSubAras('Sederhana')" id="subSed" class="py-1 rounded text-amber-700 hover:bg-amber-50">Sederhana</button>
+          <button onclick="setSubAras('Lemah')" id="subLem" class="py-1 rounded text-red-700 hover:bg-red-50">Lemah</button>
+        </div>
+
+        <div id="studentList" class="flex flex-col gap-2 max-h-48 overflow-y-auto pr-1">
+          <p class="text-xs text-gray-400 italic text-center py-4">Sila hubungkan API untuk memuatkan skrip.</p>
+        </div>
+      </div>
+
+      <div class="bg-white p-6 rounded-xl border-editorial shadow-sm flex flex-col gap-4">
+        <div class="divider-editorial pb-3">
+          <h3 class="font-display font-bold text-lg">Borang Input Skor Moderasi</h3>
+          <p class="text-xs text-gray-400">Skrip Terpilih: <span id="formAngkaGiliran" class="font-bold text-black font-mono bg-neutral-100 px-1.5 py-0.5 rounded">-</span></p>
+        </div>
+
+        <div class="flex justify-between items-center bg-[#FDFBF7] p-3 rounded-lg border-editorial">
+          <div>
+            <label class="text-xs font-bold block text-gray-600">(a) Markah Pemeriksa Asal</label>
+            <span class="text-[11px] text-gray-400">Nilai rujukan rasmi</span>
+          </div>
+          <input type="number" id="markahA" disabled class="w-20 text-center font-bold bg-gray-100 text-gray-700 py-1.5 rounded border text-sm">
+        </div>
+
+        <div class="flex justify-between items-center bg-white p-3 rounded-lg border-editorial">
+          <div>
+            <label class="text-xs font-bold block text-red-700">(b) Markah Moderasi P1</label>
+            <span class="text-[11px] text-gray-400">Diisi pada skrip Fasa 1</span>
+          </div>
+          <input type="number" id="markahB" oninput="kiraPerbezaanP1()" class="w-20 text-center font-bold border-red-300 focus:border-red-600 focus:ring-1 focus:ring-red-600 py-1.5 rounded focus:outline-none text-sm bg-red-50/20">
+        </div>
+
+        <div class="flex justify-between items-center bg-[#FDFBF7] p-3 rounded-lg border-editorial">
+          <div>
+            <label class="text-xs font-bold block text-gray-600">(c) Perbezaan Markah P1</label>
+            <span class="text-[11px] text-gray-400">Formula: (b) - (a)</span>
+          </div>
+          <input type="number" id="markahC" disabled class="w-20 text-center font-bold bg-gray-100 py-1.5 rounded border text-sm">
+        </div>
+
+        <div id="pusingan2Container" class="hidden flex-col gap-3 p-3 bg-amber-50/50 rounded-lg border border-amber-200 transition-all">
+          <span class="text-[10px] font-bold text-amber-800 bg-amber-100 px-2 py-0.5 rounded-full w-max uppercase tracking-wider">Klausa Kualiti: Beza ≥ 5 Markah</span>
+          
+          <div class="flex justify-between items-center">
+            <div>
+              <label class="text-xs font-bold block text-amber-900">(d) Markah Moderasi P2</label>
+              <span class="text-[11px] text-amber-700">Wajib untuk semakan semula</span>
+            </div>
+            <input type="number" id="markahD" oninput="kiraPerbezaanP2()" class="w-20 text-center font-bold border-amber-300 focus:border-amber-600 focus:ring-1 focus:ring-amber-600 py-1.5 rounded focus:outline-none text-sm bg-white">
+          </div>
+
+          <div class="flex justify-between items-center">
+            <div>
+              <label class="text-xs font-bold block text-amber-900">(e) Perbezaan Markah P2</label>
+              <span class="text-[11px] text-amber-700">Formula: (d) - (a)</span>
+            </div>
+            <input type="number" id="markahE" disabled class="w-20 text-center font-bold bg-amber-100 py-1.5 rounded border text-sm text-amber-900">
+          </div>
+        </div>
+
+        <div class="grid grid-cols-2 gap-3 divider-editorial pb-4">
+          <div>
+            <label class="text-[11px] font-bold block text-gray-600">(f) Penyelarasan (+/-)</label>
+            <input type="number" id="markahF" oninput="kiraMarkahAkhir()" class="w-full text-center font-bold border-editorial py-1.5 rounded focus:outline-none text-sm focus:border-black mt-1">
+          </div>
+          <div>
+            <label class="text-[11px] font-bold block text-gray-600">(g) Markah Akhir</label>
+            <input type="number" id="markahG" class="w-full text-center font-bold bg-gray-900 text-white py-1.5 rounded focus:outline-none text-sm mt-1">
+          </div>
+        </div>
+
+        <button id="btnSimpan" onclick="simpanRekodKeSheets()" disabled class="w-full bg-[#1E2229] text-white py-3 px-4 font-bold rounded-xl hover:bg-black transition-all shadow-sm opacity-50 cursor-not-allowed flex justify-center items-center gap-2">
+          <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+          </svg>
+          Sahkan & Rekod Keputusan
+        </button>
+      </div>
+    </section>
+
+  </main>
+
+  <script>
+    let globalData = [];
+    let fasaSemasa = 'Fasa1';
+    let subArasSemasa = 'Semua';
+    let pelajarSemasa = null;
+    let urlAPI = '';
+
+    const canvas = document.getElementById('scriptCanvas');
+    const ctx = canvas.getContext('2d');
+    let isDrawing = false;
+    let lineCoordinates = [];
+
+    // Muat data automatik jika ada URL tertera ketika halaman diakses
+    window.onload = function() {
+      if(document.getElementById('apiUrlInput').value) {
+        sambungkanAPI();
+      }
+    };
+
+    function sambungkanAPI() {
+      const inputUrl = document.getElementById('apiUrlInput').value.trim();
+      if (!inputUrl) {
+        alert("Sila masukkan URL API Google Apps Script.");
+        return;
+      }
+      urlAPI = inputUrl;
+      
+      fetch(urlAPI)
+        .then(res => res.json())
+        .then(data => {
+          document.getElementById('infoIpg').innerText = data.konfigurasi["IPG Kampus"] || '-';
+          document.getElementById('infoKursus').innerText = data.konfigurasi["Nama Kursus"] || '-';
+          document.getElementById('infoKod').innerText = data.konfigurasi["Kod Kursus"] || '-';
+          document.getElementById('infoProgram').innerText = data.konfigurasi["Program"] || '-';
+          document.getElementById('infoSemester').innerText = data.konfigurasi["Semester/Tahun"] || '-';
+          
+          globalData = data.pelajar;
+          binaSenaraiPelajar();
+        })
+        .catch(err => {
+          console.error(err);
+          alert("Gagal memuatkan data. Sila pastikan Apps Script telah di-deploy sebagai 'Anyone'.");
+        });
+    }
+
+    // Penapisan Logik 1 Sampel P1 vs 9 Sampel P2
+    function binaSenaraiPelajar() {
+      const container = document.getElementById('studentList');
+      container.innerHTML = '';
+
+      let dataDitapis = [];
+
+      if (fasaSemasa === 'Fasa1') {
+        // Tampilkan hanya sampel rawak bertanda "P1:"
+        dataDitapis = globalData.filter(p => p.fasaModerasi.startsWith("P1:"));
+      } else {
+        // Tampilkan 9 sampel bertanda "P2:"
+        dataDitapis = globalData.filter(p => p.fasaModerasi.startsWith("P2:"));
+        
+        // Tapis mengikut sub-aras jika dipilih
+        if (subArasSemasa !== 'Semua') {
+          dataDitapis = dataDitapis.filter(p => p.fasaModerasi.includes(subArasSemasa));
+        }
+      }
+
+      if(dataDitapis.length === 0) {
+        container.innerHTML = `<p class="text-xs text-gray-400 italic text-center py-4">Tiada sampel padan.</p>`;
+        return;
+      }
+
+      dataDitapis.forEach(p => {
+        let warnaTag = 'bg-blue-100 text-blue-800';
+        if (p.fasaModerasi.includes('Amat Cemerlang')) warnaTag = 'bg-green-100 text-green-800';
+        if (p.fasaModerasi.includes('Sederhana')) warnaTag = 'bg-amber-100 text-amber-800';
+        if (p.fasaModerasi.includes('Lemah')) warnaTag = 'bg-red-100 text-red-800';
+
+        let statusSemakan = p.markahModerasiP1 || p.markahModerasiP2 ? '✓ Selesai' : 'Belum Semak';
+        let warnaStatus = p.markahModerasiP1 || p.markahModerasiP2 ? 'text-green-600 font-bold' : 'text-gray-400';
+
+        const div = document.createElement('div');
+        div.className = `flex justify-between items-center p-3 border-editorial rounded-lg bg-white hover:bg-neutral-50 cursor-pointer transition-all ${pelajarSemasa && pelajarSemasa.angkaGiliran === p.angkaGiliran ? 'ring-2 ring-black' : ''}`;
+        div.onclick = () => pilihPelajar(p);
+
+        div.innerHTML = `
+          <div>
+            <p class="text-xs font-bold text-[#1E2229] font-mono">${p.angkaGiliran}</p>
+            <span class="inline-block text-[10px] px-2 py-0.5 rounded font-semibold mt-1 ${warnaTag}">${p.fasaModerasi}</span>
+          </div>
+          <div class="text-right">
+            <p class="text-[11px] ${warnaStatus}">${statusSemakan}</p>
+            <p class="text-[10px] text-gray-400 mt-0.5">Asal: ${p.markahPemeriksa} m</p>
+          </div>
+        `;
+        container.appendChild(div);
+      });
+    }
+
+    function tukarFasa(fasa) {
+      fasaSemasa = fasa;
+      document.getElementById('tabFasa1').classList.remove('active', 'text-gray-600', 'bg-white');
+      document.getElementById('tabFasa2').classList.remove('active', 'text-gray-600', 'bg-white');
+      
+      const subMenu = document.getElementById('subPenapisFasa2');
+      if (fasa === 'Fasa1') {
+        document.getElementById('tabFasa1').classList.add('active');
+        subMenu.classList.add('hidden');
+      } else {
+        document.getElementById('tabFasa2').classList.add('active');
+        subMenu.classList.remove('hidden');
+      }
+      binaSenaraiPelajar();
+    }
+
+    function setSubAras(aras) {
+      subArasSemasa = aras;
+      ['All', 'Cem', 'Sed', 'Lem'].forEach(id => {
+        document.getElementById(`sub${id}`).className = "py-1 rounded text-gray-600 hover:bg-neutral-100";
+      });
+      
+      const mappedId = aras === 'Semua' ? 'All' : (aras === 'Amat Cemerlang' ? 'Cem' : (aras === 'Sederhana' ? 'Sed' : 'Lem'));
+      document.getElementById(`sub${mappedId}`).className = "py-1 font-bold rounded bg-white border shadow-sm";
+      binaSenaraiPelajar();
+    }
+
+    function pilihPelajar(pelajar) {
+      pelajarSemasa = JSON.parse(JSON.stringify(pelajar));
+      binaSenaraiPelajar();
+
+      document.getElementById('formAngkaGiliran').innerText = pelajar.angkaGiliran;
+      document.getElementById('markahA').value = pelajar.markahPemeriksa;
+      document.getElementById('markahB').value = pelajar.markahModerasiP1 || '';
+      document.getElementById('markahC').value = pelajar.perbezaanP1 || '';
+      document.getElementById('markahD').value = pelajar.markahModerasiP2 || '';
+      document.getElementById('markahE').value = pelajar.perbezaanP2 || '';
+      document.getElementById('markahF').value = pelajar.markahPenyelarasan || '';
+      document.getElementById('markahG').value = pelajar.markahAkhir || pelajar.markahPemeriksa;
+
+      kiraPerbezaanP1();
+
+      const btn = document.getElementById('btnSimpan');
+      btn.disabled = false;
+      btn.classList.remove('opacity-50', 'cursor-not-allowed');
+
+      document.getElementById('canvasPlaceholder').classList.add('hidden');
+      canvas.classList.remove('hidden');
+      
+      muatImejKeCanvas(pelajar.urlSkrip, pelajar.dataLakaran);
+    }
+
+    function kiraPerbezaanP1() {
+      const a = parseFloat(document.getElementById('markahA').value) || 0;
+      const b = parseFloat(document.getElementById('markahB').value) || 0;
+      const c = b - a;
+      
+      document.getElementById('markahC').value = c;
+      const p2Container = document.getElementById('pusingan2Container');
+      
+      if (Math.abs(c) >= 5) {
+        p2Container.classList.remove('hidden');
+        p2Container.classList.add('flex');
+        kiraPerbezaanP2();
+      } else {
+        p2Container.classList.add('hidden');
+        p2Container.classList.remove('flex');
+        document.getElementById('markahD').value = '';
+        document.getElementById('markahE').value = '';
+        kiraMarkahAkhir();
+      }
+    }
+
+    function kiraPerbezaanP2() {
+      const a = parseFloat(document.getElementById('markahA').value) || 0;
+      const d = parseFloat(document.getElementById('markahD').value) || 0;
+      const e = d - a;
+      document.getElementById('markahE').value = e;
+      kiraMarkahAkhir();
+    }
+
+    function kiraMarkahAkhir() {
+      const a = parseFloat(document.getElementById('markahA').value) || 0;
+      const f = parseFloat(document.getElementById('markahF').value) || 0;
+      document.getElementById('markahG').value = a + f;
+    }
+
+    // CANVAS DRAWING CONTROLLER
+    function muatImejKeCanvas(url, dataLakaranLama) {
+      const img = new Image();
+      img.crossOrigin = "anonymous";
+      img.src = url;
+      img.onload = function() {
+        canvas.width = img.width > 800 ? 800 : img.width;
+        const skala = canvas.width / img.width;
+        canvas.height = img.height * skala;
+
+        ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+        ctx.strokeStyle = '#D9383A';
+        ctx.lineWidth = 3;
+        ctx.lineCap = 'round';
+        ctx.lineJoin = 'round';
+
+        lineCoordinates = [];
+        if (dataLakaranLama) {
+          try {
+            lineCoordinates = JSON.parse(dataLakaranLama);
+            lukisSemulaLakaran();
+          } catch(e) {}
+        }
+      };
+
+      canvas.onmousedown = (e) => { isDrawing = true; mulakanLakaran(e); };
+      canvas.onmousemove = (e) => { jikaMelakar(e); };
+      canvas.onmouseup = () => { isDrawing = false; };
+
+      canvas.ontouchstart = (e) => { isDrawing = true; mulakanLakaran(e.touches[0]); e.preventDefault(); };
+      canvas.ontouchmove = (e) => { jikaMelakar(e.touches[0]); e.preventDefault(); };
+      canvas.ontouchend = () => { isDrawing = false; };
+    }
+
+    function mulakanLakaran(e) {
+      const rect = canvas.getBoundingClientRect();
+      const x = e.clientX - rect.left;
+      const y = e.clientY - rect.top;
+      ctx.beginPath();
+      ctx.moveTo(x, y);
+      lineCoordinates.push({ type: 'start', x, y });
+    }
+
+    function jikaMelakar(e) {
+      if (!isDrawing) return;
+      const rect = canvas.getBoundingClientRect();
+      const x = e.clientX - rect.left;
+      const y = e.clientY - rect.top;
+      ctx.lineTo(x, y);
+      ctx.stroke();
+      lineCoordinates.push({ type: 'move', x, y });
+    }
+
+    function clearCanvas() {
+      if(!pelajarSemasa) return;
+      if(confirm("Padam lakaran pen merah?")) {
+        lineCoordinates = [];
+        muatImejKeCanvas(pelajarSemasa.urlSkrip, null);
+      }
+    }
+
+    function lukisSemulaLakaran() {
+      lineCoordinates.forEach(pt => {
+        if(pt.type === 'start') {
+          ctx.beginPath();
+          ctx.moveTo(pt.x, pt.y);
+        } else if(pt.type === 'move') {
+          ctx.lineTo(pt.x, pt.y);
+          ctx.stroke();
+        }
+      });
+    }
+
+    function simpanRekodKeSheets() {
+      if (!pelajarSemasa || !urlAPI) return;
+
+      const payload = {
+        angkaGiliran: pelajarSemasa.angkaGiliran,
+        markahModerasiP1: document.getElementById('markahB').value,
+        perbezaanP1: document.getElementById('markahC').value,
+        markahModerasiP2: document.getElementById('markahD').value,
+        perbezaanP2: document.getElementById('markahE').value,
+        markahPenyelarasan: document.getElementById('markahF').value,
+        markahAkhir: document.getElementById('markahG').value,
+        dataLakaran: JSON.stringify(lineCoordinates)
+      };
+
+      const btn = document.getElementById('btnSimpan');
+      btn.innerText = "Menghantar Rekod...";
+      btn.disabled = true;
+
+      fetch(urlAPI, {
+        method: 'POST',
+        mode: 'no-cors',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload)
+      })
+      .then(() => {
+        alert(`Keputusan moderasi ${pelajarSemasa.angkaGiliran} selamat disimpan dalam Sheets.`);
+        btn.innerHTML = `<svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" /></svg> Sahkan & Rekod Keputusan`;
+        btn.disabled = false;
+        
+        const index = globalData.findIndex(p => p.angkaGiliran === pelajarSemasa.angkaGiliran);
+        if(index !== -1) {
+          globalData[index].markahModerasiP1 = payload.markahModerasiP1;
+          globalData[index].perbezaanP1 = payload.perbezaanP1;
+          globalData[index].markahModerasiP2 = payload.markahModerasiP2;
+          globalData[index].perbezaanP2 = payload.perbezaanP2;
+          globalData[index].markahPenyelarasan = payload.markahPenyelarasan;
+          globalData[index].markahAkhir = payload.markahAkhir;
+          globalData[index].dataLakaran = payload.dataLakaran;
+        }
+        binaSenaraiPelajar();
+      })
+      .catch(err => {
+        console.error(err);
+        alert("Ralat penghantaran data.");
+        btn.innerText = "Sahkan & Rekod Keputusan";
+        btn.disabled = false;
+      });
+    }
+  </script>
+</body>
+</html>
