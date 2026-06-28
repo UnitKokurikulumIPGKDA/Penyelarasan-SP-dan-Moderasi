@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Aplikasi Moderasi Semakan Skrip (LAM-PT-04-02)</title>
+  <title>Sistem Moderasi Digital IPG (LAM-PT-04-02)</title>
   
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -21,7 +21,6 @@
       --ink-muted: #6A6E75;
       --pen-red: #D9383A;
       --border-color: #E6E2DA;
-      --card-bg: #FFFFFF;
     }
 
     body {
@@ -34,7 +33,6 @@
       font-family: 'Bricolage Grotesque', sans-serif;
     }
 
-    /* Kemasan Sempadan Gaya Arkib Jurnal */
     .border-editorial {
       border: 1px solid var(--border-color);
     }
@@ -43,52 +41,70 @@
       border-bottom: 2px dashed var(--border-color);
     }
 
-    /* Penapis Tab Fasa Moderasi Baharu */
-    .fasa-tab {
-      transition: all 0.2s ease;
-    }
     .fasa-tab.active {
       background-color: var(--ink-dark);
       color: var(--bg-paper);
       font-weight: 600;
     }
 
-    /* Custom Scrollbar */
-    ::-webkit-scrollbar {
-      width: 6px;
-      height: 6px;
-    }
-    ::-webkit-scrollbar-track {
-      background: var(--bg-paper);
-    }
-    ::-webkit-scrollbar-thumb {
-      background: var(--ink-muted);
-      border-radius: 3px;
-    }
-
-    /* Canvas Penandaan */
-    #canvasContainer {
-      position: relative;
-      background-color: #EBE7DF;
+    /* Kursor Pen Merah Saga Semasa Menanda */
+    #scriptCanvas {
       cursor: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16"><circle cx="8" cy="8" r="4" fill="%23D9383A"/></svg>') 8 8, pointer;
     }
   </style>
 </head>
 <body class="min-h-screen flex flex-col p-4 md:p-8">
 
+  <div id="loginOverlay" class="fixed inset-0 bg-neutral-900/90 backdrop-blur-md z-50 flex justify-center items-center p-4">
+    <div class="bg-white max-w-md w-full p-8 rounded-2xl border border-neutral-200 shadow-2xl flex flex-col gap-6">
+      <div class="text-center">
+        <span class="text-xs font-bold tracking-widest uppercase text-red-600">Sistem Pengesahan Kualiti</span>
+        <h2 class="text-2xl font-display font-extrabold mt-1 text-[#1E2229]">Daftar Masuk Pensyarah</h2>
+        <p class="text-xs text-gray-500 mt-1">Sila pilih identiti emel rasmi anda untuk memulakan moderasi semakan skrip.</p>
+      </div>
+
+      <div class="flex flex-col gap-2">
+        <label class="text-xs font-bold text-gray-600">Pilih Emel Rasmi Pensyarah Semak:</label>
+        <select id="lecturerEmailSelect" class="w-full px-3 py-2.5 border rounded-xl text-xs bg-[#FDFBF7] font-medium focus:outline-none">
+          <option value="" disabled selected>-- Sila Pilih Emel Anda --</option>
+          <option value="haniff.faizal@ipgm.edu.my">haniff.faizal@ipgm.edu.my (HANIFF FAIZAL - ADMIN)</option>
+          <option value="amirah@ipgm.edu.my">amirah@ipgm.edu.my (AMIRAH BINTI SALIM)</option>
+          <option value="mohdazman@ipgm.edu.my">mohdazman@ipgm.edu.my (AZMAN BIN BASIRUN)</option>
+          <option value="yusainy@ipgm.edu.my">yusainy@ipgm.edu.my (YUSAINI BIN AZIZAN)</option>
+          <option value="azizi.ismail@ipgm.edu.my">azizi.ismail@ipgm.edu.my (AZIZI BIN ISMAIL)</option>
+          <option value="abdulsatar@ipgm.edu.my">abdulsatar@ipgm.edu.my (ABDUL SATAR BIN HAMZAH)</option>
+          <option value="yusri.yusoff@ipgm.edu.my">yusri.yusoff@ipgm.edu.my (YUSRI BIN YUSOFF - KU JHEP)</option>
+          <option value="kholid@ipgm.edu.my">kholid@ipgm.edu.my (KHOLID BIN SALLEH)</option>
+          <option value="rusliza@ipgm.edu.my">rusliza@ipgm.edu.my (RUSLIZA BINTI OTHMAN - KU JPPI)</option>
+          <option value="mohammadhafedz@ipgm.edu.my">mohammadhafedz@ipgm.edu.my (MOHAMMAD HAFEDZ)</option>
+          <option value="abrahman@ipgm.edu.my">abrahman@ipgm.edu.my (AB RAHMAN BIN ISMAIL)</option>
+          <option value="sayuti@ipgm.edu.my">sayuti@ipgm.edu.my (MUHAMMAD SAYUTI BIN ABDUL SHUKOR)</option>
+          <option value="shahrizad.ghozali@ipgm.edu.my">shahrizad.ghozali@ipgm.edu.my (MOHD SHAHRIZAD)</option>
+          <option value="amalinamunirah@ipgm.edu.my">amalinamunirah@ipgm.edu.my (HJH. AMALINA MUNIRAH)</option>
+          <option value="anita.mdsaman@ipgm.edu.my">anita.mdsaman@ipgm.edu.my (DR. ANITA BINTI MD SAMAN)</option>
+          <option value="mohdfikri@ipgm.edu.my">mohdfikri@ipgm.edu.my (DR. MOHD FIKRI BIN ISMAIL)</option>
+        </select>
+      </div>
+
+      <button onclick="sahkanLoginPensyarah()" class="w-full bg-[#1E2229] hover:bg-black text-white font-bold py-3 px-4 rounded-xl text-sm transition-all">
+        Mula Menyemak Skrip
+      </button>
+    </div>
+  </div>
+
   <header class="w-full max-w-7xl mx-auto mb-8 bg-white p-6 rounded-xl border-editorial shadow-sm">
     <div class="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-6 pb-6 divider-editorial">
       <div>
         <span class="text-xs font-bold tracking-widest uppercase text-red-600">Sistem Digital IPG</span>
         <h1 class="text-3xl md:text-4xl font-display font-extrabold tracking-tight mt-1">Moderasi Pentaksiran Berterusan</h1>
-        <p class="text-sm text-gray-500 mt-1">Sistem Penandaan Alur Kerja: 1 Sampel P1 & 9 Sampel P2 dengan Sokongan Fail PDF</p>
+        <p class="text-sm text-gray-500 mt-1">Mod Semakan Aktif: <span id="activeLecturerBadge" class="font-bold text-red-600 underline">Belum Log Masuk</span></p>
       </div>
       
       <div class="w-full lg:w-auto flex flex-col sm:flex-row gap-2">
         <input type="text" id="apiUrlInput" value="https://script.google.com/macros/s/AKfycbxwUIQpQ66obbKr_Wttws6e1Gwe5lu5oZbAWpkqh40GEgwXfgSPbkIVse_gfJM3iJI5/exec" 
-               class="px-4 py-2 text-sm border-editorial rounded-lg w-full lg:w-96 focus:outline-none focus:border-black bg-[#FDFBF7] font-mono text-xs">
-        <button onclick="sambungkanAPI()" class="bg-[#1E2229] hover:bg-black text-white px-5 py-2 text-sm font-medium rounded-lg transition-all duration-200 shadow-sm whitespace-nowrap">
-          Sahkan & Muat Data
+               class="px-4 py-2 text-xs border-editorial rounded-lg w-full lg:w-96 focus:outline-none bg-[#FDFBF7] font-mono text-gray-400" readonly>
+        <button onclick="logoutPensyarah()" class="border border-neutral-300 hover:bg-red-50 hover:text-red-600 px-4 py-2 text-xs font-bold rounded-lg transition-all">
+          Tukar Akun / Logout
         </button>
       </div>
     </div>
@@ -108,128 +124,164 @@
       <div class="flex flex-col sm:flex-row justify-between sm:items-center bg-white p-4 rounded-xl border-editorial shadow-sm gap-4">
         <div class="flex items-center gap-3">
           <span class="inline-block w-3 h-3 rounded-full bg-[#D9383A]"></span>
-          <h2 class="font-display font-bold text-lg">Kanvas Semakan Pen Merah</h2>
+          <h2 class="font-display font-bold text-lg">Helaian Tunggal Skrip Jawapan</h2>
         </div>
         
         <div class="flex flex-wrap gap-2 items-center">
-          <label id="btnUploadContainer" class="hidden cursor-pointer items-center gap-1.5 bg-red-50 hover:bg-red-100 text-[#D9383A] border border-red-200 px-3 py-1.5 rounded-md text-xs font-bold transition-all">
-            <svg class="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <label class="cursor-pointer flex items-center gap-1.5 bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-lg text-xs font-bold transition-all shadow-sm">
+            <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12" />
             </svg>
-            Muat Naik PDF Skrip
+            Muat Naik Fail PDF Skrip
             <input type="file" id="pdfFileUploader" accept="application/pdf" class="hidden" onchange="prosesMuatNaikPdf(event)">
           </label>
-          
-          <button onclick="clearCanvas()" class="px-3 py-1.5 text-xs font-semibold border-editorial rounded-md bg-[#FDFBF7] hover:bg-neutral-100 transition-all">
-            Padam Contengan
+          <button onclick="clearCanvasPageOnly()" class="px-3 py-2 text-xs font-semibold border-editorial rounded-lg bg-[#FDFBF7] hover:bg-neutral-100 transition-all">
+            Padam Halaman Ini
           </button>
         </div>
       </div>
 
-      <div id="canvasContainer" class="w-full rounded-xl border-editorial shadow-inner overflow-auto flex flex-col justify-center items-center min-h-[620px] p-4 bg-[#EBE7DF]">
-        <canvas id="scriptCanvas" class="shadow-md bg-white hidden"></canvas>
+      <div id="pdfNavigationControls" class="hidden flex justify-between items-center bg-white px-5 py-3 rounded-xl border-editorial shadow-sm text-xs font-medium">
+        <button onclick="tukarHalamanPdf(-1)" class="px-3 py-2 border rounded-lg bg-neutral-50 hover:bg-neutral-100 font-bold transition-all">
+          ← Muka Surat Sebelum
+        </button>
+        <span class="text-gray-600 bg-neutral-100 px-4 py-1.5 rounded-full font-semibold">
+          Halaman <span id="pdfCurrentPageNum" class="font-bold text-red-600 font-mono text-sm mx-1">-</span> daripada <span id="pdfTotalPagesNum" class="font-bold text-black font-mono text-sm mx-1">-</span>
+        </span>
+        <button onclick="tukarHalamanPdf(1)" class="px-3 py-2 border rounded-lg bg-neutral-50 hover:bg-neutral-100 font-bold transition-all">
+          Muka Surat Seterusnya →
+        </button>
+      </div>
+
+      <div id="canvasContainer" class="w-full rounded-xl border-editorial shadow-inner overflow-auto flex flex-col justify-center items-center min-h-[640px] p-4 bg-[#EBE7DF]">
+        <canvas id="scriptCanvas" class="shadow-xl bg-white hidden"></canvas>
         <div id="canvasPlaceholder" class="text-center text-gray-400 max-w-md p-6">
           <svg class="mx-auto h-12 w-12 text-gray-300 mb-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z" />
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
           </svg>
-          <p class="font-medium text-sm text-[#1E2229]">Sila Pilih Sampel Skrip</p>
-          <p class="text-xs mt-1">Sila klik "Sahkan & Muat Data", pilih angka giliran pelajar di panel kanan, kemudian muat naik fail PDF jawapan pelajar tersebut untuk ditanda.</p>
+          <p class="font-medium text-sm text-[#1E2229]">Langkah Penandaan Skrip PDF:</p>
+          <p class="text-xs mt-1 text-gray-500">1. Klik angka giliran pelajar di menu sebelah kanan.<br>2. Klik butang merah <b>"Muat Naik Fail PDF Skrip"</b> di atas untuk membuka dokumen tugasan.</p>
         </div>
       </div>
     </section>
 
-    <section class="lg:col-span-5 xl:col-span-4 flex flex-col gap-6 sticky top-4">
+    <section class="lg:col-span-5 xl:col-span-4 flex flex-col gap-6">
       
-      <div class="bg-white p-5 rounded-xl border-editorial shadow-sm">
+      <div class="bg-white p-4 rounded-xl border-editorial shadow-sm">
         <h3 class="text-xs font-bold tracking-wider uppercase text-gray-400 mb-3">Papan Alur Kerja Moderasi</h3>
+        <div class="grid grid-cols-2 gap-1 bg-[#FDFBF7] p-1 rounded-lg border-editorial mb-3">
+          <button onclick="tukarFasa('Fasa1')" id="tabFasa1" class="fasa-tab py-2 text-xs font-medium rounded-md active">Fasa 1: P1 (1 Sampel)</button>
+          <button onclick="tukarFasa('Fasa2')" id="tabFasa2" class="fasa-tab py-2 text-xs font-medium rounded-md text-gray-600 hover:bg-neutral-100">Fasa 2: P2 (9 Sampel)</button>
+        </div>
+        <div id="subPenapisFasa2" class="hidden grid grid-cols-4 gap-1 p-1 bg-neutral-50 rounded-md border-editorial mb-3 text-[10px]">
+          <button onclick="setSubAras('Semua')" id="subAll" class="py-1 font-bold rounded bg-white border shadow-sm">Semua</button>
+          <button onclick="setSubAras('Amat Cemerlang')" id="subCem" class="py-1 rounded text-green-700">Cemerlang</button>
+          <button onclick="setSubAras('Sederhana')" id="subSed" class="py-1 rounded text-amber-700">Sederhana</button>
+          <button onclick="setSubAras('Lemah')" id="subLem" class="py-1 rounded text-red-700">Lemah</button>
+        </div>
+        <div id="studentList" class="flex flex-col gap-2 max-h-40 overflow-y-auto pr-1"></div>
+      </div>
+
+      <div id="rubricPanel" class="bg-white p-5 rounded-xl border-editorial shadow-sm flex flex-col gap-3">
+        <div class="divider-editorial pb-2">
+          <h3 class="font-display font-bold text-sm text-red-700 uppercase tracking-wider">Kriteria Pemarkahan Tugasan (Max 30M)</h3>
+          <p class="text-[11px] text-gray-400">Pecahan pemarkahan tugasan pengurusan persatuan</p>
+        </div>
         
-        <div class="grid grid-cols-2 gap-1 bg-[#FDFBF7] p-1 rounded-lg border-editorial mb-4">
-          <button onclick="tukarFasa('Fasa1')" id="tabFasa1" class="fasa-tab py-2 text-xs font-medium rounded-md active">
-            Fasa 1: P1 (1 Sampel Rawak)
-          </button>
-          <button onclick="tukarFasa('Fasa2')" id="tabFasa2" class="fasa-tab py-2 text-xs font-medium rounded-md text-gray-600 hover:bg-neutral-100">
-            Fasa 2: P2 (9 Sampel Beraras)
-          </button>
+        <div class="space-y-2 bg-neutral-50 p-3 rounded-lg border border-neutral-200">
+          <p class="text-xs font-bold text-[#1E2229]">Bahagian A: Asas & Identiti (10 Markah)</p>
+          <div class="flex justify-between items-start gap-3">
+            <span class="text-[11px] text-gray-500 leading-tight">• Pengenalan, konsep, tujuan, objektif, dan rasional penubuhan.</span>
+            <input type="number" id="rubricA1" min="0" max="5" oninput="kiraSkorRubrik()" class="w-14 text-center text-xs font-bold border rounded p-1 bg-white" placeholder="/5">
+          </div>
+          <div class="flex justify-between items-start gap-3">
+            <span class="text-[11px] text-gray-500 leading-tight">• Rekaan Logo dan Moto inovatif beserta huraian kepentingan ekosistem.</span>
+            <input type="number" id="rubricA2" min="0" max="5" oninput="kiraSkorRubrik()" class="w-14 text-center text-xs font-bold border rounded p-1 bg-white" placeholder="/5">
+          </div>
         </div>
 
-        <div id="subPenapisFasa2" class="hidden grid grid-cols-4 gap-1 p-1 bg-neutral-50 rounded-md border-editorial mb-3 text-[11px]">
-          <button onclick="setSubAras('Semua')" id="subAll" class="py-1 font-bold rounded bg-white border shadow-sm">Semua (9)</button>
-          <button onclick="setSubAras('Amat Cemerlang')" id="subCem" class="py-1 rounded text-green-700 hover:bg-green-50">Cemerlang</button>
-          <button onclick="setSubAras('Sederhana')" id="subSed" class="py-1 rounded text-amber-700 hover:bg-amber-50">Sederhana</button>
-          <button onclick="setSubAras('Lemah')" id="subLem" class="py-1 rounded text-red-700 hover:bg-red-50">Lemah</button>
+        <div class="space-y-2 bg-neutral-50 p-3 rounded-lg border border-neutral-200">
+          <p class="text-xs font-bold text-[#1E2229]">Bahagian B: Operasi & Takwim (10 Markah)</p>
+          <div class="flex justify-between items-start gap-3">
+            <span class="text-[11px] text-gray-500 leading-tight">• Struktur Jawatankuasa organisasi & Perlembagaan/Peraturan Kelab lengkap.</span>
+            <input type="number" id="rubricB1" min="0" max="5" oninput="kiraSkorRubrik()" class="w-14 text-center text-xs font-bold border rounded p-1 bg-white" placeholder="/5">
+          </div>
+          <div class="flex justify-between items-start gap-3">
+            <span class="text-[11px] text-gray-500 leading-tight">• Perancangan Takwim Aktiviti Tahunan yang realistik dan berimpak.</span>
+            <input type="number" id="rubricB2" min="0" max="5" oninput="kiraSkorRubrik()" class="w-14 text-center text-xs font-bold border rounded p-1 bg-white" placeholder="/5">
+          </div>
         </div>
 
-        <div id="studentList" class="flex flex-col gap-2 max-h-48 overflow-y-auto pr-1">
-          <p class="text-xs text-gray-400 italic text-center py-4">Sila hubungkan API untuk memuatkan skrip.</p>
+        <div class="space-y-2 bg-neutral-50 p-3 rounded-lg border border-neutral-200">
+          <p class="text-xs font-bold text-[#1E2229]">Bahagian C: Artifak & Risiko (10 Markah)</p>
+          <div class="flex justify-between items-start gap-3">
+            <span class="text-[11px] text-gray-500 leading-tight">• Lampiran Carta Alir & draf Surat Permohonan Penubuhan sah.</span>
+            <input type="number" id="rubricC1" min="0" max="5" oninput="kiraSkorRubrik()" class="w-14 text-center text-xs font-bold border rounded p-1 bg-white" placeholder="/5">
+          </div>
+          <div class="flex justify-between items-start gap-3">
+            <span class="text-[11px] text-gray-500 leading-tight">• Analisis mitigasi risiko isu pengurusan persatuan (GC6).</span>
+            <input type="number" id="rubricC2" min="0" max="5" oninput="kiraSkorRubrik()" class="w-14 text-center text-xs font-bold border rounded p-1 bg-white" placeholder="/5">
+          </div>
+        </div>
+
+        <div class="flex justify-between items-center pt-2 text-xs font-bold border-t">
+          <span>Jumlah Skor Kriteria:</span>
+          <span id="rubricTotalDisplay" class="bg-red-600 text-white px-2.5 py-1 rounded font-mono text-sm">0 / 30</span>
         </div>
       </div>
 
-      <div class="bg-white p-6 rounded-xl border-editorial shadow-sm flex flex-col gap-4">
-        <div class="divider-editorial pb-3">
-          <h3 class="font-display font-bold text-lg">Borang Input Skor Moderasi</h3>
-          <p class="text-xs text-gray-400">Skrip Terpilih: <span id="formAngkaGiliran" class="font-bold text-black font-mono bg-neutral-100 px-1.5 py-0.5 rounded">-</span></p>
+      <div class="bg-white p-5 rounded-xl border-editorial shadow-sm flex flex-col gap-3 text-xs">
+        <div class="divider-editorial pb-2">
+          <h3 class="font-display font-bold text-base">Keputusan Borang LAM-PT-04-02</h3>
+          <p class="text-[11px] text-gray-400">Skrip Terpilih: <span id="formAngkaGiliran" class="font-bold text-black font-mono bg-neutral-100 px-1.5 py-0.5 rounded">-</span></p>
         </div>
 
-        <div class="flex justify-between items-center bg-[#FDFBF7] p-3 rounded-lg border-editorial">
-          <div>
-            <label class="text-xs font-bold block text-gray-600">(a) Markah Pemeriksa Asal</label>
-            <span class="text-[11px] text-gray-400">Nilai rujukan rasmi</span>
+        <div class="flex justify-between items-center bg-[#FDFBF7] p-2.5 rounded border-editorial">
+          <label class="font-bold text-gray-600">(a) Markah Pemeriksa Asal</label>
+          <div class="relative w-32">
+            <input type="password" id="markahAMasked" value="******" disabled class="w-full text-center font-bold bg-neutral-200 text-neutral-500 py-1 rounded border block">
+            <input type="number" id="markahA" disabled class="w-full text-center font-bold bg-gray-100 text-gray-700 py-1 rounded border hidden">
           </div>
-          <input type="number" id="markahA" disabled class="w-20 text-center font-bold bg-gray-100 text-gray-700 py-1.5 rounded border text-sm">
         </div>
 
-        <div class="flex justify-between items-center bg-white p-3 rounded-lg border-editorial">
+        <div class="flex justify-between items-center bg-white p-2.5 rounded border-editorial">
           <div>
-            <label class="text-xs font-bold block text-red-700">(b) Markah Moderasi P1</label>
-            <span class="text-[11px] text-gray-400">Diisi pada skrip Fasa 1</span>
+            <label class="font-bold text-red-700 block">(b) Markah Moderasi P1</label>
+            <span class="text-[10px] text-gray-400 block">Kalkulasi Rubrik Automatik</span>
           </div>
-          <input type="number" id="markahB" oninput="kiraPerbezaanP1()" class="w-20 text-center font-bold border-red-300 focus:border-red-600 focus:ring-1 focus:ring-red-600 py-1.5 rounded focus:outline-none text-sm bg-red-50/20">
+          <input type="number" id="markahB" oninput="kiraPerbezaanP1()" class="w-16 text-center font-bold border-red-300 py-1 rounded bg-red-50/20">
         </div>
 
-        <div class="flex justify-between items-center bg-[#FDFBF7] p-3 rounded-lg border-editorial">
-          <div>
-            <label class="text-xs font-bold block text-gray-600">(c) Perbezaan Markah P1</label>
-            <span class="text-[11px] text-gray-400">Formula: (b) - (a)</span>
-          </div>
-          <input type="number" id="markahC" disabled class="w-20 text-center font-bold bg-gray-100 py-1.5 rounded border text-sm">
+        <div class="flex justify-between items-center bg-[#FDFBF7] p-2.5 rounded border-editorial">
+          <label class="font-bold text-gray-600">(c) Perbezaan Markah P1 (b-a)</label>
+          <input type="text" id="markahC" disabled value="SULIT" class="w-16 text-center font-bold bg-gray-100 py-1 rounded border text-gray-400">
         </div>
 
-        <div id="pusingan2Container" class="hidden flex-col gap-3 p-3 bg-amber-50/50 rounded-lg border border-amber-200 transition-all">
-          <span class="text-[10px] font-bold text-amber-800 bg-amber-100 px-2 py-0.5 rounded-full w-max uppercase tracking-wider">Klausa Kualiti: Beza ≥ 5 Markah</span>
-          
+        <div id="pusingan2Container" class="hidden flex-col gap-2 p-2.5 bg-amber-50/50 rounded border border-amber-200 transition-all">
+          <span class="text-[9px] font-bold text-amber-800 bg-amber-100 px-1.5 py-0.5 rounded-full w-max uppercase tracking-wider">Klausa: Perbezaan ≥ 5 Markah</span>
           <div class="flex justify-between items-center">
-            <div>
-              <label class="text-xs font-bold block text-amber-900">(d) Markah Moderasi P2</label>
-              <span class="text-[11px] text-amber-700">Wajib untuk semakan semula</span>
-            </div>
-            <input type="number" id="markahD" oninput="kiraPerbezaanP2()" class="w-20 text-center font-bold border-amber-300 focus:border-amber-600 focus:ring-1 focus:ring-amber-600 py-1.5 rounded focus:outline-none text-sm bg-white">
+            <label class="font-bold text-amber-900">(d) Markah Moderasi P2</label>
+            <input type="number" id="markahD" oninput="kiraPerbezaanP2()" class="w-16 text-center font-bold border-amber-300 py-1 rounded bg-white">
           </div>
-
           <div class="flex justify-between items-center">
-            <div>
-              <label class="text-xs font-bold block text-amber-900">(e) Perbezaan Markah P2</label>
-              <span class="text-[11px] text-amber-700">Formula: (d) - (a)</span>
-            </div>
-            <input type="number" id="markahE" disabled class="w-20 text-center font-bold bg-amber-100 py-1.5 rounded border text-sm text-amber-900">
+            <label class="font-bold text-amber-900">(e) Perbezaan Markah P2</label>
+            <input type="text" id="markahE" disabled value="SULIT" class="w-16 text-center font-bold bg-amber-100 py-1 rounded border text-gray-400">
           </div>
         </div>
 
-        <div class="grid grid-cols-2 gap-3 divider-editorial pb-4">
+        <div class="grid grid-cols-2 gap-2 border-t pt-2">
           <div>
-            <label class="text-[11px] font-bold block text-gray-600">(f) Penyelarasan (+/-)</label>
-            <input type="number" id="markahF" oninput="kiraMarkahAkhir()" class="w-full text-center font-bold border-editorial py-1.5 rounded focus:outline-none text-sm focus:border-black mt-1">
+            <label class="font-bold text-gray-600 block">(f) Penyelarasan (+/-)</label>
+            <input type="number" id="markahF" oninput="kiraMarkahAkhir()" class="w-full text-center font-bold border-editorial py-1 rounded mt-0.5">
           </div>
           <div>
-            <label class="text-[11px] font-bold block text-gray-600">(g) Markah Akhir</label>
-            <input type="number" id="markahG" class="w-full text-center font-bold bg-gray-900 text-white py-1.5 rounded focus:outline-none text-sm mt-1">
+            <label class="font-bold text-gray-600 block">(g) Markah Akhir</label>
+            <input type="number" id="markahG" class="w-full text-center font-bold bg-gray-900 text-white py-1 rounded mt-0.5">
           </div>
         </div>
 
-        <button id="btnSimpan" onclick="simpanRekodKeSheets()" disabled class="w-full bg-[#1E2229] text-white py-3 px-4 font-bold rounded-xl hover:bg-black transition-all shadow-sm opacity-50 cursor-not-allowed flex justify-center items-center gap-2">
-          <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
-          </svg>
-          Sahkan & Rekod Keputusan
+        <button id="btnSimpan" onclick="simpanRekodKeSheets()" class="w-full bg-[#1E2229] text-white py-2.5 px-4 font-bold rounded-lg hover:bg-black transition-all flex justify-center items-center gap-2 mt-2">
+          Sahkan & Hantar Skor Ke Sheets
         </button>
       </div>
     </section>
@@ -237,35 +289,53 @@
   </main>
 
   <script>
-    // Konfigurasi Asas PDF.js Kebangsaan Mozilla
     pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.4.120/pdf.worker.min.js';
 
+    let emelPensyarahAktif = '';
     let globalData = [];
     let fasaSemasa = 'Fasa1';
     let subArasSemasa = 'Semua';
     let pelajarSemasa = null;
-    let urlAPI = '';
+    let urlAPI = 'https://script.google.com/macros/s/AKfycbxwUIQpQ66obbKr_Wttws6e1Gwe5lu5oZbAWpkqh40GEgwXfgSPbkIVse_gfJM3iJI5/exec';
+
+    let currentPdfDoc = null;
+    let currentPdfPageNum = 1;
+    let totalPdfPages = 0;
+    let allPagesAnnotations = {}; 
 
     const canvas = document.getElementById('scriptCanvas');
     const ctx = canvas.getContext('2d');
     let isDrawing = false;
-    let lineCoordinates = [];
-    let currentPdfDataUri = null; // Menyimpan data fail PDF semasa yang dimuat naik
+    let pageStrokes = []; 
 
-    window.onload = function() {
-      if(document.getElementById('apiUrlInput').value) {
-        sambungkanAPI();
-      }
-    };
-
-    function sambungkanAPI() {
-      const inputUrl = document.getElementById('apiUrlInput').value.trim();
-      if (!inputUrl) {
-        alert("Sila masukkan URL API Google Apps Script.");
+    // 1. KENDALIAN LOGIN PENSYARAH
+    function sahkanLoginPensyarah() {
+      const email = document.getElementById('lecturerEmailSelect').value;
+      if (!email) {
+        alert("Sila pilih emel anda terlebih dahulu.");
         return;
       }
-      urlAPI = inputUrl;
+      emelPensyarahAktif = email;
+      document.getElementById('activeLecturerBadge').innerText = email;
+      document.getElementById('loginOverlay').classList.add('hidden');
       
+      sambungkanAPI();
+    }
+
+    function logoutPensyarah() {
+      if(confirm("Adakah anda pasti untuk logout?")) {
+        document.getElementById('loginOverlay').classList.remove('hidden');
+        document.getElementById('activeLecturerBadge').innerText = "Belum Log Masuk";
+        document.getElementById('canvasPlaceholder').classList.remove('hidden');
+        canvas.classList.add('hidden');
+        document.getElementById('pdfNavigationControls').classList.add('hidden');
+        pelajarSemasa = null;
+        binaSenaraiPelajar();
+      }
+    }
+
+    // 2. AMBIL DATA DARI GOOGLE SHEET
+    function sambungkanAPI() {
       fetch(urlAPI)
         .then(res => res.json())
         .then(data => {
@@ -275,20 +345,18 @@
           document.getElementById('infoProgram').innerText = data.konfigurasi["Program"] || '-';
           document.getElementById('infoSemester').innerText = data.konfigurasi["Semester/Tahun"] || '-';
           
-          globalData = data.pelajar;
+          globalData = data.skrip;
           binaSenaraiPelajar();
         })
-        .catch(err => {
-          console.error(err);
-          alert("Gagal memuatkan data. Sila pastikan Apps Script telah di-deploy sebagai 'Anyone'.");
-        });
+        .catch(err => console.error("Ralat memuatkan data:", err));
     }
 
+    // 3. GENERASI SENARAI PELAJAR (1-RAWAK VS 9-BERARAS)
     function binaSenaraiPelajar() {
       const container = document.getElementById('studentList');
       container.innerHTML = '';
+      
       let dataDitapis = [];
-
       if (fasaSemasa === 'Fasa1') {
         dataDitapis = globalData.filter(p => p.fasaModerasi.startsWith("P1:"));
       } else {
@@ -298,32 +366,29 @@
         }
       }
 
-      if(dataDitapis.length === 0) {
-        container.innerHTML = `<p class="text-xs text-gray-400 italic text-center py-4">Tiada sampel padan.</p>`;
-        return;
-      }
-
       dataDitapis.forEach(p => {
-        let warnaTag = 'bg-blue-100 text-blue-800';
-        if (p.fasaModerasi.includes('Amat Cemerlang')) warnaTag = 'bg-green-100 text-green-800';
-        if (p.fasaModerasi.includes('Sederhana')) warnaTag = 'bg-amber-100 text-amber-800';
-        if (p.fasaModerasi.includes('Lemah')) warnaTag = 'bg-red-100 text-red-800';
+        let padananRekodIndividu = globalData.find(item => item.angkaGiliran === p.angkaGiliran && item.emelPensyarah === emelPensyarahAktif);
+        let tandaP1 = padananRekodIndividu ? padananRekodIndividu.markahModerasiP1 : p.markahModerasiP1;
+        let tandaP2 = padananRekodIndividu ? padananRekodIndividu.markahModerasiP2 : p.markahModerasiP2;
+        
+        let statusSemakan = (tandaP1 || tandaP2) ? '✓ Selesai' : 'Belum Semak';
+        let warnaStatus = (tandaP1 || tandaP2) ? 'text-green-600 font-bold' : 'text-gray-400';
 
-        let statusSemakan = p.markahModerasiP1 || p.markahModerasiP2 ? '✓ Selesai' : 'Belum Semak';
-        let warnaStatus = p.markahModerasiP1 || p.markahModerasiP2 ? 'text-green-600 font-bold' : 'text-gray-400';
+        let warnaTag = p.fasaModerasi.includes('Amat Cemerlang') ? 'bg-green-100 text-green-800' : 
+                       (p.fasaModerasi.includes('Sederhana') ? 'bg-amber-100 text-amber-800' : 'bg-red-100 text-red-800');
+        if(p.fasaModerasi.startsWith("P1:")) warnaTag = 'bg-blue-100 text-blue-800';
 
         const div = document.createElement('div');
-        div.className = `flex justify-between items-center p-3 border-editorial rounded-lg bg-white hover:bg-neutral-50 cursor-pointer transition-all ${pelajarSemasa && pelajarSemasa.angkaGiliran === p.angkaGiliran ? 'ring-2 ring-black' : ''}`;
-        div.onclick = () => pilihPelajar(p);
+        div.className = `flex justify-between items-center p-2.5 border-editorial rounded-lg bg-white hover:bg-neutral-50 cursor-pointer transition-all text-xs ${pelajarSemasa && pelajarSemasa.angkaGiliran === p.angkaGiliran ? 'ring-2 ring-black bg-neutral-50' : ''}`;
+        div.onclick = () => pilihPelajar(p, padananRekodIndividu);
 
         div.innerHTML = `
           <div>
-            <p class="text-xs font-bold text-[#1E2229] font-mono">${p.angkaGiliran}</p>
-            <span class="inline-block text-[10px] px-2 py-0.5 rounded font-semibold mt-1 ${warnaTag}">${p.fasaModerasi}</span>
+            <p class="font-bold text-[#1E2229] font-mono">${p.angkaGiliran}</p>
+            <span class="inline-block text-[9px] px-1.5 py-0.2 rounded font-semibold mt-0.5 ${warnaTag}">${p.fasaModerasi}</span>
           </div>
           <div class="text-right">
-            <p class="text-[11px] ${warnaStatus}">${statusSemakan}</p>
-            <p class="text-[10px] text-gray-400 mt-0.5">Asal: ${p.markahPemeriksa} m</p>
+            <p class="${warnaStatus}">${statusSemakan}</p>
           </div>
         `;
         container.appendChild(div);
@@ -334,138 +399,182 @@
       fasaSemasa = fasa;
       document.getElementById('tabFasa1').className = "fasa-tab py-2 text-xs font-medium rounded-md text-gray-600 hover:bg-neutral-100";
       document.getElementById('tabFasa2').className = "fasa-tab py-2 text-xs font-medium rounded-md text-gray-600 hover:bg-neutral-100";
+      document.getElementById('subPenapisFasa2').classList.add('hidden');
       
-      const subMenu = document.getElementById('subPenapisFasa2');
       if (fasa === 'Fasa1') {
         document.getElementById('tabFasa1').className = "fasa-tab py-2 text-xs font-medium rounded-md active";
-        subMenu.classList.add('hidden');
       } else {
         document.getElementById('tabFasa2').className = "fasa-tab py-2 text-xs font-medium rounded-md active";
-        subMenu.classList.remove('hidden');
+        document.getElementById('subPenapisFasa2').classList.remove('hidden');
       }
       binaSenaraiPelajar();
     }
 
     function setSubAras(aras) {
       subArasSemasa = aras;
-      ['All', 'Cem', 'Sed', 'Lem'].forEach(id => {
-        document.getElementById(`sub${id}`).className = "py-1 rounded text-gray-600 hover:bg-neutral-100";
-      });
-      const mappedId = aras === 'Semua' ? 'All' : (aras === 'Amat Cemerlang' ? 'Cem' : (aras === 'Sederhana' ? 'Sed' : 'Lem'));
-      document.getElementById(`sub${mappedId}`).className = "py-1 font-bold rounded bg-white border shadow-sm";
+      ['All', 'Cem', 'Sed', 'Lem'].forEach(id => document.getElementById(`sub${id}`).className = "py-1 rounded text-gray-600");
+      const mapId = aras === 'Semua' ? 'All' : (aras === 'Amat Cemerlang' ? 'Cem' : (aras === 'Sederhana' ? 'Sed' : 'Lem'));
+      document.getElementById(`sub${mapId}`).className = "py-1 font-bold rounded bg-white border shadow-sm text-black";
       binaSenaraiPelajar();
     }
 
-    function pilihPelajar(pelajar) {
+    // 4. LOGIK BLIND MODERATION (PENGASINGAN ADMIN VS PENSYARAH BIASA)
+    function pilihPelajar(pelajar, rekodSediaAda) {
+      let dataSari = rekodSediaAda ? rekodSediaAda : pelajar;
       pelajarSemasa = JSON.parse(JSON.stringify(pelajar));
       binaSenaraiPelajar();
 
-      document.getElementById('formAngkaGiliran').innerText = pelajar.angkaGiliran;
-      document.getElementById('markahA').value = pelajar.markahPemeriksa;
-      document.getElementById('markahB').value = pelajar.markahModerasiP1 || '';
-      document.getElementById('markahC').value = pelajar.perbezaanP1 || '';
-      document.getElementById('markahD').value = pelajar.markahModerasiP2 || '';
-      document.getElementById('markahE').value = pelajar.perbezaanP2 || '';
-      document.getElementById('markahF').value = pelajar.markahPenyelarasan || '';
-      document.getElementById('markahG').value = pelajar.markahAkhir || pelajar.markahPemeriksa;
+      document.getElementById('formAngkaGiliran').innerText = dataSari.angkaGiliran;
+      
+      // Simpan nilai markah sebenar di dalam memori
+      document.getElementById('markahA').value = dataSari.markahPemeriksa;
+
+      // Logik Penapisan Privasi Penglihatan Markah Asal (a)
+      if (emelPensyarahAktif === 'haniff.faizal@ipgm.edu.my') {
+        // Jika Admin: Paparkan nilai numerik terus
+        document.getElementById('markahAMasked').classList.add('hidden');
+        document.getElementById('markahA').classList.remove('hidden');
+        document.getElementById('markahA').classList.add('block');
+      } else {
+        // Jika Pensyarah Biasa: Kekalkan topeng rahsia (Blind Moderation)
+        document.getElementById('markahA').classList.add('hidden');
+        document.getElementById('markahAMasked').classList.remove('hidden');
+        document.getElementById('markahAMasked').classList.add('block');
+        document.getElementById('markahAMasked').value = "SULIT (Blind Mode)";
+      }
+
+      document.getElementById('markahB').value = rekodSediaAda ? dataSari.markahModerasiP1 : '';
+      document.getElementById('markahC').value = rekodSediaAda ? dataSari.perbezaanP1 : '';
+      document.getElementById('markahD').value = rekodSediaAda ? dataSari.markahModerasiP2 : '';
+      document.getElementById('markahE').value = rekodSediaAda ? dataSari.perbezaanP2 : '';
+      document.getElementById('markahF').value = rekodSediaAda ? dataSari.markahPenyelarasan : '';
+      document.getElementById('markahG').value = rekodSediaAda ? dataSari.markahAkhir : dataSari.markahPemeriksa;
+
+      // Isian Rubrik
+      document.getElementById('rubricA1').value = rekodSediaAda ? dataSari.a1 : '';
+      document.getElementById('rubricA2').value = rekodSediaAda ? dataSari.a2 : '';
+      document.getElementById('rubricB1').value = rekodSediaAda ? dataSari.b1 : '';
+      document.getElementById('rubricB2').value = rekodSediaAda ? dataSari.b2 : '';
+      document.getElementById('rubricC1').value = rekodSediaAda ? dataSari.c1 : '';
+      document.getElementById('rubricC2').value = rekodSediaAda ? dataSari.c2 : '';
+      
+      if(rekodSediaAda) {
+        let j = (parseFloat(dataSari.a1)||0)+(parseFloat(dataSari.a2)||0)+(parseFloat(dataSari.b1)||0)+(parseFloat(dataSari.b2)||0)+(parseFloat(dataSari.c1)||0)+(parseFloat(dataSari.c2)||0);
+        document.getElementById('rubricTotalDisplay').innerText = `${j} / 30`;
+      } else {
+        document.getElementById('rubricTotalDisplay').innerText = "0 / 30";
+      }
 
       kiraPerbezaanP1();
 
-      const btn = document.getElementById('btnSimpan');
-      btn.disabled = false;
-      btn.classList.remove('opacity-50', 'cursor-not-allowed');
-
-      // Tumpukan butang muat naik PDF khusus pelajar terpilih
-      document.getElementById('btnUploadContainer').className = "flex cursor-pointer items-center gap-1.5 bg-red-50 hover:bg-red-100 text-[#D9383A] border border-red-200 px-3 py-1.5 rounded-md text-xs font-bold transition-all";
-
-      // Reset paparan kanvas sehingga PDF dimuat naik
+      // Reset Viewport Canvas
       document.getElementById('canvasPlaceholder').classList.remove('hidden');
       canvas.classList.add('hidden');
-      lineCoordinates = [];
-      currentPdfDataUri = null;
+      document.getElementById('pdfNavigationControls').classList.add('hidden');
+      
+      currentPdfDoc = null;
+      allPagesAnnotations = {};
+      pageStrokes = [];
 
-      // Jika ada lakaran lama yang wujud dari pangkalan data, kita boleh muat semula imej placeholder lalai
-      if (pelajar.dataLakaran && pelajar.dataLakaran !== "") {
-        document.getElementById('canvasPlaceholder').classList.add('hidden');
-        canvas.classList.remove('hidden');
-        muatImejLalaiKeCanvas(pelajar.urlSkrip, pelajar.dataLakaran);
+      if (dataSari.dataLakaran && dataSari.emelPensyarah === emelPensyarahAktif) {
+        try { allPagesAnnotations = JSON.parse(dataSari.dataLakaran); } catch(e) {}
       }
     }
 
-    // FUNGSI UTAMA: Membaca & Merender Fail PDF yang dimuat naik ke Kanvas
-    function prosesMuatNaikPdf(event) {
-      const fail = event.target.files[0];
-      if (!fail || fail.type !== "application/pdf") {
-        alert("Sila pastikan anda memilih fail format PDF yang sah.");
-        return;
+    // 5. KALKULASI RUBRIK TERPERINCI TUGASAN
+    function kiraSkorRubrik() {
+      const a1 = parseFloat(document.getElementById('rubricA1').value) || 0;
+      const a2 = parseFloat(document.getElementById('rubricA2').value) || 0;
+      const b1 = parseFloat(document.getElementById('rubricB1').value) || 0;
+      const b2 = parseFloat(document.getElementById('rubricB2').value) || 0;
+      const c1 = parseFloat(document.getElementById('rubricC1').value) || 0;
+      const c2 = parseFloat(document.getElementById('rubricC2').value) || 0;
+
+      const total = a1 + a2 + b1 + b2 + c1 + c2;
+      document.getElementById('rubricTotalDisplay').innerText = `${total} / 30`;
+
+      const isP2Active = !document.getElementById('pusingan2Container').classList.contains('hidden');
+      
+      if (fasaSemasa === 'Fasa1') {
+        document.getElementById('markahB').value = total;
+        kiraPerbezaanP1();
+      } else {
+        if (isP2Active) {
+          document.getElementById('markahD').value = total;
+          kiraPerbezaanP2();
+        } else {
+          document.getElementById('markahB').value = total;
+          kiraPerbezaanP1();
+        }
       }
+    }
+
+    // 6. LOGIK PEMPROSESAN FAIL PDF (PAGE-BY-PAGE NAVIGATION)
+    function prosesMuatNaikPdf(event) {
+      const file = event.target.files[0];
+      if (!file || file.type !== "application/pdf") return;
 
       const reader = new FileReader();
       reader.onload = function(e) {
         const typedarray = new Uint8Array(e.target.result);
         
-        // Memuatkan dokumen PDF menggunakan PDF.js
         pdfjsLib.getDocument(typedarray).promise.then(function(pdf) {
-          // Ambil muka surat pertama (Page 1) untuk diletakkan pada kanvas semakan
-          pdf.getPage(1).then(function(page) {
-            const viewport = page.getViewport({ scale: 1.5 });
-            
-            // Tetapkan saiz resolusi kanvas berasaskan dimensi PDF
-            canvas.width = 800;
-            const scaleFactor = 800 / viewport.width;
-            canvas.height = viewport.height * scaleFactor;
-
-            const renderContext = {
-              canvasContext: ctx,
-              viewport: page.getViewport({ scale: 1.5 * scaleFactor })
-            };
-
-            // Render PDF ke dalam Kanvas HTML5
-            page.render(renderContext).promise.then(function() {
-              document.getElementById('canvasPlaceholder').classList.add('hidden');
-              canvas.classList.remove('hidden');
-
-              // Sediakan tetapan pen merah saga untuk pensyarah menanda
-              ctx.strokeStyle = '#D9383A';
-              ctx.lineWidth = 3;
-              ctx.lineCap = 'round';
-              ctx.lineJoin = 'round';
-              
-              // Simpan rujukan lakaran kosong atau muat semula jika bertukar skrip
-              setupCanvasEventListeners();
-            });
-          });
+          currentPdfDoc = pdf;
+          totalPdfPages = pdf.numPages;
+          currentPdfPageNum = 1;
+          
+          document.getElementById('pdfTotalPagesNum').innerText = totalPdfPages;
+          document.getElementById('pdfNavigationControls').classList.remove('hidden');
+          
+          renderHalamanPdfSemasa();
         });
       };
-      reader.readAsArrayBuffer(fail);
+      reader.readAsArrayBuffer(file);
     }
 
-    // Fungsi Pembantu jika memuatkan imej simulasi asal dari Google Sheets
-    function muatImejLalaiKeCanvas(url, dataLakaranLama) {
-      const img = new Image();
-      img.crossOrigin = "anonymous";
-      img.src = url;
-      img.onload = function() {
+    function renderHalamanPdfSemasa() {
+      if (!currentPdfDoc) return;
+      document.getElementById('pdfCurrentPageNum').innerText = currentPdfPageNum;
+
+      currentPdfDoc.getPage(currentPdfPageNum).then(function(page) {
+        const viewport = page.getViewport({ scale: 1.5 });
         canvas.width = 800;
-        const skala = 800 / img.width;
-        canvas.height = img.height * skala;
-        ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
-        
-        ctx.strokeStyle = '#D9383A';
-        ctx.lineWidth = 3;
-        ctx.lineCap = 'round';
-        ctx.lineJoin = 'round';
+        const scaleFactor = 800 / viewport.width;
+        canvas.height = viewport.height * scaleFactor;
 
-        if (dataLakaranLama) {
-          try {
-            lineCoordinates = JSON.parse(dataLakaranLama);
-            lukisSemulaLakaran();
-          } catch(e) {}
-        }
-        setupCanvasEventListeners();
-      };
+        const renderContext = {
+          canvasContext: ctx,
+          viewport: page.getViewport({ scale: 1.5 * scaleFactor })
+        };
+
+        page.render(renderContext).promise.then(function() {
+          document.getElementById('canvasPlaceholder').classList.add('hidden');
+          canvas.classList.remove('hidden');
+
+          ctx.strokeStyle = '#D9383A';
+          ctx.lineWidth = 3;
+          ctx.lineCap = 'round';
+          ctx.lineJoin = 'round';
+
+          // Asingkan lakaran mengikut muka surat aktif
+          pageStrokes = allPagesAnnotations[currentPdfPageNum] || [];
+          lukisSemulaLakaranHalaman();
+          
+          setupCanvasEventListeners();
+        });
+      });
     }
 
+    function tukarHalamanPdf(arah) {
+      const sasaranHalaman = currentPdfPageNum + arah;
+      if (sasaranHalaman >= 1 && sasaranHalaman <= totalPdfPages) {
+        allPagesAnnotations[currentPdfPageNum] = pageStrokes;
+        currentPdfPageNum = sasaranHalaman;
+        renderHalamanPdfSemasa();
+      }
+    }
+
+    // 7. LAKARAN CANVAS CONTROLLER
     function setupCanvasEventListeners() {
       canvas.onmousedown = (e) => { isDrawing = true; mulakanLakaran(e); };
       canvas.onmousemove = (e) => { jikaMelakar(e); };
@@ -482,7 +591,7 @@
       const y = e.clientY - rect.top;
       ctx.beginPath();
       ctx.moveTo(x, y);
-      lineCoordinates.push({ type: 'start', x, y });
+      pageStrokes.push({ type: 'start', x, y });
     }
 
     function jikaMelakar(e) {
@@ -492,21 +601,18 @@
       const y = e.clientY - rect.top;
       ctx.lineTo(x, y);
       ctx.stroke();
-      lineCoordinates.push({ type: 'move', x, y });
+      pageStrokes.push({ type: 'move', x, y });
     }
 
-    function clearCanvas() {
-      if(!pelajarSemasa) return;
-      if(confirm("Padam lakaran pen merah?")) {
-        lineCoordinates = [];
-        ctx.clearRect(0, 0, canvas.width, canvas.height);
-        document.getElementById('canvasPlaceholder').classList.remove('hidden');
-        canvas.classList.add('hidden');
+    function clearCanvasPageOnly() {
+      if(confirm("Padam lakaran pada muka surat ini sahaja?")) {
+        pageStrokes = [];
+        renderHalamanPdfSemasa();
       }
     }
 
-    function lukisSemulaLakaran() {
-      lineCoordinates.forEach(pt => {
+    function lukisSemulaLakaranHalaman() {
+      pageStrokes.forEach(pt => {
         if(pt.type === 'start') {
           ctx.beginPath();
           ctx.moveTo(pt.x, pt.y);
@@ -517,24 +623,27 @@
       });
     }
 
-    // Logik Pengiraan Skor Automatik LAM-PT-04-02
+    // 8. FORMULA MATEMATIK MODERASI AUTOMATIK
     function kiraPerbezaanP1() {
       const a = parseFloat(document.getElementById('markahA').value) || 0;
       const b = parseFloat(document.getElementById('markahB').value) || 0;
       const c = b - a;
       
-      document.getElementById('markahC').value = c;
+      // Paparkan teks perbezaan mengikut hak akses admin
+      if (emelPensyarahAktif === 'haniff.faizal@ipgm.edu.my') {
+        document.getElementById('markahC').value = c + " M";
+      } else {
+        document.getElementById('markahC').value = "SULIT";
+      }
+
       const p2Container = document.getElementById('pusingan2Container');
-      
       if (Math.abs(c) >= 5) {
         p2Container.classList.remove('hidden');
-        p2Container.classList.add('flex');
         kiraPerbezaanP2();
       } else {
         p2Container.classList.add('hidden');
-        p2Container.classList.remove('flex');
         document.getElementById('markahD').value = '';
-        document.getElementById('markahE').value = '';
+        document.getElementById('markahE').value = 'SULIT';
         kiraMarkahAkhir();
       }
     }
@@ -543,7 +652,12 @@
       const a = parseFloat(document.getElementById('markahA').value) || 0;
       const d = parseFloat(document.getElementById('markahD').value) || 0;
       const e = d - a;
-      document.getElementById('markahE').value = e;
+      
+      if (emelPensyarahAktif === 'haniff.faizal@ipgm.edu.my') {
+        document.getElementById('markahE').value = e + " M";
+      } else {
+        document.getElementById('markahE').value = "SULIT";
+      }
       kiraMarkahAkhir();
     }
 
@@ -553,18 +667,32 @@
       document.getElementById('markahG').value = a + f;
     }
 
+    // 9. REKOD KEPUTUSAN KE GOOGLE SHEETS
     function simpanRekodKeSheets() {
-      if (!pelajarSemasa || !urlAPI) return;
+      if (!pelajarSemasa || !urlAPI || !emelPensyarahAktif) return;
+
+      if (currentPdfDoc) {
+        allPagesAnnotations[currentPdfPageNum] = pageStrokes;
+      }
 
       const payload = {
         angkaGiliran: pelajarSemasa.angkaGiliran,
+        emelPensyarah: emelPensyarahAktif,
+        fasaModerasi: pelajarSemasa.fasaModerasi,
+        markahPemeriksa: document.getElementById('markahA').value,
+        a1: document.getElementById('rubricA1').value,
+        a2: document.getElementById('rubricA2').value,
+        b1: document.getElementById('rubricB1').value,
+        b2: document.getElementById('rubricB2').value,
+        c1: document.getElementById('rubricC1').value,
+        c2: document.getElementById('rubricC2').value,
         markahModerasiP1: document.getElementById('markahB').value,
-        perbezaanP1: document.getElementById('markahC').value,
+        perbezaanP1: parseFloat(document.getElementById('markahB').value) - parseFloat(document.getElementById('markahA').value),
         markahModerasiP2: document.getElementById('markahD').value,
-        perbezaanP2: document.getElementById('markahE').value,
+        perbezaanP2: document.getElementById('markahD').value ? (parseFloat(document.getElementById('markahD').value) - parseFloat(document.getElementById('markahA').value)) : '',
         markahPenyelarasan: document.getElementById('markahF').value,
         markahAkhir: document.getElementById('markahG').value,
-        dataLakaran: JSON.stringify(lineCoordinates)
+        dataLakaran: JSON.stringify(allPagesAnnotations)
       };
 
       const btn = document.getElementById('btnSimpan');
@@ -578,26 +706,14 @@
         body: JSON.stringify(payload)
       })
       .then(() => {
-        alert(`Keputusan moderasi & koordinat pen merah ${pelajarSemasa.angkaGiliran} selamat direkodkan.`);
-        btn.innerHTML = `<svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" /></svg> Sahkan & Rekod Keputusan`;
+        alert(`Rekod penilaian berjaya dihantar ke Google Sheets.`);
+        btn.innerText = `Sahkan & Hantar Skor Ke Sheets`;
         btn.disabled = false;
-        
-        const index = globalData.findIndex(p => p.angkaGiliran === pelajarSemasa.angkaGiliran);
-        if(index !== -1) {
-          globalData[index].markahModerasiP1 = payload.markahModerasiP1;
-          globalData[index].perbezaanP1 = payload.perbezaanP1;
-          globalData[index].markahModerasiP2 = payload.markahModerasiP2;
-          globalData[index].perbezaanP2 = payload.perbezaanP2;
-          globalData[index].markahPenyelarasan = payload.markahPenyelarasan;
-          globalData[index].markahAkhir = payload.markahAkhir;
-          globalData[index].dataLakaran = payload.dataLakaran;
-        }
-        binaSenaraiPelajar();
+        sambungkanAPI();
       })
       .catch(err => {
         console.error(err);
-        alert("Ralat penghantaran data.");
-        btn.innerText = "Sahkan & Rekod Keputusan";
+        btn.innerText = `Sahkan & Hantar Skor Ke Sheets`;
         btn.disabled = false;
       });
     }
