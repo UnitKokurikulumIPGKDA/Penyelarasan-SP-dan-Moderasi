@@ -18,7 +18,6 @@
       --bg-paper: #FDFBF7;
       --ink-dark: #1E2229;
       --ink-muted: #6A6E75;
-      --pen-red: #D9383A;
       --border-color: #E6E2DA;
     }
 
@@ -46,11 +45,12 @@
       font-weight: 600;
     }
 
+    /* Kursor Pen Fleksibel Mengikut Pilihan Warna */
     #scriptCanvas {
-      cursor: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16"><circle cx="8" cy="8" r="4" fill="%23D9383A"/></svg>') 8 8, pointer;
+      cursor: crosshair;
     }
 
-    /* SISTEM GAYA IMPAK CETAKAN BULK: MENYOLASI KESELURUHAN DOKUMEN BERPAGINASI */
+    /* SISTEM GAYA IMPAK CETAKAN BULK MULTI-WARNA */
     @media print {
       body {
         background-color: #ffffff !important;
@@ -198,17 +198,32 @@
     </div>
   </section>
 
-  <main class="w-full max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-12 gap-8 flex-grow items-start no-print">
+  <main class="w-full max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-12 gap-8 flex-grow items-start">
     
     <section class="lg:col-span-7 xl:col-span-8 flex flex-col gap-4">
-      <div class="flex flex-col sm:flex-row justify-between sm:items-center bg-white p-4 rounded-xl border-editorial shadow-sm gap-4">
-        <h2 class="font-display font-bold text-lg">Helaian Canvas Penandaan Skrip</h2>
-        <button onclick="clearCanvasPageOnly()" class="px-3 py-1.5 text-xs font-semibold border-editorial rounded-md bg-[#FDFBF7] hover:bg-neutral-100">
+      <div class="flex flex-col sm:flex-row justify-between sm:items-center bg-white p-4 rounded-xl border-editorial shadow-sm gap-4 no-print">
+        
+        <div class="flex flex-col gap-1">
+          <label class="text-[10px] font-bold text-gray-400 uppercase tracking-wider">Pilihan Warna Dakwat Pen Rasmi:</label>
+          <div class="flex items-center gap-1.5 bg-neutral-100 p-1 rounded-lg border border-neutral-200">
+            <button onclick="tukarWarnaPenSemasa('#D9383A', 'merah')" id="btnPenMerah" class="flex items-center gap-1.5 px-2.5 py-1.5 text-xs font-bold rounded-md bg-white border border-red-200 text-red-600 shadow-sm transition-all">
+              <span class="w-2.5 h-3 rounded-full bg-[#D9383A]"></span> Pemeriksa (Merah)
+            </button>
+            <button onclick="tukarWarnaPenSemasa('#10B981', 'hijau')" id="btnPenHijau" class="flex items-center gap-1.5 px-2.5 py-1.5 text-xs font-semibold rounded-md text-gray-500 hover:bg-white/60 transition-all">
+              <span class="w-2.5 h-3 rounded-full bg-[#10B981]"></span> KP (Hijau)
+            </button>
+            <button onclick="tukarWarnaPenSemasa('#8B5CF6', 'ungu')" id="btnPenUngu" class="flex items-center gap-1.5 px-2.5 py-1.5 text-xs font-semibold rounded-md text-gray-500 hover:bg-white/60 transition-all">
+              <span class="w-2.5 h-3 rounded-full bg-[#8B5CF6]"></span> P3 / P2 (Ungu)
+            </button>
+          </div>
+        </div>
+
+        <button onclick="clearCanvasPageOnly()" class="px-3 py-1.5 text-xs font-semibold border-editorial rounded-md bg-[#FDFBF7] hover:bg-neutral-100 self-end mb-1">
           Padam Halaman Ini
         </button>
       </div>
 
-      <div id="pdfNavigationControls" class="hidden flex justify-between items-center bg-white px-5 py-3 rounded-xl border-editorial shadow-sm text-xs font-medium">
+      <div id="pdfNavigationControls" class="hidden flex justify-between items-center bg-white px-5 py-3 rounded-xl border-editorial shadow-sm text-xs font-medium no-print">
         <button onclick="tukarHalamanPdf(-1)" class="px-3 py-2 border rounded-lg bg-neutral-50 hover:bg-neutral-100 font-bold transition-all">← Halaman Sebelum</button>
         <span class="text-gray-600 bg-neutral-100 px-4 py-1.5 rounded-full font-semibold">
           Muka Surat <span id="pdfCurrentPageNum" class="font-bold text-red-600 font-mono text-sm mx-1">-</span> daripada <span id="pdfTotalPagesNum" class="font-bold text-black font-mono text-sm mx-1">-</span>
@@ -218,7 +233,7 @@
 
       <div id="canvasContainer" class="w-full rounded-xl border-editorial shadow-inner overflow-auto flex flex-col justify-center items-center min-h-[640px] p-4 bg-[#EBE7DF]">
         <canvas id="scriptCanvas" class="shadow-xl bg-white hidden"></canvas>
-        <div id="canvasPlaceholder" class="text-center text-gray-400 max-w-md p-6">
+        <div id="canvasPlaceholder" class="text-center text-gray-400 max-w-md p-6 no-print">
           <svg class="mx-auto h-12 w-12 text-gray-300 mb-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
           </svg>
@@ -228,7 +243,7 @@
       </div>
     </section>
 
-    <section class="lg:col-span-5 xl:col-span-4 flex flex-col gap-6">
+    <section class="lg:col-span-5 xl:col-span-4 flex flex-col gap-6 no-print">
       <div class="bg-white p-4 rounded-xl border-editorial shadow-sm">
         <h3 class="text-xs font-bold tracking-wider uppercase text-gray-400 mb-3">Papan Alur Kerja Moderasi</h3>
         <div class="grid grid-cols-2 gap-1 bg-[#FDFBF7] p-1 rounded-lg border-editorial mb-3">
@@ -256,7 +271,7 @@
             <input type="number" id="rubricA1" min="0" max="5" oninput="kiraSkorRubrik()" class="w-14 text-center text-xs font-bold border rounded p-1 bg-white" placeholder="/5">
           </div>
           <div class="flex justify-between items-start gap-3">
-            <span class="text-[11px] text-gray-500 leading-tight">• Rekaan Logo & Moto inovatif beserta huraian kepentingan ekosistem.</span>
+            <span class="text-[11px] text-gray-500 hobbies leading-tight">• Rekaan Logo & Moto inovatif beserta huraian kepentingan ekosistem.</span>
             <input type="number" id="rubricA2" min="0" max="5" oninput="kiraSkorRubrik()" class="w-14 text-center text-xs font-bold border rounded p-1 bg-white" placeholder="/5">
           </div>
         </div>
@@ -355,7 +370,7 @@
   <div id="printFooterSummary" class="hidden">
     <div class="grid grid-cols-2 gap-6 p-5 border-2 border-black rounded-lg text-xs">
       <div>
-        <p class="font-bold uppercase text-sm mb-2 text-red-700">Bukti Verifikasi Semakan Semak (Digital Canvas)</p>
+        <p class="font-bold uppercase text-sm mb-2 text-red-700">Bukti Verifikasi Semakan Semak (Digital Multi-Color Canvas)</p>
         <p class="mt-1">Angka Giliran Pelajar: <span id="pStudent" class="font-mono font-bold text-sm bg-neutral-100 px-1 rounded">-</span></p>
         <p>Fasa Aras Saringan: <span id="pFasa" class="font-bold">-</span></p>
         <p>Moderator Pemeriksa: <span id="pLecturer" class="font-bold">-</span></p>
@@ -365,7 +380,7 @@
           <p class="font-bold text-sm text-gray-600">Skor Akhir Keputusan Moderasi</p>
           <p class="text-2xl font-bold text-red-600 font-mono mt-1"><span id="pScore">-</span> / 30 M</p>
         </div>
-        <p class="text-[10px] text-gray-400 italic">Dokumen ini mengandungi bukti contengan fizikal pen merah mukasurat penuh yang sah dari IPG Kampus Sultan Mizan.</p>
+        <p class="text-[10px] text-gray-400 italic">Dokumen ini mengandungi bukti contengan fizikal warna rasmi penuh yang sah dari IPG Kampus Sultan Mizan.</p>
       </div>
     </div>
   </div>
@@ -386,6 +401,9 @@
     let totalPdfPages = 0;
     let allPagesAnnotations = {}; 
 
+    // Variabel Pengurusan Warna Pen Baru
+    let warnaPenSemasa = '#D9383A'; 
+
     const canvas = document.getElementById('scriptCanvas');
     const ctx = canvas.getContext('2d');
     let isDrawing = false;
@@ -401,6 +419,21 @@
           binaSenaraiPelajar();
         });
     };
+
+    // FUNGSI BARU: MENUKAR TERAAN WARNA DAKWAT PEN SECARA VISUAL
+    function tukarWarnaPenSemasa(hexColor, idName) {
+      warnaPenSemasa = hexColor;
+      
+      // Reset kelas reka bentuk butang pen
+      ['Merah', 'Hijau', 'Ungu'].forEach(col => {
+        document.getElementById(`btnPen${col}`).className = "flex items-center gap-1.5 px-2.5 py-1.5 text-xs font-semibold rounded-md text-gray-500 hover:bg-white/60 transition-all";
+      });
+
+      // Serlahkan butang aktif mengikut kod warna
+      if(idName === 'merah') document.getElementById('btnPenMerah').className = "flex items-center gap-1.5 px-2.5 py-1.5 text-xs font-bold rounded-md bg-white border border-red-200 text-red-600 shadow-sm transition-all";
+      if(idName === 'hijau') document.getElementById('btnPenHijau').className = "flex items-center gap-1.5 px-2.5 py-1.5 text-xs font-bold rounded-md bg-white border border-green-200 text-green-600 shadow-sm transition-all";
+      if(idName === 'ungu') document.getElementById('btnPenUngu').className = "flex items-center gap-1.5 px-2.5 py-1.5 text-xs font-bold rounded-md bg-white border border-purple-200 text-purple-600 shadow-sm transition-all";
+    }
 
     function sahkanLoginPensyarah() {
       const email = document.getElementById('lecturerEmailSelect').value;
@@ -481,7 +514,6 @@
     function setSubAras(aras) { subArasSemasa = aras; binaSenaraiPelajar(); }
 
     function pilihPelajar(indukPelajar, rekodSediaAda) {
-      let dataSari = rekodSediaAda ? rekodSediaAda : indukPelajar; // KORREKSI: Menukar variabel 'pelajar' kepada 'indukPelajar'
       pelajarSemasa = JSON.parse(JSON.stringify(indukPelajar));
       binaSenaraiPelajar();
 
@@ -504,7 +536,6 @@
       document.getElementById('markahF').value = rekodSediaAda ? rekodSediaAda.markahPenyelarasan : '';
       document.getElementById('markahG').value = rekodSediaAda ? rekodSediaAda.markahAkhir : indukPelajar.markahPemeriksa;
 
-      // KORREKSI PEMETAAN RUBRIK: Membaca '.a1' dan bukannya '.rubrica1' yang mengosongkan kotak kriteria
       ['A1','A2','B1','B2','C1','C2'].forEach(id => {
         document.getElementById(`rubric${id}`).value = rekodSediaAda ? rekodSediaAda[id.toLowerCase()] : '';
       });
@@ -632,7 +663,7 @@
         page.render(renderContext).promise.then(function() {
           document.getElementById('canvasPlaceholder').classList.add('hidden');
           canvas.classList.remove('hidden');
-          ctx.strokeStyle = '#D9383A'; ctx.lineWidth = 3; ctx.lineCap = 'round'; ctx.lineJoin = 'round';
+
           pageStrokes = allPagesAnnotations[currentPdfPageNum] || [];
           lukisSemulaLakaranHalaman();
           setupCanvasEventListeners();
@@ -658,27 +689,38 @@
       canvas.ontouchend = () => { isDrawing = false; };
     }
 
+    // REKOD WARNA INDIVIDU BAGI SETIAP STROK BARU
     function mulakanLakaran(e) {
       const rect = canvas.getBoundingClientRect();
       const x = e.clientX - rect.left; const y = e.clientY - rect.top;
-      ctx.beginPath(); ctx.moveTo(x, y);
-      pageStrokes.push({ type: 'start', x, y });
+      
+      ctx.strokeStyle = warnaPenSemasa;
+      ctx.beginPath(); 
+      ctx.moveTo(x, y);
+      
+      pageStrokes.push({ type: 'start', x: x, y: y, color: warnaPenSemasa });
     }
 
     function jikaMelakar(e) {
       if (!isDrawing) return;
       const rect = canvas.getBoundingClientRect();
       const x = e.clientX - rect.left; const y = e.clientY - rect.top;
-      ctx.lineTo(x, y); ctx.stroke();
-      pageStrokes.push({ type: 'move', x, y });
+      
+      ctx.strokeStyle = warnaPenSemasa;
+      ctx.lineTo(x, y); 
+      ctx.stroke();
+      
+      pageStrokes.push({ type: 'move', x: x, y: y, color: warnaPenSemasa });
     }
 
     function clearCanvasPageOnly() {
       if(confirm("Kosongkan lakaran halaman ini?")) { pageStrokes = []; renderHalamanPdfSemasa(); }
     }
 
+    // MELUKIS MULTI-WARNA SECARA DINAMIK BERASASKAN REKOD DATA POINT
     function lukisSemulaLakaranHalaman() {
       pageStrokes.forEach(pt => {
+        ctx.strokeStyle = pt.color || '#D9383A'; // Guna warna asal strok atau fallback merah
         if(pt.type === 'start') { ctx.beginPath(); ctx.moveTo(pt.x, pt.y); } 
         else if(pt.type === 'move') { ctx.lineTo(pt.x, pt.y); ctx.stroke(); }
       });
@@ -743,6 +785,7 @@
       .catch(err => { window.location.reload(); });
     }
 
+    // RESTRUKTUR CETAKAN PUKAL UNTUK MENYOKONG LAKARAN MULTI-WARNA
     async function cetakSkripDanContenganGlobal() {
       if (!pelajarSemasa || !currentPdfDoc) {
         alert("Sila pilih salah satu rekod skrip pelajar yang sah.");
@@ -771,26 +814,24 @@
         tempCanvas.height = viewport.height * scaleFactor;
 
         const pCtx = tempCanvas.getContext('2d');
-        const renderContext = {
-          canvasContext: pCtx,
-          viewport: page.getViewport({ scale: 1.5 * scaleFactor })
-        };
+        const renderContext = { canvasContext: pCtx, viewport: page.getViewport({ scale: 1.5 * scaleFactor }) };
 
         await page.render(renderContext).promise;
 
-        pCtx.strokeStyle = '#D9383A';
         pCtx.lineWidth = 3;
         pCtx.lineCap = 'round';
         pCtx.lineJoin = 'round';
 
+        // SUNTIK DAN LUKIS WARNA REKOD ASAL SEPERTI DI SKRIN KANVAS
         const strokesPage = allPagesAnnotations[pNum] || [];
         strokesPage.forEach(pt => {
+          pCtx.strokeStyle = pt.color || '#D9383A'; 
           if (pt.type === 'start') {
             pCtx.beginPath();
             pCtx.moveTo(pt.x, pt.y);
           } else if (pt.type === 'move') {
             pCtx.lineTo(pt.x, pt.y);
-            pCtx.stroke(); // KORREKSI: Menukar 'ctx' global kepada target 'pCtx' cetakan pukal halaman
+            pCtx.stroke();
           }
         });
       }
