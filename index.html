@@ -135,10 +135,16 @@
         <p class="text-sm text-gray-500 mt-1">Akaun Semakan Semasa:
           <span id="activeLecturerBadge" class="font-bold text-red-600 underline">Belum Log Masuk</span></p>
       </div>
-      <button onclick="logoutPensyarah()"
-        class="border border-neutral-300 hover:bg-red-50 hover:text-red-600 px-4 py-2 text-xs font-bold rounded-lg transition-all">
-        Log Keluar Akun
-      </button>
+      <div class="flex gap-2 flex-wrap">
+        <button onclick="bukaModalTukarPass()"
+          class="border border-amber-300 hover:bg-amber-50 hover:text-amber-700 text-amber-600 px-4 py-2 text-xs font-bold rounded-lg transition-all">
+          🔑 Tukar Kata Laluan
+        </button>
+        <button onclick="logoutPensyarah()"
+          class="border border-neutral-300 hover:bg-red-50 hover:text-red-600 px-4 py-2 text-xs font-bold rounded-lg transition-all">
+          Log Keluar Akun
+        </button>
+      </div>
     </div>
     <div id="courseInfo" class="grid grid-cols-2 md:grid-cols-5 gap-4 pt-4 text-xs font-medium uppercase tracking-wider text-gray-500">
       <div>IPG Kampus: <span id="infoIpg" class="block text-sm font-bold text-[#1E2229] normal-case mt-1">-</span></div>
@@ -206,7 +212,7 @@
             </button>
             <button onclick="tukarWarnaPenSemasa('#10B981', 'hijau')" id="btnPenHijau"
               class="flex items-center gap-1.5 px-2.5 py-1.5 text-xs font-semibold rounded-md text-gray-500 hover:bg-white/60 transition-all">
-              <span class="w-2.5 h-3 rounded-full bg-[#10B981]"></span> Ketua Pemeriksa (Hijau)
+              <span class="w-2.5 h-3 rounded-full bg-[#10B981]"></span> KP (Hijau)
             </button>
             <button onclick="tukarWarnaPenSemasa('#8B5CF6', 'ungu')" id="btnPenUngu"
               class="flex items-center gap-1.5 px-2.5 py-1.5 text-xs font-semibold rounded-md text-gray-500 hover:bg-white/60 transition-all">
@@ -277,7 +283,7 @@
 
       <!-- Senarai Pelajar -->
       <div class="bg-white p-4 rounded-xl border-editorial shadow-sm">
-        <h3 class="text-xs font-bold tracking-wider uppercase text-gray-400 mb-3"> Aliran Kerja Moderasi</h3>
+        <h3 class="text-xs font-bold tracking-wider uppercase text-gray-400 mb-3">Papan Alur Kerja Moderasi</h3>
         <div class="grid grid-cols-2 gap-1 bg-[#FDFBF7] p-1 rounded-lg border-editorial mb-3">
           <button onclick="tukarFasa('Fasa1')" id="tabFasa1" class="fasa-tab py-2 text-xs font-medium rounded-md active">Fasa 1: P1 (1 Sampel)</button>
           <button onclick="tukarFasa('Fasa2')" id="tabFasa2" class="fasa-tab py-2 text-xs font-medium rounded-md text-gray-600 hover:bg-neutral-100">Fasa 2: P2 (9 Sampel)</button>
@@ -391,6 +397,75 @@
     </section>
   </main>
 
+  <!-- ======================== MODAL TUKAR KATA LALUAN ======================== -->
+  <div id="modalTukarPassword" class="hidden fixed inset-0 bg-neutral-900/80 backdrop-blur-sm z-50 flex justify-center items-center p-4">
+    <div class="bg-white max-w-sm w-full p-7 rounded-2xl border border-neutral-200 shadow-2xl flex flex-col gap-4">
+      <div class="text-center">
+        <span class="text-xs font-bold tracking-widest uppercase text-amber-600">Keselamatan Akaun</span>
+        <h2 class="text-xl font-display font-extrabold mt-1 text-[#1E2229]">Tukar Kata Laluan</h2>
+        <p class="text-[11px] text-gray-400 mt-1">Kata laluan baru mesti sekurang-kurangnya 6 aksara.</p>
+      </div>
+
+      <!-- Emel (readonly, auto-fill dari sesi) -->
+      <div>
+        <label class="text-xs font-bold text-gray-500 block mb-1">Akaun Emel</label>
+        <input type="email" id="tukarPassEmel" disabled
+          class="w-full px-3 py-2 border rounded-xl text-xs bg-neutral-100 text-neutral-500 font-mono">
+      </div>
+
+      <!-- Password lama -->
+      <div>
+        <label class="text-xs font-bold text-gray-600 block mb-1">Kata Laluan Lama <span class="text-red-500">*</span></label>
+        <div class="relative">
+          <input type="password" id="tukarPassLama" placeholder="Masukkan kata laluan semasa"
+            class="w-full px-3 py-2.5 border rounded-xl text-xs bg-[#FDFBF7] focus:outline-none focus:border-amber-400 font-mono pr-10">
+          <button type="button" onclick="togolLihat('tukarPassLama', 'ikoLama')" class="absolute right-3 top-2.5 text-gray-400 hover:text-gray-700 text-sm" id="ikoLama">👁</button>
+        </div>
+      </div>
+
+      <!-- Password baru -->
+      <div>
+        <label class="text-xs font-bold text-gray-600 block mb-1">Kata Laluan Baru <span class="text-red-500">*</span></label>
+        <div class="relative">
+          <input type="password" id="tukarPassBaru" placeholder="Masukkan kata laluan baru" oninput="semakKuatanPassword()"
+            class="w-full px-3 py-2.5 border rounded-xl text-xs bg-[#FDFBF7] focus:outline-none focus:border-amber-400 font-mono pr-10">
+          <button type="button" onclick="togolLihat('tukarPassBaru', 'ikoBaru')" class="absolute right-3 top-2.5 text-gray-400 hover:text-gray-700 text-sm" id="ikoBaru">👁</button>
+        </div>
+        <!-- Indikator kekuatan -->
+        <div id="kuatanBar" class="mt-1.5 h-1.5 rounded-full bg-neutral-200 overflow-hidden">
+          <div id="kuatanFill" class="h-full rounded-full transition-all duration-300 w-0 bg-red-400"></div>
+        </div>
+        <p id="kuatanLabel" class="text-[10px] text-gray-400 mt-0.5"></p>
+      </div>
+
+      <!-- Sahkan password baru -->
+      <div>
+        <label class="text-xs font-bold text-gray-600 block mb-1">Sahkan Kata Laluan Baru <span class="text-red-500">*</span></label>
+        <div class="relative">
+          <input type="password" id="tukarPassSahkan" placeholder="Ulangi kata laluan baru" oninput="semakPadanan()"
+            class="w-full px-3 py-2.5 border rounded-xl text-xs bg-[#FDFBF7] focus:outline-none focus:border-amber-400 font-mono pr-10">
+          <button type="button" onclick="togolLihat('tukarPassSahkan', 'ikoSahkan')" class="absolute right-3 top-2.5 text-gray-400 hover:text-gray-700 text-sm" id="ikoSahkan">👁</button>
+        </div>
+        <p id="padananLabel" class="text-[10px] mt-0.5"></p>
+      </div>
+
+      <!-- Mesej ralat/berjaya -->
+      <p id="tukarPassMsg" class="hidden text-[11px] font-bold text-center p-2 rounded-lg"></p>
+
+      <!-- Butang -->
+      <div class="flex gap-2 pt-1">
+        <button onclick="tutupModalTukarPass()"
+          class="flex-1 border border-neutral-300 hover:bg-neutral-50 text-neutral-600 font-bold py-2.5 rounded-xl text-xs transition-all">
+          Batal
+        </button>
+        <button onclick="hantarTukarPassword()" id="btnHantarTukar"
+          class="flex-1 bg-amber-600 hover:bg-amber-700 text-white font-bold py-2.5 rounded-xl text-xs transition-all shadow-sm">
+          Kemaskini Kata Laluan
+        </button>
+      </div>
+    </div>
+  </div>
+
   <!-- ======================== BULK PRINT CONTAINER ======================== -->
   <div id="bulkPrintContainer"></div>
 
@@ -398,7 +473,7 @@
   <div id="printFooterSummary" style="display:none">
     <div class="grid grid-cols-2 gap-6 p-5 border-2 border-black rounded-lg text-xs">
       <div>
-        <p class="font-bold uppercase text-sm mb-2 text-red-700"> Verifikasi Semakan (Digital)</p>
+        <p class="font-bold uppercase text-sm mb-2 text-red-700">Bukti Verifikasi Semakan (Digital Multi-Color Canvas)</p>
         <p class="mt-1">Angka Giliran Pelajar: <span id="pStudent" class="font-mono font-bold text-sm bg-neutral-100 px-1 rounded">-</span></p>
         <p>Fasa Aras Saringan: <span id="pFasa" class="font-bold">-</span></p>
         <p>Moderator Pemeriksa: <span id="pLecturer" class="font-bold">-</span></p>
@@ -942,6 +1017,140 @@
       window.print();
       printContainer.style.display = 'none';
       printContainer.innerHTML = '';
+    }
+    // ============================================================
+    // TUKAR KATA LALUAN
+    // ============================================================
+
+    function bukaModalTukarPass() {
+      if (!emelPensyarahAktif) return;
+      document.getElementById('tukarPassEmel').value    = emelPensyarahAktif;
+      document.getElementById('tukarPassLama').value    = '';
+      document.getElementById('tukarPassBaru').value    = '';
+      document.getElementById('tukarPassSahkan').value  = '';
+      document.getElementById('tukarPassMsg').classList.add('hidden');
+      document.getElementById('kuatanFill').style.width = '0%';
+      document.getElementById('kuatanLabel').innerText  = '';
+      document.getElementById('padananLabel').innerText = '';
+      document.getElementById('modalTukarPassword').classList.remove('hidden');
+      setTimeout(() => document.getElementById('tukarPassLama').focus(), 100);
+    }
+
+    function tutupModalTukarPass() {
+      document.getElementById('modalTukarPassword').classList.add('hidden');
+      // Kosongkan semua medan
+      ['tukarPassLama','tukarPassBaru','tukarPassSahkan'].forEach(id => {
+        document.getElementById(id).value = '';
+      });
+    }
+
+    // Toggle lihat/sembunyi password
+    function togolLihat(inputId, btnId) {
+      const inp = document.getElementById(inputId);
+      const isHidden = inp.type === 'password';
+      inp.type = isHidden ? 'text' : 'password';
+      document.getElementById(btnId).innerText = isHidden ? '🙈' : '👁';
+    }
+
+    // Indikator kekuatan password
+    function semakKuatanPassword() {
+      const val = document.getElementById('tukarPassBaru').value;
+      const fill = document.getElementById('kuatanFill');
+      const label = document.getElementById('kuatanLabel');
+      let skor = 0;
+      if (val.length >= 6)  skor++;
+      if (val.length >= 10) skor++;
+      if (/[A-Z]/.test(val)) skor++;
+      if (/[0-9]/.test(val)) skor++;
+      if (/[^A-Za-z0-9]/.test(val)) skor++;
+
+      const map = [
+        { w:'0%',   color:'bg-neutral-200', text:'' },
+        { w:'20%',  color:'bg-red-400',     text:'Terlalu Lemah' },
+        { w:'40%',  color:'bg-orange-400',  text:'Lemah' },
+        { w:'60%',  color:'bg-yellow-400',  text:'Sederhana' },
+        { w:'80%',  color:'bg-blue-400',    text:'Kuat' },
+        { w:'100%', color:'bg-green-500',   text:'Sangat Kuat 🔒' }
+      ];
+      fill.className = `h-full rounded-full transition-all duration-300 ${map[skor].color}`;
+      fill.style.width = map[skor].w;
+      label.innerText = map[skor].text;
+      label.className = `text-[10px] mt-0.5 ${skor >= 4 ? 'text-green-600 font-bold' : skor >= 2 ? 'text-amber-600' : 'text-red-500'}`;
+      semakPadanan();
+    }
+
+    // Semak padanan password baru & sahkan
+    function semakPadanan() {
+      const baru    = document.getElementById('tukarPassBaru').value;
+      const sahkan  = document.getElementById('tukarPassSahkan').value;
+      const lbl     = document.getElementById('padananLabel');
+      if (!sahkan) { lbl.innerText = ''; return; }
+      if (baru === sahkan) {
+        lbl.innerText = '✓ Kata laluan sepadan';
+        lbl.className = 'text-[10px] mt-0.5 text-green-600 font-bold';
+      } else {
+        lbl.innerText = '✗ Kata laluan tidak sepadan';
+        lbl.className = 'text-[10px] mt-0.5 text-red-500 font-bold';
+      }
+    }
+
+    // Hantar tukar password ke server
+    function hantarTukarPassword() {
+      const emel      = document.getElementById('tukarPassEmel').value.trim();
+      const passLama  = document.getElementById('tukarPassLama').value.trim();
+      const passBaru  = document.getElementById('tukarPassBaru').value.trim();
+      const passSahkan= document.getElementById('tukarPassSahkan').value.trim();
+      const msgEl     = document.getElementById('tukarPassMsg');
+      const btn       = document.getElementById('btnHantarTukar');
+
+      const paparMsg = (teks, jenis) => {
+        msgEl.innerText = teks;
+        msgEl.className = `text-[11px] font-bold text-center p-2 rounded-lg ${jenis === 'error' ? 'bg-red-50 text-red-600' : 'bg-green-50 text-green-700'}`;
+        msgEl.classList.remove('hidden');
+      };
+
+      if (!passLama || !passBaru || !passSahkan) { paparMsg("Semua medan wajib diisi.", 'error'); return; }
+      if (passBaru !== passSahkan)               { paparMsg("Kata laluan baru dan pengesahan tidak sepadan.", 'error'); return; }
+      if (passBaru.length < 6)                   { paparMsg("Kata laluan baru mestilah sekurang-kurangnya 6 aksara.", 'error'); return; }
+      if (passBaru === passLama)                 { paparMsg("Kata laluan baru mestilah berbeza daripada yang lama.", 'error'); return; }
+
+      btn.innerText = "Sedang Menghantar..."; btn.disabled = true;
+
+      fetch(urlAPI, {
+        method: 'POST',
+        headers: { 'Content-Type': 'text/plain' },
+        body: JSON.stringify({
+          action:          "tukarPassword",
+          email:           emel,
+          passwordLama:    passLama,
+          passwordBaru:    passBaru,
+          passwordSahkan:  passSahkan
+        })
+      })
+      .then(r => r.json())
+      .then(res => {
+        btn.innerText = "Kemaskini Kata Laluan"; btn.disabled = false;
+        if (res.status !== "success") {
+          paparMsg(res.message || "Ralat tidak diketahui.", 'error');
+          document.getElementById('tukarPassLama').value = '';
+          document.getElementById('tukarPassLama').focus();
+          return;
+        }
+        // Berjaya — kemas kini password sesi, papar mesej, tutup modal selepas 2.5s
+        _sesiPassword = passBaru;
+        paparMsg("✓ Kata laluan berjaya dikemaskini! Sila ingat kata laluan baru anda.", 'success');
+        ['tukarPassLama','tukarPassBaru','tukarPassSahkan'].forEach(id => {
+          document.getElementById(id).value = '';
+        });
+        document.getElementById('kuatanFill').style.width = '0%';
+        document.getElementById('kuatanLabel').innerText  = '';
+        document.getElementById('padananLabel').innerText = '';
+        setTimeout(tutupModalTukarPass, 2500);
+      })
+      .catch(() => {
+        btn.innerText = "Kemaskini Kata Laluan"; btn.disabled = false;
+        paparMsg("Ralat sambungan ke server. Sila cuba lagi.", 'error');
+      });
     }
   </script>
 </body>
