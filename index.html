@@ -4,15 +4,15 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Sistem Moderasi Digital IPG (LAM-PT-04-02)</title>
-  
+
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,800&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
-  
+
   <script src="https://cdn.tailwindcss.com"></script>
 
   <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.4.120/pdf.min.js"></script>
-  
+
   <style>
     :root {
       --bg-paper: #FDFBF7;
@@ -34,7 +34,7 @@
     .border-editorial {
       border: 1px solid var(--border-color);
     }
-    
+
     .divider-editorial {
       border-bottom: 2px dashed var(--border-color);
     }
@@ -45,12 +45,10 @@
       font-weight: 600;
     }
 
-    /* Kursor Pen Fleksibel Mengikut Pilihan Warna */
     #scriptCanvas {
       cursor: crosshair;
     }
 
-    /* SISTEM GAYA IMPAK CETAKAN BULK MULTI-WARNA */
     @media print {
       body {
         background-color: #ffffff !important;
@@ -101,39 +99,22 @@
       <div class="text-center">
         <span class="text-xs font-bold tracking-widest uppercase text-red-600">Sistem Pengesahan Kualiti IPG</span>
         <h2 class="text-2xl font-display font-extrabold mt-1 text-[#1E2229]">Daftar Masuk Moderasi</h2>
-        <p class="text-xs text-gray-500 mt-1">Sila pilih identiti emel dan masukkan kata laluan rasmi anda.</p>
+        <p class="text-xs text-gray-500 mt-1">Sila masukkan emel rasmi dan kata laluan anda.</p>
       </div>
 
       <div class="flex flex-col gap-3">
         <div>
-          <label class="text-xs font-bold text-gray-600 block mb-1">Pilih Akun Emel:</label>
-          <select id="lecturerEmailSelect" class="w-full px-3 py-2.5 border rounded-xl text-xs bg-[#FDFBF7] font-medium focus:outline-none">
-            <option value="" disabled selected>-- Sila Pilih Emel Anda --</option>
-            <option value="haniff.faizal@ipgm.edu.my">haniff.faizal@ipgm.edu.my (HANIFF FAIZAL - ADMIN)</option>
-            <option value="amirah@ipgm.edu.my">amirah@ipgm.edu.my (AMIRAH BINTI SALIM)</option>
-            <option value="mohdazman@ipgm.edu.my">mohdazman@ipgm.edu.my (AZMAN BIN BASIRUN)</option>
-            <option value="yusainy@ipgm.edu.my">yusainy@ipgm.edu.my (YUSAINI BIN AZIZAN)</option>
-            <option value="azizi.ismail@ipgm.edu.my">azizi.ismail@ipgm.edu.my (AZIZI BIN ISMAIL)</option>
-            <option value="abdulsatar@ipgm.edu.my">abdulsatar@ipgm.edu.my (ABDUL SATAR BIN HAMZAH)</option>
-            <option value="yusri.yusoff@ipgm.edu.my">yusri.yusoff@ipgm.edu.my (YUSRI BIN YUSOFF - KU JHEP)</option>
-            <option value="kholid@ipgm.edu.my">kholid@ipgm.edu.my (KHOLID BIN SALLEH)</option>
-            <option value="rusliza@ipgm.edu.my">rusliza@ipgm.edu.my (RUSLIZA BINTI OTHMAN - KU JPPI)</option>
-            <option value="mohammadhafedz@ipgm.edu.my">mohammadhafedz@ipgm.edu.my (MOHAMMAD HAFEDZ)</option>
-            <option value="abrahman@ipgm.edu.my">abrahman@ipgm.edu.my (AB RAHMAN BIN ISMAIL)</option>
-            <option value="sayuti@ipgm.edu.my">sayuti@ipgm.edu.my (MUHAMMAD SAYUTI BIN ABDUL SHUKOR)</option>
-            <option value="shahrizad.ghozali@ipgm.edu.my">shahrizad.ghozali@ipgm.edu.my (MOHD SHAHRIZAD)</option>
-            <option value="amalinamunirah@ipgm.edu.my">amalinamunirah@ipgm.edu.my (HJH. AMALINA MUNIRAH)</option>
-            <option value="anita.mdsaman@ipgm.edu.my">anita.mdsaman@ipgm.edu.my (DR. ANITA BINTI MD SAMAN)</option>
-            <option value="mohdfikri@ipgm.edu.my">mohdfikri@ipgm.edu.my (DR. MOHD FIKRI BIN ISMAIL)</option>
-          </select>
+          <label class="text-xs font-bold text-gray-600 block mb-1">Emel Rasmi:</label>
+          <input type="email" id="lecturerEmailInput" placeholder="contoh@ipgm.edu.my" autocomplete="username" class="w-full px-3 py-2.5 border rounded-xl text-xs bg-[#FDFBF7] font-medium focus:outline-none focus:border-red-400">
         </div>
         <div>
           <label class="text-xs font-bold text-gray-600 block mb-1">Kata Laluan (Password):</label>
-          <input type="password" id="lecturerPasswordInput" placeholder="Masukkan kata laluan" class="w-full px-3 py-2.5 border rounded-xl text-xs bg-[#FDFBF7] focus:outline-none font-mono">
+          <input type="password" id="lecturerPasswordInput" placeholder="Masukkan kata laluan" autocomplete="current-password" class="w-full px-3 py-2.5 border rounded-xl text-xs bg-[#FDFBF7] focus:outline-none focus:border-red-400 font-mono">
         </div>
+        <p id="loginErrorMsg" class="hidden text-[11px] font-bold text-red-600 text-center"></p>
       </div>
 
-      <button onclick="sahkanLoginPensyarah()" class="w-full bg-[#1E2229] hover:bg-black text-white font-bold py-3 px-4 rounded-xl text-sm transition-all shadow-md">
+      <button onclick="sahkanLoginPensyarah()" id="btnLoginSubmit" class="w-full bg-[#1E2229] hover:bg-black text-white font-bold py-3 px-4 rounded-xl text-sm transition-all shadow-md">
         Sahkan & Masuk Dashboard
       </button>
     </div>
@@ -167,7 +148,7 @@
       <span class="p-1 rounded bg-amber-200 text-amber-900 font-bold text-[10px] uppercase tracking-wider">Akses Pentadbir</span>
       <h3 class="font-display font-bold text-lg text-amber-900">Pendaftaran Skrip & Upload Fail (Admin Dashboard)</h3>
     </div>
-    
+
     <div class="grid grid-cols-1 md:grid-cols-4 gap-4 items-end bg-white p-4 rounded-xl border border-amber-200 text-xs">
       <div>
         <label class="font-bold text-gray-600 block mb-1">1. Taip Angka Giliran Pelajar:</label>
@@ -199,10 +180,10 @@
   </section>
 
   <main class="w-full max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-12 gap-8 flex-grow items-start">
-    
+
     <section class="lg:col-span-7 xl:col-span-8 flex flex-col gap-4">
       <div class="flex flex-col sm:flex-row justify-between sm:items-center bg-white p-4 rounded-xl border-editorial shadow-sm gap-4 no-print">
-        
+
         <div class="flex flex-col gap-1">
           <label class="text-[10px] font-bold text-gray-400 uppercase tracking-wider">Pilihan Warna Dakwat Pen Rasmi:</label>
           <div class="flex items-center gap-1.5 bg-neutral-100 p-1 rounded-lg border border-neutral-200">
@@ -263,7 +244,7 @@
         <div class="divider-editorial pb-2">
           <h3 class="font-display font-bold text-sm text-red-700 uppercase tracking-wider">Kriteria Pemarkahan Tugasan (Max 30M)</h3>
         </div>
-        
+
         <div class="space-y-2 bg-neutral-50 p-3 rounded-lg border border-neutral-200">
           <p class="text-xs font-bold text-[#1E2229]">Bahagian A: Asas & Identiti (Max 10M)</p>
           <div class="flex justify-between items-start gap-3">
@@ -271,7 +252,7 @@
             <input type="number" id="rubricA1" min="0" max="5" oninput="kiraSkorRubrik()" class="w-14 text-center text-xs font-bold border rounded p-1 bg-white" placeholder="/5">
           </div>
           <div class="flex justify-between items-start gap-3">
-            <span class="text-[11px] text-gray-500 hobbies leading-tight">• Rekaan Logo & Moto inovatif beserta huraian kepentingan ekosistem.</span>
+            <span class="text-[11px] text-gray-500 leading-tight">• Rekaan Logo & Moto inovatif beserta huraian kepentingan ekosistem.</span>
             <input type="number" id="rubricA2" min="0" max="5" oninput="kiraSkorRubrik()" class="w-14 text-center text-xs font-bold border rounded p-1 bg-white" placeholder="/5">
           </div>
         </div>
@@ -386,11 +367,18 @@
   </div>
 
   <script>
+    // NOTA KESELAMATAN:
+    // - Password TIDAK disimpan dalam localStorage/sessionStorage.
+    // - Password hanya disimpan dalam memori (variable JS) sepanjang sesi tab dibuka,
+    //   dan dihantar semula ke server (terenkripsi melalui HTTPS) hanya semasa
+    //   tindakan yang memerlukan pengesahan (simpan markah / upload admin).
+    // - Senarai pensyarah & password TIDAK PERNAH dihantar ke browser oleh server.
     let emelPensyarahAktif = '';
-    let globalLecturers = [];
+    let _sesiPassword = ''; // disimpan dalam memori sahaja, hilang bila tab ditutup/refresh
+    let peananPensyarahAktif = '';
     let globalSkripInduk = [];
     let globalHasilSemakan = [];
-    
+
     let fasaSemasa = 'Fasa1';
     let subArasSemasa = 'Semua';
     let pelajarSemasa = null;
@@ -399,67 +387,91 @@
     let currentPdfDoc = null;
     let currentPdfPageNum = 1;
     let totalPdfPages = 0;
-    let allPagesAnnotations = {}; 
+    let allPagesAnnotations = {};
 
-    // Variabel Pengurusan Warna Pen Baru
-    let warnaPenSemasa = '#D9383A'; 
+    let warnaPenSemasa = '#D9383A';
 
     const canvas = document.getElementById('scriptCanvas');
     const ctx = canvas.getContext('2d');
     let isDrawing = false;
-    let pageStrokes = []; 
+    let pageStrokes = [];
 
     window.onload = function() {
-      fetch(urlAPI)
-        .then(res => res.json())
-        .then(data => {
-          globalLecturers = data.pensyarah;
-          globalSkripInduk = data.skripInduk;
-          globalHasilSemakan = data.hasilSemakan;
-          binaSenaraiPelajar();
-        });
+      // Tiada data sulit dimuatkan sebelum login.
+      document.getElementById('lecturerEmailInput').focus();
     };
 
-    // FUNGSI BARU: MENUKAR TERAAN WARNA DAKWAT PEN SECARA VISUAL
     function tukarWarnaPenSemasa(hexColor, idName) {
       warnaPenSemasa = hexColor;
-      
-      // Reset kelas reka bentuk butang pen
       ['Merah', 'Hijau', 'Ungu'].forEach(col => {
         document.getElementById(`btnPen${col}`).className = "flex items-center gap-1.5 px-2.5 py-1.5 text-xs font-semibold rounded-md text-gray-500 hover:bg-white/60 transition-all";
       });
-
-      // Serlahkan butang aktif mengikut kod warna
       if(idName === 'merah') document.getElementById('btnPenMerah').className = "flex items-center gap-1.5 px-2.5 py-1.5 text-xs font-bold rounded-md bg-white border border-red-200 text-red-600 shadow-sm transition-all";
       if(idName === 'hijau') document.getElementById('btnPenHijau').className = "flex items-center gap-1.5 px-2.5 py-1.5 text-xs font-bold rounded-md bg-white border border-green-200 text-green-600 shadow-sm transition-all";
       if(idName === 'ungu') document.getElementById('btnPenUngu').className = "flex items-center gap-1.5 px-2.5 py-1.5 text-xs font-bold rounded-md bg-white border border-purple-200 text-purple-600 shadow-sm transition-all";
     }
 
+    // === LOGIN KINI MELALUI SERVER (POST action=login) - password tidak pernah dibandingkan di client ===
     function sahkanLoginPensyarah() {
-      const email = document.getElementById('lecturerEmailSelect').value;
+      const email = document.getElementById('lecturerEmailInput').value.trim();
       const password = document.getElementById('lecturerPasswordInput').value.trim();
+      const errBox = document.getElementById('loginErrorMsg');
+      const btn = document.getElementById('btnLoginSubmit');
+
+      errBox.classList.add('hidden');
 
       if (!email || !password) {
-        alert("Sila lengkapkan emel rasmi dan kata laluan.");
+        errBox.innerText = "Sila lengkapkan emel rasmi dan kata laluan.";
+        errBox.classList.remove('hidden');
         return;
       }
 
-      let padananUser = globalLecturers.find(l => l.email === email);
-      if (padananUser && padananUser.password.toString() === password) {
-        emelPensyarahAktif = email;
-        document.getElementById('activeLecturerBadge').innerText = `${padananUser.nama} (${padananUser.peranan})`;
+      btn.innerText = "Sedang Mengesahkan...";
+      btn.disabled = true;
+
+      fetch(urlAPI, {
+        method: 'POST',
+        headers: { 'Content-Type': 'text/plain' },
+        body: JSON.stringify({ action: "login", email: email, password: password })
+      })
+      .then(res => res.json())
+      .then(resData => {
+        btn.innerText = "Sahkan & Masuk Dashboard";
+        btn.disabled = false;
+
+        if (resData.status !== "success") {
+          errBox.innerText = resData.message || "Emel atau Kata Laluan tidak sah.";
+          errBox.classList.remove('hidden');
+          document.getElementById('lecturerPasswordInput').value = '';
+          return;
+        }
+
+        emelPensyarahAktif = resData.email;
+        _sesiPassword = password;
+        peananPensyarahAktif = resData.peranan;
+
+        document.getElementById('activeLecturerBadge').innerText = `${resData.nama} (${resData.peranan})`;
         document.getElementById('loginOverlay').classList.add('hidden');
-        
-        if (padananUser.peranan === "Admin" || email === "haniff.faizal@ipgm.edu.my") {
+        document.getElementById('lecturerPasswordInput').value = '';
+
+        if (resData.peranan === "Admin" || emelPensyarahAktif === "haniff.faizal@ipgm.edu.my") {
           document.getElementById('adminDashboardPanel').classList.remove('hidden');
         }
         sambungkanAPI();
-      } else {
-        alert("Ralat: Emel atau Kata Laluan adalah salah.");
-      }
+      })
+      .catch(err => {
+        btn.innerText = "Sahkan & Masuk Dashboard";
+        btn.disabled = false;
+        errBox.innerText = "Ralat sambungan ke server. Sila cuba lagi.";
+        errBox.classList.remove('hidden');
+      });
     }
 
-    function logoutPensyarah() { window.location.reload(); }
+    function logoutPensyarah() {
+      _sesiPassword = '';
+      emelPensyarahAktif = '';
+      window.location.reload();
+    }
 
     function sambungkanAPI() {
       fetch(urlAPI)
@@ -470,7 +482,7 @@
           document.getElementById('infoKod').innerText = data.konfigurasi["Kod Kursus"] || '-';
           document.getElementById('infoProgram').innerText = data.konfigurasi["Program"] || '-';
           document.getElementById('infoSemester').innerText = data.konfigurasi["Semester/Tahun"] || '-';
-          
+
           globalSkripInduk = data.skripInduk;
           globalHasilSemakan = data.hasilSemakan;
           binaSenaraiPelajar();
@@ -480,9 +492,9 @@
     function binaSenaraiPelajar() {
       const container = document.getElementById('studentList');
       container.innerHTML = '';
-      
+
       let dataDitapis = [];
-      if (fasaSemasa === 'Fasa1') { dataDitapis = globalSkripInduk.filter(p => p.fasaModerasi.startsWith("P1:")); } 
+      if (fasaSemasa === 'Fasa1') { dataDitapis = globalSkripInduk.filter(p => p.fasaModerasi.startsWith("P1:")); }
       else { dataDitapis = globalSkripInduk.filter(p => p.fasaModerasi.startsWith("P2:")); if (subArasSemasa !== 'Semua') { dataDitapis = dataDitapis.filter(p => p.fasaModerasi.includes(subArasSemasa)); } }
 
       dataDitapis.forEach(p => {
@@ -506,7 +518,7 @@
       document.getElementById('tabFasa1').className = "fasa-tab py-2 text-xs font-medium rounded-md text-gray-600 hover:bg-neutral-100";
       document.getElementById('tabFasa2').className = "fasa-tab py-2 text-xs font-medium rounded-md text-gray-600 hover:bg-neutral-100";
       document.getElementById('subPenapisFasa2').classList.add('hidden');
-      if (fasa === 'Fasa1') { document.getElementById('tabFasa1').className = "fasa-tab py-2 text-xs font-medium rounded-md active"; } 
+      if (fasa === 'Fasa1') { document.getElementById('tabFasa1').className = "fasa-tab py-2 text-xs font-medium rounded-md active"; }
       else { document.getElementById('tabFasa2').className = "fasa-tab py-2 text-xs font-medium rounded-md active"; document.getElementById('subPenapisFasa2').classList.remove('hidden'); }
       binaSenaraiPelajar();
     }
@@ -539,7 +551,7 @@
       ['A1','A2','B1','B2','C1','C2'].forEach(id => {
         document.getElementById(`rubric${id}`).value = rekodSediaAda ? rekodSediaAda[id.toLowerCase()] : '';
       });
-      
+
       if(rekodSediaAda) {
         let j = (parseFloat(rekodSediaAda.a1)||0)+(parseFloat(rekodSediaAda.a2)||0)+(parseFloat(rekodSediaAda.b1)||0)+(parseFloat(rekodSediaAda.b2)||0)+(parseFloat(rekodSediaAda.c1)||0)+(parseFloat(rekodSediaAda.c2)||0);
         document.getElementById('rubricTotalDisplay').innerText = `${j} / 30`;
@@ -550,7 +562,7 @@
       document.getElementById('canvasPlaceholder').innerHTML = `<p class="font-bold text-amber-700">Membuka fail PDF rasmi dari Google Drive Admin...</p>`;
       canvas.classList.add('hidden');
       document.getElementById('pdfNavigationControls').classList.add('hidden');
-      
+
       currentPdfDoc = null;
       allPagesAnnotations = {};
       pageStrokes = [];
@@ -581,6 +593,8 @@
       reader.onload = function(e) {
         const payload = {
           action: "adminUploadScript",
+          adminEmail: emelPensyarahAktif,
+          adminPassword: _sesiPassword,
           angkaGiliran: studentId,
           fasaModerasi: fasaSelect,
           markahPemeriksa: markahA,
@@ -594,12 +608,19 @@
         })
         .then(res => res.json())
         .then(resData => {
+          if (resData.status === "error") {
+            alert("Ralat: " + resData.message);
+            btn.innerText = "Daftar Pelajar & Simpan Fail Ke Cloud";
+            btn.disabled = false;
+            return;
+          }
           alert(`Sukses! Skrip ${studentId} selamat didaftarkan di Sheets & disimpan ke Drive.`);
           window.location.reload();
         })
         .catch(err => {
-          alert("Data berjaya dikemaskini. Dashboard dimuat semula...");
-          window.location.reload();
+          alert("Ralat sambungan ke server. Sila cuba lagi.");
+          btn.innerText = "Daftar Pelajar & Simpan Fail Ke Cloud";
+          btn.disabled = false;
         });
       };
       reader.readAsDataURL(fileInput);
@@ -614,9 +635,9 @@
       const c2 = parseFloat(document.getElementById('rubricC2').value) || 0;
       const total = a1 + a2 + b1 + b2 + c1 + c2;
       document.getElementById('rubricTotalDisplay').innerText = `${total} / 30`;
-      
+
       const isP2Active = !document.getElementById('pusingan2Container').classList.contains('hidden');
-      if (fasaSemasa === 'Fasa1') { document.getElementById('markahB').value = total; kiraPerbezaanP1(); } 
+      if (fasaSemasa === 'Fasa1') { document.getElementById('markahB').value = total; kiraPerbezaanP1(); }
       else { if (isP2Active) { document.getElementById('markahD').value = total; kiraPerbezaanP2(); } else { document.getElementById('markahB').value = total; kiraPerbezaanP1(); } }
     }
 
@@ -689,15 +710,14 @@
       canvas.ontouchend = () => { isDrawing = false; };
     }
 
-    // REKOD WARNA INDIVIDU BAGI SETIAP STROK BARU
     function mulakanLakaran(e) {
       const rect = canvas.getBoundingClientRect();
       const x = e.clientX - rect.left; const y = e.clientY - rect.top;
-      
+
       ctx.strokeStyle = warnaPenSemasa;
-      ctx.beginPath(); 
+      ctx.beginPath();
       ctx.moveTo(x, y);
-      
+
       pageStrokes.push({ type: 'start', x: x, y: y, color: warnaPenSemasa });
     }
 
@@ -705,11 +725,11 @@
       if (!isDrawing) return;
       const rect = canvas.getBoundingClientRect();
       const x = e.clientX - rect.left; const y = e.clientY - rect.top;
-      
+
       ctx.strokeStyle = warnaPenSemasa;
-      ctx.lineTo(x, y); 
+      ctx.lineTo(x, y);
       ctx.stroke();
-      
+
       pageStrokes.push({ type: 'move', x: x, y: y, color: warnaPenSemasa });
     }
 
@@ -717,11 +737,10 @@
       if(confirm("Kosongkan lakaran halaman ini?")) { pageStrokes = []; renderHalamanPdfSemasa(); }
     }
 
-    // MELUKIS MULTI-WARNA SECARA DINAMIK BERASASKAN REKOD DATA POINT
     function lukisSemulaLakaranHalaman() {
       pageStrokes.forEach(pt => {
-        ctx.strokeStyle = pt.color || '#D9383A'; // Guna warna asal strok atau fallback merah
-        if(pt.type === 'start') { ctx.beginPath(); ctx.moveTo(pt.x, pt.y); } 
+        ctx.strokeStyle = pt.color || '#D9383A';
+        if(pt.type === 'start') { ctx.beginPath(); ctx.moveTo(pt.x, pt.y); }
         else if(pt.type === 'move') { ctx.lineTo(pt.x, pt.y); ctx.stroke(); }
       });
     }
@@ -730,10 +749,10 @@
       const a = parseFloat(document.getElementById('markahA').value) || 0;
       const b = parseFloat(document.getElementById('markahB').value) || 0;
       const c = b - a;
-      if (emelPensyarahAktif === 'haniff.faizal@ipgm.edu.my') { document.getElementById('markahC').value = c + " M"; } 
+      if (emelPensyarahAktif === 'haniff.faizal@ipgm.edu.my') { document.getElementById('markahC').value = c + " M"; }
       else { document.getElementById('markahC').value = "SULIT"; }
       const p2Container = document.getElementById('pusingan2Container');
-      if (Math.abs(c) >= 5) { p2Container.classList.remove('hidden'); kiraPerbezaanP2(); } 
+      if (Math.abs(c) >= 5) { p2Container.classList.remove('hidden'); kiraPerbezaanP2(); }
       else { p2Container.classList.add('hidden'); document.getElementById('markahD').value = ''; document.getElementById('markahE').value = 'SULIT'; kiraMarkahAkhir(); }
     }
 
@@ -741,7 +760,7 @@
       const a = parseFloat(document.getElementById('markahA').value) || 0;
       const d = parseFloat(document.getElementById('markahD').value) || 0;
       const e = d - a;
-      if (emelPensyarahAktif === 'haniff.faizal@ipgm.edu.my') { document.getElementById('markahE').value = e + " M"; } 
+      if (emelPensyarahAktif === 'haniff.faizal@ipgm.edu.my') { document.getElementById('markahE').value = e + " M"; }
       else { document.getElementById('markahE').value = "SULIT"; }
       kiraMarkahAkhir();
     }
@@ -759,6 +778,7 @@
       const payload = {
         angkaGiliran: pelajarSemasa.angkaGiliran,
         emelPensyarah: emelPensyarahAktif,
+        password: _sesiPassword,
         fasaModerasi: pelajarSemasa.fasaModerasi,
         markahPemeriksa: document.getElementById('markahA').value,
         a1: document.getElementById('rubricA1').value, a2: document.getElementById('rubricA2').value,
@@ -777,15 +797,23 @@
       btn.innerText = "Menghantar Rekod..."; btn.disabled = true;
 
       fetch(urlAPI, { method: 'POST', headers: { 'Content-Type': 'text/plain' }, body: JSON.stringify(payload) })
-      .then(() => {
+      .then(res => res.json())
+      .then(resData => {
+        if (resData.status === "error") {
+          alert("Ralat: " + resData.message);
+          btn.innerText = `Sahkan & Hantar Skor Ke Sheets`; btn.disabled = false;
+          return;
+        }
         alert(`Berjaya disimpan ke dalam Helaian 'Hasil_Semakan_Pensyarah'.`);
         btn.innerText = `Sahkan & Hantar Skor Ke Sheets`; btn.disabled = false;
         sambungkanAPI();
       })
-      .catch(err => { window.location.reload(); });
+      .catch(err => {
+        alert("Ralat sambungan ke server. Sila cuba lagi.");
+        btn.innerText = `Sahkan & Hantar Skor Ke Sheets`; btn.disabled = false;
+      });
     }
 
-    // RESTRUKTUR CETAKAN PUKAL UNTUK MENYOKONG LAKARAN MULTI-WARNA
     async function cetakSkripDanContenganGlobal() {
       if (!pelajarSemasa || !currentPdfDoc) {
         alert("Sila pilih salah satu rekod skrip pelajar yang sah.");
@@ -801,7 +829,7 @@
       for (let pNum = 1; pNum <= totalPdfPages; pNum++) {
         const pageBlock = document.createElement('div');
         pageBlock.className = 'print-page-block';
-        
+
         const tempCanvas = document.createElement('canvas');
         tempCanvas.className = 'print-canvas-element';
         pageBlock.appendChild(tempCanvas);
@@ -822,10 +850,9 @@
         pCtx.lineCap = 'round';
         pCtx.lineJoin = 'round';
 
-        // SUNTIK DAN LUKIS WARNA REKOD ASAL SEPERTI DI SKRIN KANVAS
         const strokesPage = allPagesAnnotations[pNum] || [];
         strokesPage.forEach(pt => {
-          pCtx.strokeStyle = pt.color || '#D9383A'; 
+          pCtx.strokeStyle = pt.color || '#D9383A';
           if (pt.type === 'start') {
             pCtx.beginPath();
             pCtx.moveTo(pt.x, pt.y);
@@ -839,12 +866,12 @@
       const footerSummaryClone = document.getElementById('printFooterSummary').cloneNode(true);
       footerSummaryClone.className = 'print-report-footer';
       footerSummaryClone.style.display = 'block';
-      
+
       footerSummaryClone.querySelector('#pStudent').innerText = pelajarSemasa.angkaGiliran;
       footerSummaryClone.querySelector('#pFasa').innerText = pelajarSemasa.fasaModerasi;
       footerSummaryClone.querySelector('#pLecturer').innerText = emelPensyarahAktif;
       footerSummaryClone.querySelector('#pScore').innerText = document.getElementById('markahG').value || '0';
-      
+
       printContainer.appendChild(footerSummaryClone);
 
       setTimeout(() => {
