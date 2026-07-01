@@ -26,42 +26,67 @@
     #scriptCanvas { cursor: crosshair; }
 
     /* ======================================================
-       SISTEM CETAKAN BULK - BETUL & TERSUSUN
+       SISTEM CETAKAN BULK - BETUL & TERSUSUN (DIBAIKI)
+       Setiap muka surat = 1 gambar skrip + 1 kotak catatan,
+       dipastikan SENTIASA berada dalam muka cetak yang SAMA.
        ====================================================== */
     #bulkPrintContainer { display: none; }
 
     @media print {
+      @page {
+        size: A4 portrait;
+        margin: 10mm;
+      }
+
       /* Sembunyikan semua UI - hanya tunjuk kandungan cetakan */
       body > *:not(#bulkPrintContainer) { display: none !important; }
+      body { margin: 0; padding: 0; }
       #bulkPrintContainer { display: block !important; }
 
-      /* Setiap halaman PDF = satu muka surat cetak */
+      /* Setiap halaman PDF = satu muka surat cetak (blok tetap, tidak boleh pecah) */
       .print-page-block {
         page-break-inside: avoid;
+        break-inside: avoid;
         page-break-after: always;
+        break-after: page;
         display: flex;
         flex-direction: column;
         align-items: center;
+        justify-content: flex-start;
         width: 100%;
+        max-height: 277mm; /* tinggi A4 selepas margin 10mm atas+bawah */
+        overflow: hidden;
         margin: 0;
         padding: 0;
       }
       /* Halaman terakhir: jangan tambah page-break selepasnya */
       .print-page-block:last-of-type {
         page-break-after: avoid;
+        break-after: auto;
       }
+
+      /* Gambar skrip dihadkan tinggi supaya SENTIASA ada ruang untuk
+         kotak catatan pada muka surat yang SAMA. Nisbah aspek dikekalkan
+         secara automatik kerana hanya max-width & max-height ditetapkan
+         (tiada width/height mutlak yang boleh herot gambar). */
       .print-canvas-element {
-        width: 100% !important;
-        max-width: 800px !important;
+        max-width: 190mm !important;
+        max-height: 225mm !important;
+        width: auto !important;
         height: auto !important;
         display: block;
         box-shadow: none;
+        flex-shrink: 0;
       }
-      /* Kotak catatan bawah setiap halaman */
+
+      /* Kotak catatan bawah setiap halaman - kekal melekat terus
+         di bawah gambar dalam blok yang sama (tidak pernah terpisah) */
       .print-page-comment-box {
         display: block !important;
         width: 100%;
-        max-width: 800px;
+        max-width: 190mm;
+        max-height: 45mm;
+        overflow: hidden;
         border-top: 2px dashed #999;
         padding: 6px 10px;
         font-size: 10px;
@@ -69,6 +94,8 @@
         color: #333;
         background: #fffef8;
         box-sizing: border-box;
+        flex-shrink: 0;
+        margin-top: 4px;
       }
       .print-page-comment-box .comment-label {
         font-weight: 700;
@@ -87,6 +114,7 @@
       /* Ringkasan akhir */
       .print-report-footer {
         page-break-before: always;
+        break-before: page;
         display: block !important;
         padding: 20px;
         font-family: 'Plus Jakarta Sans', sans-serif;
@@ -575,7 +603,7 @@
   <div id="printFooterSummary" style="display:none">
     <div class="grid grid-cols-2 gap-6 p-5 border-2 border-black rounded-lg text-xs">
       <div>
-        <p class="font-bold uppercase text-sm mb-2 text-red-700">Verifikasi Semakan Digital SEM III Jun-Julai 2026 </p>
+        <p class="font-bold uppercase text-sm mb-2 text-red-700">Bukti Verifikasi Semakan (Digital Multi-Color Canvas)</p>
         <p class="mt-1">Angka Giliran Pelajar: <span id="pStudent" class="font-mono font-bold text-sm bg-neutral-100 px-1 rounded">-</span></p>
         <p>Fasa Aras Saringan: <span id="pFasa" class="font-bold">-</span></p>
         <p>Moderator Pemeriksa: <span id="pLecturer" class="font-bold">-</span></p>
@@ -585,7 +613,7 @@
           <p class="font-bold text-sm text-gray-600">Skor Akhir Keputusan Moderasi</p>
           <p class="text-2xl font-bold text-red-600 font-mono mt-1"><span id="pScore">-</span> / 30 M</p>
         </div>
-        <p class="text-[10px] text-gray-400 italic">Dokumen ini mengandungi semakan dokumen yang sah dari IPG Kampus Darulaman untuk kegunaan MPU3221 Pengurusan Persatuan Di Sekolah 2026</p>
+        <p class="text-[10px] text-gray-400 italic">Dokumen ini mengandungi bukti contengan warna rasmi yang sah dari IPG Kampus Darulaman.</p>
       </div>
     </div>
   </div>
@@ -701,7 +729,8 @@
         document.getElementById('infoKod').innerText = data.konfigurasi["Kod Kursus"] || '-';
         document.getElementById('infoProgram').innerText = data.konfigurasi["Program"] || '-';
         document.getElementById('infoSemester').innerText = data.konfigurasi["Semester/Tahun"] || '-';
-        globalNamaLecturers = data.namaLecturers || [];
+        // === DIBAIKI: backend doGet() menghantar key "pensyarah", bukan "namaLecturers" ===
+        globalNamaLecturers = data.pensyarah || [];
         globalSkripInduk = data.skripInduk;
         globalHasilSemakan = data.hasilSemakan;
         binaSenaraiPelajar();
@@ -1130,7 +1159,7 @@
           else if (pt.type === 'move') { pCtx.lineTo(pt.x, pt.y); pCtx.stroke(); }
         });
 
-        // Kotak catatan (gabung catatan pensyarah & admin)
+        // Kotak catatan (gabung catatan pensyarah & admin) — SENTIASA di dalam blok muka surat yang sama
         const commentText   = (adminSemakMod ? (adminAllPagesComments[pNum] || '') : (allPagesComments[pNum] || '')).trim();
         const commentBox = document.createElement('div');
         commentBox.className = 'print-page-comment-box';
