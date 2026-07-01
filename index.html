@@ -156,42 +156,118 @@
   </header>
 
   <!-- ======================== ADMIN PANEL ======================== -->
-  <section id="adminDashboardPanel" class="hidden w-full max-w-7xl mx-auto mb-8 bg-amber-50/60 p-6 rounded-xl border border-amber-200 shadow-sm no-print">
-    <div class="flex items-center gap-2 mb-3">
+  <section id="adminDashboardPanel" class="hidden w-full max-w-7xl mx-auto mb-8 bg-amber-50/60 p-5 rounded-xl border border-amber-200 shadow-sm no-print">
+    <div class="flex items-center gap-2 mb-4">
       <span class="p-1 rounded bg-amber-200 text-amber-900 font-bold text-[10px] uppercase tracking-wider">Akses Pentadbir</span>
-      <h3 class="font-display font-bold text-lg text-amber-900">Pendaftaran Skrip & Upload Fail (Admin Dashboard)</h3>
+      <h3 class="font-display font-bold text-lg text-amber-900">Admin Dashboard</h3>
     </div>
-    <div class="grid grid-cols-1 md:grid-cols-4 gap-4 items-end bg-white p-4 rounded-xl border border-amber-200 text-xs">
-      <div>
-        <label class="font-bold text-gray-600 block mb-1">1. Taip Angka Giliran Pelajar:</label>
-        <input type="text" id="adminStudentNumberInput" placeholder="Sila taip manual..."
-          class="w-full p-2 border rounded-lg bg-neutral-50 font-mono focus:outline-none focus:border-amber-500 text-sm">
-      </div>
-      <div>
-        <label class="font-bold text-gray-600 block mb-1">2. Tetapkan Fasa / Aras:</label>
-        <select id="adminFasaSelect" class="w-full p-2 border rounded-lg bg-neutral-50 font-medium focus:outline-none text-sm">
-          <option value="P1: Sampel Rawak">Fasa 1: P1 (Sampel Rawak)</option>
-          <option value="P2: Amat Cemerlang">Fasa 2: P2 (Amat Cemerlang)</option>
-          <option value="P2: Sederhana">Fasa 2: P2 (Sederhana)</option>
-          <option value="P2: Lemah">Fasa 2: P2 (Lemah)</option>
-        </select>
-      </div>
-      <div>
-        <label class="font-bold text-gray-600 block mb-1">3. Markah Pemeriksa Asal (a):</label>
-        <input type="number" id="adminMarkahAInput" placeholder="Contoh: 22" min="0" max="30"
-          class="w-full p-2 border rounded-lg bg-neutral-50 focus:outline-none focus:border-amber-500 text-sm">
-      </div>
-      <div>
-        <label class="font-bold text-gray-600 block mb-1">4. Pilih Fail PDF Tugasan:</label>
-        <input type="file" id="adminFileUploader" accept="application/pdf"
-          class="w-full p-1 border rounded-lg bg-neutral-50 text-[11px]">
-      </div>
-    </div>
-    <div class="mt-3 flex justify-end">
-      <button onclick="lakukanUploadAdminKeDrive()" id="btnAdminUpload"
-        class="bg-amber-600 hover:bg-amber-700 text-white font-bold py-2.5 px-6 rounded-lg transition-all text-xs shadow-sm">
-        Daftar Pelajar & Simpan Fail Ke Cloud
+
+    <!-- Admin Tab Navigation -->
+    <div class="flex gap-1 bg-amber-100/70 p-1 rounded-xl mb-4 border border-amber-200">
+      <button onclick="tukarTabAdmin('upload')" id="tabAdminUpload"
+        class="admin-tab flex-1 py-2 text-xs font-bold rounded-lg bg-amber-700 text-white shadow-sm transition-all">
+        📁 Upload Skrip
       </button>
+      <button onclick="tukarTabAdmin('rumusan')" id="tabAdminRumusan"
+        class="admin-tab flex-1 py-2 text-xs font-semibold rounded-lg text-amber-800 hover:bg-amber-200/50 transition-all">
+        📊 Rumusan Semakan
+      </button>
+      <button onclick="tukarTabAdmin('semak')" id="tabAdminSemak"
+        class="admin-tab flex-1 py-2 text-xs font-semibold rounded-lg text-amber-800 hover:bg-amber-200/50 transition-all">
+        🔍 Semak Contengan
+      </button>
+    </div>
+
+    <!-- TAB 1: Upload Skrip (existing, unchanged) -->
+    <div id="adminTabUpload">
+      <div class="grid grid-cols-1 md:grid-cols-4 gap-4 items-end bg-white p-4 rounded-xl border border-amber-200 text-xs">
+        <div>
+          <label class="font-bold text-gray-600 block mb-1">1. Taip Angka Giliran Pelajar:</label>
+          <input type="text" id="adminStudentNumberInput" placeholder="Sila taip manual..."
+            class="w-full p-2 border rounded-lg bg-neutral-50 font-mono focus:outline-none focus:border-amber-500 text-sm">
+        </div>
+        <div>
+          <label class="font-bold text-gray-600 block mb-1">2. Tetapkan Fasa / Aras:</label>
+          <select id="adminFasaSelect" class="w-full p-2 border rounded-lg bg-neutral-50 font-medium focus:outline-none text-sm">
+            <option value="P1: Sampel Rawak">Fasa 1: P1 (Sampel Rawak)</option>
+            <option value="P2: Amat Cemerlang">Fasa 2: P2 (Amat Cemerlang)</option>
+            <option value="P2: Sederhana">Fasa 2: P2 (Sederhana)</option>
+            <option value="P2: Lemah">Fasa 2: P2 (Lemah)</option>
+          </select>
+        </div>
+        <div>
+          <label class="font-bold text-gray-600 block mb-1">3. Markah Pemeriksa Asal (a):</label>
+          <input type="number" id="adminMarkahAInput" placeholder="Contoh: 22" min="0" max="30"
+            class="w-full p-2 border rounded-lg bg-neutral-50 focus:outline-none focus:border-amber-500 text-sm">
+        </div>
+        <div>
+          <label class="font-bold text-gray-600 block mb-1">4. Pilih Fail PDF Tugasan:</label>
+          <input type="file" id="adminFileUploader" accept="application/pdf"
+            class="w-full p-1 border rounded-lg bg-neutral-50 text-[11px]">
+        </div>
+      </div>
+      <div class="mt-3 flex justify-end">
+        <button onclick="lakukanUploadAdminKeDrive()" id="btnAdminUpload"
+          class="bg-amber-600 hover:bg-amber-700 text-white font-bold py-2.5 px-6 rounded-lg transition-all text-xs shadow-sm">
+          Daftar Pelajar & Simpan Fail Ke Cloud
+        </button>
+      </div>
+    </div>
+
+    <!-- TAB 2: Rumusan Semakan -->
+    <div id="adminTabRumusan" class="hidden">
+      <div class="bg-white rounded-xl border border-amber-200 p-4">
+        <div class="flex justify-between items-center mb-4">
+          <h4 class="text-sm font-display font-bold text-amber-900">Laporan Status Semakan Pensyarah</h4>
+          <button onclick="paparRumusanSemakan()" class="text-[10px] font-bold bg-amber-100 hover:bg-amber-200 text-amber-800 px-3 py-1.5 rounded-lg transition-all border border-amber-200">
+            🔄 Muat Semula
+          </button>
+        </div>
+        <!-- Ringkasan atas -->
+        <div id="rumusanRingkasan" class="grid grid-cols-2 md:grid-cols-4 gap-3 mb-4 text-xs"></div>
+        <!-- Jadual pensyarah -->
+        <div class="overflow-x-auto rounded-lg border border-neutral-200">
+          <table class="w-full text-xs border-collapse">
+            <thead>
+              <tr class="bg-[#1E2229] text-white">
+                <th class="px-3 py-2.5 text-left font-bold">Bil</th>
+                <th class="px-3 py-2.5 text-left font-bold">Nama Pensyarah</th>
+                <th class="px-3 py-2.5 text-left font-bold">Emel</th>
+                <th class="px-3 py-2.5 text-center font-bold">Selesai</th>
+                <th class="px-3 py-2.5 text-center font-bold">Belum Semak</th>
+                <th class="px-3 py-2.5 text-center font-bold">Status</th>
+              </tr>
+            </thead>
+            <tbody id="rumusanJadualBody" class="divide-y divide-neutral-100"></tbody>
+          </table>
+        </div>
+        <p class="text-[10px] text-gray-400 mt-2">* Jumlah skrip dikira berdasarkan senarai dalam helaian Skrip_Pelajar.</p>
+      </div>
+    </div>
+
+    <!-- TAB 3: Semak Contengan Pensyarah -->
+    <div id="adminTabSemak" class="hidden">
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <!-- Kiri: Pilih Pensyarah -->
+        <div class="bg-white rounded-xl border border-amber-200 p-4">
+          <h4 class="text-xs font-bold text-amber-900 uppercase tracking-wider mb-3">1. Pilih Pensyarah</h4>
+          <div id="senaraipilihPensyarahAdmin" class="flex flex-col gap-1.5 max-h-52 overflow-y-auto pr-1"></div>
+        </div>
+        <!-- Kanan: Pilih Skrip Pelajar -->
+        <div class="bg-white rounded-xl border border-amber-200 p-4">
+          <h4 class="text-xs font-bold text-amber-900 uppercase tracking-wider mb-1">2. Pilih Skrip Pelajar</h4>
+          <p id="adminSemakPensyarahLabel" class="text-[10px] text-amber-700 mb-2 font-medium">Sila pilih pensyarah dahulu.</p>
+          <div id="senaraiSkripAdminSemak" class="flex flex-col gap-1.5 max-h-52 overflow-y-auto pr-1">
+            <p class="text-[10px] text-gray-400 text-center p-4">Tiada pensyarah dipilih.</p>
+          </div>
+        </div>
+      </div>
+      <div class="mt-3 bg-amber-50 border border-amber-200 rounded-xl p-3 text-[10px] text-amber-800 leading-relaxed">
+        <span class="font-bold">📌 Arahan:</span>
+        Pilih pensyarah → pilih skrip pelajar → PDF dan contengan pensyarah akan dibuka di panel kiri →
+        Anda boleh menambah anotasi menggunakan pen (warna pilihan anda) → Klik
+        <span class="font-bold">"💾 Simpan Anotasi Admin"</span> pada banner oren yang muncul.
+      </div>
     </div>
   </section>
 
@@ -248,6 +324,32 @@
           </svg>
           <p class="font-medium text-sm text-[#1E2229]">Sila Pilih Skrip Pelajar</p>
           <p class="text-xs mt-1 text-gray-500">Klik nombor angka giliran pelajar pada papan kerja kanan untuk menyemak fail PDF.</p>
+        </div>
+      </div>
+
+      <!-- ====== BANNER MOD SEMAK ADMIN (tersembunyi secara lalai) ====== -->
+      <div id="adminSemakBanner" class="hidden bg-orange-50 border border-orange-300 rounded-xl p-4 no-print">
+        <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3">
+          <div>
+            <span class="text-[10px] font-bold text-orange-800 bg-orange-200 px-2 py-0.5 rounded-full uppercase tracking-wider">🔍 Mod Semak Admin Aktif</span>
+            <p class="text-xs font-bold text-orange-900 mt-1.5">Sedang menyemak contengan:
+              <span id="bannerEmelPensyarah" class="font-mono bg-orange-100 px-1.5 py-0.5 rounded text-orange-800">-</span>
+            </p>
+            <p class="text-[10px] text-orange-700 mt-0.5">Skrip Pelajar:
+              <span id="bannerAngkaGiliran" class="font-mono font-bold">-</span>
+              — Lukisan anda (<span class="font-bold">warna pilihan pen semasa</span>) akan disimpan sebagai <span class="font-bold text-orange-800">Anotasi Admin</span> di atas contengan pensyarah.
+            </p>
+          </div>
+          <div class="flex gap-2 flex-shrink-0">
+            <button onclick="simpanAnotasiAdminKeSheets()" id="btnSimpanOverlayAdmin"
+              class="text-xs font-bold bg-orange-600 hover:bg-orange-700 text-white px-4 py-2 rounded-lg transition-all shadow-sm whitespace-nowrap">
+              💾 Simpan Anotasi Admin
+            </button>
+            <button onclick="keluarModSemakAdmin()"
+              class="text-xs font-bold border border-orange-300 hover:bg-orange-100 text-orange-700 px-3 py-2 rounded-lg transition-all whitespace-nowrap">
+              ✕ Keluar
+            </button>
+          </div>
         </div>
       </div>
 
@@ -386,11 +488,11 @@
         <div class="flex flex-col gap-2 pt-2">
           <button id="btnSimpan" onclick="simpanRekodKeSheets()"
             class="w-full bg-[#1E2229] text-white py-2.5 px-4 font-bold rounded-lg hover:bg-black transition-all">
-            Sahkan & Hantar Skor Ke Database
+            Sahkan & Hantar Skor Ke Sheets
           </button>
           <button onclick="cetakSkripDanContenganGlobal()"
             class="w-full border border-red-300 bg-white hover:bg-red-50 text-red-700 py-2.5 px-4 font-bold rounded-lg transition-all flex justify-center items-center gap-2">
-            🖨️ Cetak Semua Semakan Skrip 
+            🖨️ Cetak Semua Muka Skrip (Sekaligus PDF)
           </button>
         </div>
       </div>
@@ -473,7 +575,7 @@
   <div id="printFooterSummary" style="display:none">
     <div class="grid grid-cols-2 gap-6 p-5 border-2 border-black rounded-lg text-xs">
       <div>
-        <p class="font-bold uppercase text-sm mb-2 text-red-700">Verifikasi Semakan (Simpanan Pensyarah dan Penyelaras)</p>
+        <p class="font-bold uppercase text-sm mb-2 text-red-700">Verifikasi Semakan Digital SEM III Jun-Julai 2026 </p>
         <p class="mt-1">Angka Giliran Pelajar: <span id="pStudent" class="font-mono font-bold text-sm bg-neutral-100 px-1 rounded">-</span></p>
         <p>Fasa Aras Saringan: <span id="pFasa" class="font-bold">-</span></p>
         <p>Moderator Pemeriksa: <span id="pLecturer" class="font-bold">-</span></p>
@@ -483,7 +585,7 @@
           <p class="font-bold text-sm text-gray-600">Skor Akhir Keputusan Moderasi</p>
           <p class="text-2xl font-bold text-red-600 font-mono mt-1"><span id="pScore">-</span> / 30 M</p>
         </div>
-        <p class="text-[10px] text-gray-400 italic">Dokumen ini mengandungi bukti semakan rasmi yang sah dari Unit Kokurikulum IPG Kampus Darulaman.</p>
+        <p class="text-[10px] text-gray-400 italic">Dokumen ini mengandungi semakan dokumen yang sah dari IPG Kampus Darulaman untuk kegunaan MPU3221 Pengurusan Persatuan Di Sekolah 2026</p>
       </div>
     </div>
   </div>
@@ -514,6 +616,15 @@
     const ctx = canvas.getContext('2d');
     let isDrawing = false;
     let pageStrokes = [];
+
+    // ---- Pembolehubah Admin Semak Mod ----
+    let globalNamaLecturers  = [];   // email+nama+peranan (tanpa password)
+    let adminSemakMod        = false; // true apabila admin sedang tengok contengan pensyarah
+    let adminEmelTonton      = '';    // emel pensyarah yang sedang ditonton
+    let adminSkripTonton     = null;  // rekod skrip yang sedang ditonton
+    let adminAllPagesOverlay = {};    // strok tambahan admin per halaman
+    let adminPageOverlayStrokes = []; // strok admin halaman semasa
+    let adminAllPagesComments   = {}; // catatan admin per halaman
 
     window.onload = () => { document.getElementById('lecturerEmailInput').focus(); };
 
@@ -590,9 +701,11 @@
         document.getElementById('infoKod').innerText = data.konfigurasi["Kod Kursus"] || '-';
         document.getElementById('infoProgram').innerText = data.konfigurasi["Program"] || '-';
         document.getElementById('infoSemester').innerText = data.konfigurasi["Semester/Tahun"] || '-';
+        globalNamaLecturers = data.namaLecturers || [];
         globalSkripInduk = data.skripInduk;
         globalHasilSemakan = data.hasilSemakan;
         binaSenaraiPelajar();
+        if (adminSemakMod && adminEmelTonton) binaSenaraiPelajarAdmin(adminEmelTonton);
       });
     }
 
@@ -648,6 +761,11 @@
 
     // ---- Pilih Pelajar ----
     function pilihPelajar(indukPelajar, rekodSediaAda) {
+      // Keluar dari mod semak admin apabila pensyarah memilih skrip sendiri
+      adminSemakMod = false; adminEmelTonton = ''; adminSkripTonton = null;
+      adminAllPagesOverlay = {}; adminPageOverlayStrokes = []; adminAllPagesComments = {};
+      document.getElementById('adminSemakBanner').classList.add('hidden');
+
       // Simpan catatan halaman semasa sebelum tukar pelajar
       if (currentPdfDoc) {
         allPagesAnnotations[currentPdfPageNum] = pageStrokes;
@@ -820,17 +938,24 @@
     function tukarHalamanPdf(arah) {
       const sasaran = currentPdfPageNum + arah;
       if (sasaran >= 1 && sasaran <= totalPdfPages) {
-        // Simpan anotasi & catatan halaman semasa
-        allPagesAnnotations[currentPdfPageNum] = pageStrokes;
-        allPagesComments[currentPdfPageNum] = document.getElementById('catatanInput').value;
+        if (adminSemakMod) {
+          // Simpan overlay & catatan admin halaman semasa
+          adminAllPagesOverlay[currentPdfPageNum]  = adminPageOverlayStrokes;
+          adminAllPagesComments[currentPdfPageNum] = document.getElementById('catatanInput').value;
+        } else {
+          allPagesAnnotations[currentPdfPageNum] = pageStrokes;
+          allPagesComments[currentPdfPageNum]    = document.getElementById('catatanInput').value;
+        }
         currentPdfPageNum = sasaran;
-        renderHalamanPdfSemasa();
+        adminSemakMod ? renderHalamanAdminSemasa() : renderHalamanPdfSemasa();
       }
     }
 
     // ---- Catatan bertaip ----
     function simpanCatatanHalaman() {
-      allPagesComments[currentPdfPageNum] = document.getElementById('catatanInput').value;
+      const val = document.getElementById('catatanInput').value;
+      if (adminSemakMod) adminAllPagesComments[currentPdfPageNum] = val;
+      else allPagesComments[currentPdfPageNum] = val;
       const btn = event.target;
       btn.innerText = "✓ Tersimpan"; btn.className = btn.className.replace('bg-[#1E2229]', 'bg-green-600');
       setTimeout(() => { btn.innerText = "Simpan Catatan"; btn.className = btn.className.replace('bg-green-600', 'bg-[#1E2229]'); }, 1500);
@@ -857,7 +982,8 @@
       const x = e.clientX - r.left, y = e.clientY - r.top;
       ctx.strokeStyle = warnaPenSemasa;
       ctx.beginPath(); ctx.moveTo(x, y);
-      pageStrokes.push({ type: 'start', x, y, color: warnaPenSemasa });
+      // Admin semak mod → strok masuk ke overlay admin, bukan lakaran pensyarah
+      (adminSemakMod ? adminPageOverlayStrokes : pageStrokes).push({ type: 'start', x, y, color: warnaPenSemasa });
     }
 
     function jikaMelakar(e) {
@@ -866,11 +992,14 @@
       const x = e.clientX - r.left, y = e.clientY - r.top;
       ctx.strokeStyle = warnaPenSemasa;
       ctx.lineTo(x, y); ctx.stroke();
-      pageStrokes.push({ type: 'move', x, y, color: warnaPenSemasa });
+      (adminSemakMod ? adminPageOverlayStrokes : pageStrokes).push({ type: 'move', x, y, color: warnaPenSemasa });
     }
 
     function clearCanvasPageOnly() {
-      if (confirm("Kosongkan lakaran halaman ini?")) { pageStrokes = []; renderHalamanPdfSemasa(); }
+      if (confirm("Kosongkan lakaran halaman ini?")) {
+        if (adminSemakMod) { adminPageOverlayStrokes = []; renderHalamanAdminSemasa(); }
+        else { pageStrokes = []; renderHalamanPdfSemasa(); }
+      }
     }
 
     function lukisSemulaLakaranHalaman() {
@@ -907,6 +1036,10 @@
 
     // ---- Simpan Ke Sheets ----
     function simpanRekodKeSheets() {
+      if (adminSemakMod) {
+        alert("Anda sedang dalam Mod Semak Admin. Sila guna butang '💾 Simpan Anotasi Admin' di panel atas.");
+        return;
+      }
       if (!pelajarSemasa || !emelPensyarahAktif) return;
       if (currentPdfDoc) {
         allPagesAnnotations[currentPdfPageNum] = pageStrokes;
@@ -981,7 +1114,7 @@
         const pCtx = tempCanvas.getContext('2d');
         await page.render({ canvasContext: pCtx, viewport: page.getViewport({ scale: 1.5 * sf }) }).promise;
 
-        // Lukis semula lakaran warna
+        // Lukis semula lakaran pensyarah
         pCtx.lineWidth = 3; pCtx.lineCap = 'round'; pCtx.lineJoin = 'round';
         const strokes = allPagesAnnotations[pNum] || [];
         strokes.forEach(pt => {
@@ -989,9 +1122,16 @@
           if (pt.type === 'start') { pCtx.beginPath(); pCtx.moveTo(pt.x, pt.y); }
           else if (pt.type === 'move') { pCtx.lineTo(pt.x, pt.y); pCtx.stroke(); }
         });
+        // Lukis overlay admin (jika ada) di atas lakaran pensyarah
+        const adminStrokes = adminAllPagesOverlay[pNum] || [];
+        adminStrokes.forEach(pt => {
+          pCtx.strokeStyle = pt.color || '#F59E0B';
+          if (pt.type === 'start') { pCtx.beginPath(); pCtx.moveTo(pt.x, pt.y); }
+          else if (pt.type === 'move') { pCtx.lineTo(pt.x, pt.y); pCtx.stroke(); }
+        });
 
-        // Kotak catatan (hanya tunjuk jika ada catatan)
-        const commentText = (allPagesComments[pNum] || '').trim();
+        // Kotak catatan (gabung catatan pensyarah & admin)
+        const commentText   = (adminSemakMod ? (adminAllPagesComments[pNum] || '') : (allPagesComments[pNum] || '')).trim();
         const commentBox = document.createElement('div');
         commentBox.className = 'print-page-comment-box';
         commentBox.innerHTML = `
@@ -1018,6 +1158,362 @@
       printContainer.style.display = 'none';
       printContainer.innerHTML = '';
     }
+    // ============================================================
+    // ADMIN: TUKAR TAB DASHBOARD
+    // ============================================================
+    function tukarTabAdmin(tab) {
+      ['upload','rumusan','semak'].forEach(t => {
+        document.getElementById(`adminTab${t.charAt(0).toUpperCase()+t.slice(1)}`).classList.add('hidden');
+        document.getElementById(`tabAdmin${t.charAt(0).toUpperCase()+t.slice(1)}`).className =
+          "admin-tab flex-1 py-2 text-xs font-semibold rounded-lg text-amber-800 hover:bg-amber-200/50 transition-all";
+      });
+      document.getElementById(`adminTab${tab.charAt(0).toUpperCase()+tab.slice(1)}`).classList.remove('hidden');
+      document.getElementById(`tabAdmin${tab.charAt(0).toUpperCase()+tab.slice(1)}`).className =
+        "admin-tab flex-1 py-2 text-xs font-bold rounded-lg bg-amber-700 text-white shadow-sm transition-all";
+      if (tab === 'rumusan') paparRumusanSemakan();
+      if (tab === 'semak')   binaSenaraiPilihPensyarahAdmin();
+    }
+
+    // ============================================================
+    // ADMIN: RUMUSAN SEMAKAN
+    // ============================================================
+    function paparRumusanSemakan() {
+      const total = globalSkripInduk.length;
+      const tbody = document.getElementById('rumusanJadualBody');
+      const ringkasan = document.getElementById('rumusanRingkasan');
+      tbody.innerHTML = '';
+
+      // Filter pensyarah (buang duplikat emel, buang gmail test)
+      const unikLec = [];
+      const seen = new Set();
+      globalNamaLecturers.forEach(l => {
+        if (!seen.has(l.email) && l.email !== 'hanifffaizal@gmail.com') {
+          seen.add(l.email); unikLec.push(l);
+        }
+      });
+
+      let bilanganSelesaiSemua = 0, bilanganSebahagian = 0, bilanganBelumMula = 0;
+
+      unikLec.forEach((lec, idx) => {
+        const selesai = globalHasilSemakan.filter(h => h.emelPensyarah === lec.email).length;
+        const belum   = total - selesai;
+        const peratus = total > 0 ? Math.round((selesai / total) * 100) : 0;
+
+        if (selesai === total && total > 0) bilanganSelesaiSemua++;
+        else if (selesai === 0)             bilanganBelumMula++;
+        else                                bilanganSebahagian++;
+
+        const statusKelas = selesai === total && total > 0
+          ? 'bg-green-100 text-green-800'
+          : selesai === 0
+            ? 'bg-red-100 text-red-700'
+            : 'bg-amber-100 text-amber-800';
+        const statusTeks = selesai === total && total > 0
+          ? '✅ Selesai'
+          : selesai === 0
+            ? '⏳ Belum Mulakan'
+            : `🔄 Sedang (${peratus}%)`;
+
+        const barWarna = peratus === 100 ? 'bg-green-500' : peratus === 0 ? 'bg-red-300' : 'bg-amber-400';
+
+        const tr = document.createElement('tr');
+        tr.className = (idx % 2 === 0 ? 'bg-white' : 'bg-neutral-50') + ' hover:bg-amber-50/40 transition-colors';
+        tr.innerHTML = `
+          <td class="px-3 py-2.5 font-mono text-gray-500">${idx + 1}</td>
+          <td class="px-3 py-2.5 font-bold text-[#1E2229]">${lec.nama}</td>
+          <td class="px-3 py-2.5 text-gray-500 font-mono text-[10px]">${lec.email}</td>
+          <td class="px-3 py-2.5 text-center">
+            <span class="font-bold text-green-700">${selesai}</span>
+            <div class="w-full bg-neutral-200 rounded-full h-1.5 mt-1">
+              <div class="${barWarna} h-1.5 rounded-full" style="width:${peratus}%"></div>
+            </div>
+          </td>
+          <td class="px-3 py-2.5 text-center font-bold ${belum > 0 ? 'text-red-500' : 'text-green-600'}">${belum}</td>
+          <td class="px-3 py-2.5 text-center">
+            <span class="inline-block text-[9px] font-bold px-2 py-1 rounded-full ${statusKelas}">${statusTeks}</span>
+          </td>`;
+        tbody.appendChild(tr);
+      });
+
+      // Ringkasan atas
+      const kartu = (warna, ikon, label, nilai) =>
+        `<div class="rounded-xl border p-3 ${warna}">
+          <p class="text-lg font-bold font-mono">${ikon} ${nilai}</p>
+          <p class="text-[10px] font-semibold mt-0.5">${label}</p>
+        </div>`;
+      ringkasan.innerHTML =
+        kartu('bg-blue-50 border-blue-200 text-blue-800',  '👥', 'Jumlah Pensyarah', unikLec.length) +
+        kartu('bg-green-50 border-green-200 text-green-800','✅', 'Selesai Semua', bilanganSelesaiSemua) +
+        kartu('bg-amber-50 border-amber-200 text-amber-800','🔄', 'Sedang Semak', bilanganSebahagian) +
+        kartu('bg-red-50 border-red-200 text-red-700',     '⏳', 'Belum Mulakan', bilanganBelumMula);
+    }
+
+    // ============================================================
+    // ADMIN: SEMAK CONTENGAN — Senarai Pensyarah
+    // ============================================================
+    function binaSenaraiPilihPensyarahAdmin() {
+      const container = document.getElementById('senaraipilihPensyarahAdmin');
+      container.innerHTML = '';
+      const unikLec = [];
+      const seen = new Set();
+      globalNamaLecturers.forEach(l => {
+        if (!seen.has(l.email) && l.email !== 'hanifffaizal@gmail.com') {
+          seen.add(l.email); unikLec.push(l);
+        }
+      });
+
+      unikLec.forEach(lec => {
+        const selesai = globalHasilSemakan.filter(h => h.emelPensyarah === lec.email).length;
+        const total   = globalSkripInduk.length;
+        const aktif   = adminEmelTonton === lec.email;
+        const div = document.createElement('div');
+        div.className = `flex justify-between items-center p-2 rounded-lg cursor-pointer border text-xs transition-all ${aktif ? 'bg-orange-100 border-orange-400 ring-2 ring-orange-400' : 'bg-neutral-50 border-neutral-200 hover:bg-amber-50 hover:border-amber-300'}`;
+        div.onclick = () => pilihPensyarahUntukSemak(lec.email, lec.nama);
+        div.innerHTML = `
+          <div>
+            <p class="font-bold text-[#1E2229] text-[11px]">${lec.nama}</p>
+            <p class="text-[9px] text-gray-400 font-mono">${lec.email}</p>
+          </div>
+          <span class="text-[10px] font-bold ${selesai === total && total > 0 ? 'text-green-600' : selesai === 0 ? 'text-red-400' : 'text-amber-600'}">${selesai}/${total}</span>`;
+        container.appendChild(div);
+      });
+    }
+
+    function pilihPensyarahUntukSemak(email, nama) {
+      adminEmelTonton = email;
+      document.getElementById('adminSemakPensyarahLabel').innerText = `Skrip untuk: ${nama}`;
+      binaSenaraiPilihPensyarahAdmin(); // refresh highlight
+      binaSenaraiPelajarAdmin(email);
+    }
+
+    // Senarai skrip pelajar untuk pensyarah yang dipilih (dalam tab admin semak)
+    function binaSenaraiPelajarAdmin(email) {
+      const container = document.getElementById('senaraiSkripAdminSemak');
+      container.innerHTML = '';
+      if (!email) { container.innerHTML = '<p class="text-[10px] text-gray-400 text-center p-4">Sila pilih pensyarah dahulu.</p>'; return; }
+
+      globalSkripInduk.forEach(p => {
+        const rekod = globalHasilSemakan.find(h =>
+          h.angkaGiliran.toString().trim() === p.angkaGiliran.toString().trim() &&
+          h.emelPensyarah === email);
+        const adaRekod    = !!rekod;
+        const adaOverlay  = adaRekod && rekod.dataLakaran && (() => {
+          try { const d = JSON.parse(rekod.dataLakaran); return !!(d.adminOverlay && Object.keys(d.adminOverlay).length > 0); } catch(e) { return false; }
+        })();
+        const aktif = adminSkripTonton && adminSkripTonton.angkaGiliran.toString().trim() === p.angkaGiliran.toString().trim() && adminSemakMod;
+
+        const div = document.createElement('div');
+        div.className = `flex justify-between items-center p-2 rounded-lg cursor-pointer border text-xs transition-all ${aktif ? 'ring-2 ring-orange-400 bg-orange-50 border-orange-300' : adaRekod ? 'bg-white border-neutral-200 hover:bg-orange-50 hover:border-orange-300' : 'bg-neutral-50 border-neutral-100 opacity-60 cursor-not-allowed'}`;
+        div.onclick = () => {
+          if (!adaRekod) { alert(`Pensyarah ini belum membuat semakan untuk skrip ${p.angkaGiliran}.`); return; }
+          adminSemakSkrip(p, rekod);
+        };
+        div.innerHTML = `
+          <div>
+            <p class="font-bold font-mono text-[#1E2229]">${p.angkaGiliran}</p>
+            <span class="text-[9px] px-1 py-0.5 rounded ${p.fasaModerasi.startsWith('P1') ? 'bg-blue-100 text-blue-700' : 'bg-gray-100 text-gray-600'}">${p.fasaModerasi}</span>
+          </div>
+          <div class="text-right">
+            <p class="text-[10px] font-bold ${adaRekod ? 'text-green-600' : 'text-gray-300'}">${adaRekod ? '✓ Ada Semakan' : '— Tiada Rekod'}</p>
+            ${adaOverlay ? '<p class="text-[9px] text-orange-600 font-bold">🔍 Ada Anotasi Admin</p>' : ''}
+          </div>`;
+        container.appendChild(div);
+      });
+    }
+
+    // ============================================================
+    // ADMIN: BUKA DAN RENDER CONTENGAN PENSYARAH + OVERLAY ADMIN
+    // ============================================================
+    function adminSemakSkrip(skripInduk, rekodPensyarah) {
+      adminSkripTonton    = skripInduk;
+      adminSemakMod       = true;
+      allPagesAnnotations = {};
+      allPagesComments    = {};
+      adminAllPagesOverlay  = {};
+      adminAllPagesComments = {};
+      adminPageOverlayStrokes = [];
+      pageStrokes = [];
+
+      if (rekodPensyarah?.dataLakaran) {
+        try {
+          const parsed = JSON.parse(rekodPensyarah.dataLakaran);
+          if (parsed.annotations !== undefined) {
+            allPagesAnnotations  = parsed.annotations  || {};
+            allPagesComments     = parsed.comments     || {};
+            adminAllPagesOverlay = parsed.adminOverlay  || {};
+            adminAllPagesComments= parsed.adminComments || {};
+          } else {
+            allPagesAnnotations  = parsed; // format lama
+          }
+        } catch(e) {}
+      }
+
+      // Kemas banner
+      document.getElementById('bannerEmelPensyarah').innerText  = adminEmelTonton;
+      document.getElementById('bannerAngkaGiliran').innerText   = skripInduk.angkaGiliran;
+      document.getElementById('adminSemakBanner').classList.remove('hidden');
+      document.getElementById('catatanContainer').classList.remove('hidden');
+
+      // Kemas label catatan
+      document.getElementById('catatanHalamanLabel').innerText = currentPdfPageNum;
+
+      // Reset PDF viewer
+      currentPdfDoc = null;
+      canvas.classList.add('hidden');
+      document.getElementById('pdfNavigationControls').classList.add('hidden');
+      document.getElementById('canvasPlaceholder').classList.remove('hidden');
+      document.getElementById('canvasPlaceholder').innerHTML =
+        `<p class="font-bold text-amber-700">Membuka skrip pelajar ${skripInduk.angkaGiliran}...</p>`;
+
+      currentPdfPageNum = 1;
+
+      // Refresh senarai highlight
+      binaSenaraiPelajarAdmin(adminEmelTonton);
+
+      fetch(urlAPI + "?action=fetchPdfProxy&id=" + skripInduk.urlSkrip)
+        .then(r => r.text())
+        .then(b64 => {
+          if (b64.startsWith("ERROR")) throw new Error(b64);
+          const raw = atob(b64);
+          const arr = new Uint8Array(raw.length);
+          for (let i = 0; i < raw.length; i++) arr[i] = raw.charCodeAt(i);
+          pdfjsLib.getDocument({ data: arr }).promise.then(pdf => {
+            currentPdfDoc  = pdf;
+            totalPdfPages  = pdf.numPages;
+            document.getElementById('pdfTotalPagesNum').innerText = totalPdfPages;
+            document.getElementById('pdfNavigationControls').classList.remove('hidden');
+            renderHalamanAdminSemasa();
+          });
+        })
+        .catch(() => {
+          document.getElementById('canvasPlaceholder').innerHTML =
+            `<span class="text-red-500 font-bold">Gagal membuka fail PDF.</span>`;
+        });
+    }
+
+    // Render halaman PDF + contengan pensyarah + overlay admin
+    function renderHalamanAdminSemasa() {
+      if (!currentPdfDoc) return;
+      document.getElementById('pdfCurrentPageNum').innerText  = currentPdfPageNum;
+      document.getElementById('catatanHalamanLabel').innerText = currentPdfPageNum;
+
+      // Papar catatan admin untuk halaman ini
+      document.getElementById('catatanInput').value = adminAllPagesComments[currentPdfPageNum] || '';
+
+      currentPdfDoc.getPage(currentPdfPageNum).then(page => {
+        const vp = page.getViewport({ scale: 1.5 });
+        canvas.width = 800;
+        const sf = 800 / vp.width;
+        canvas.height = vp.height * sf;
+        page.render({ canvasContext: ctx, viewport: page.getViewport({ scale: 1.5 * sf }) }).promise.then(() => {
+          document.getElementById('canvasPlaceholder').classList.add('hidden');
+          canvas.classList.remove('hidden');
+
+          // Muat strok halaman ini
+          pageStrokes             = allPagesAnnotations[currentPdfPageNum]  || [];
+          adminPageOverlayStrokes = adminAllPagesOverlay[currentPdfPageNum] || [];
+
+          // Lukis contengan pensyarah dulu
+          lukisSemulaLakaranHalaman();
+          // Lukis overlay admin di atas
+          lukisSemulaOverlayAdmin();
+          setupCanvasEventListeners();
+        });
+      });
+    }
+
+    function lukisSemulaOverlayAdmin() {
+      adminPageOverlayStrokes.forEach(pt => {
+        ctx.strokeStyle = pt.color || '#F59E0B';
+        if (pt.type === 'start') { ctx.beginPath(); ctx.moveTo(pt.x, pt.y); }
+        else if (pt.type === 'move') { ctx.lineTo(pt.x, pt.y); ctx.stroke(); }
+      });
+    }
+
+    // Simpan overlay admin ke dalam rekod pensyarah di Sheets
+    function simpanAnotasiAdminKeSheets() {
+      if (!adminSkripTonton || !adminEmelTonton) return;
+
+      // Simpan halaman semasa
+      adminAllPagesOverlay[currentPdfPageNum]  = adminPageOverlayStrokes;
+      adminAllPagesComments[currentPdfPageNum] = document.getElementById('catatanInput').value;
+
+      const rekodAsal = globalHasilSemakan.find(h =>
+        h.angkaGiliran.toString().trim() === adminSkripTonton.angkaGiliran.toString().trim() &&
+        h.emelPensyarah === adminEmelTonton);
+
+      if (!rekodAsal) {
+        alert("Tiada rekod semakan pensyarah untuk skrip ini. Anotasi admin tidak dapat disimpan.");
+        return;
+      }
+
+      // Bina dataLakaran baru dengan overlay admin digabungkan
+      let gabungan = { annotations: {}, comments: {}, adminOverlay: {}, adminComments: {} };
+      if (rekodAsal.dataLakaran) {
+        try {
+          const p = JSON.parse(rekodAsal.dataLakaran);
+          if (p.annotations !== undefined) gabungan = p;
+          else gabungan.annotations = p;
+        } catch(e) {}
+      }
+      gabungan.adminOverlay  = adminAllPagesOverlay;
+      gabungan.adminComments = adminAllPagesComments;
+
+      const btn = document.getElementById('btnSimpanOverlayAdmin');
+      btn.innerText = "Sedang Menyimpan..."; btn.disabled = true;
+
+      fetch(urlAPI, {
+        method: 'POST',
+        headers: { 'Content-Type': 'text/plain' },
+        body: JSON.stringify({
+          action:        "simpanAnotasiAdmin",
+          adminEmail:    emelPensyarahAktif,
+          adminPassword: _sesiPassword,
+          emelPensyarah: adminEmelTonton,
+          angkaGiliran:  adminSkripTonton.angkaGiliran,
+          dataLakaran:   JSON.stringify(gabungan)
+        })
+      })
+      .then(r => r.json())
+      .then(res => {
+        btn.innerText = "💾 Simpan Anotasi Admin"; btn.disabled = false;
+        if (res.status !== "success") { alert("Ralat: " + res.message); return; }
+        alert(`✅ Anotasi admin untuk skrip ${adminSkripTonton.angkaGiliran} berjaya disimpan.`);
+        sambungkanAPI();
+      })
+      .catch(() => {
+        btn.innerText = "💾 Simpan Anotasi Admin"; btn.disabled = false;
+        alert("Ralat sambungan ke server.");
+      });
+    }
+
+    // Keluar dari mod semak admin
+    function keluarModSemakAdmin() {
+      adminSemakMod        = false;
+      adminEmelTonton      = '';
+      adminSkripTonton     = null;
+      adminAllPagesOverlay  = {};
+      adminPageOverlayStrokes = [];
+      adminAllPagesComments = {};
+      allPagesAnnotations  = {};
+      allPagesComments     = {};
+      pageStrokes          = [];
+      currentPdfDoc        = null;
+      currentPdfPageNum    = 1;
+      canvas.classList.add('hidden');
+      document.getElementById('canvasPlaceholder').classList.remove('hidden');
+      document.getElementById('canvasPlaceholder').innerHTML = `
+        <svg class="mx-auto h-12 w-12 text-gray-300 mb-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
+        </svg>
+        <p class="font-medium text-sm text-[#1E2229]">Sila Pilih Skrip Pelajar</p>
+        <p class="text-xs mt-1 text-gray-500">Klik nombor angka giliran pelajar pada papan kerja kanan.</p>`;
+      document.getElementById('pdfNavigationControls').classList.add('hidden');
+      document.getElementById('catatanContainer').classList.add('hidden');
+      document.getElementById('adminSemakBanner').classList.add('hidden');
+      document.getElementById('catatanInput').value = '';
+    }
+
     // ============================================================
     // TUKAR KATA LALUAN
     // ============================================================
