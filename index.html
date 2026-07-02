@@ -356,6 +356,21 @@
             </div>
           </div>
 
+          <!-- Tetapkan Markah Pemeriksa Asal (a) - Admin sahaja -->
+          <div class="bg-white border border-neutral-200 rounded-xl p-4">
+            <p class="text-xs font-bold text-[#1E2229] uppercase tracking-wider mb-1">🔒 Tetapkan Markah Pemeriksa Asal (a) — Admin Sahaja</p>
+            <p class="text-[10px] text-gray-400 mb-3">Guna hasil semakan automatik di atas sebagai panduan untuk menetapkan/mengemaskini markah pemeriksa asal skrip ini dalam sistem (helaian Skrip_Pelajar).</p>
+            <div class="flex items-center gap-3 flex-wrap">
+              <input type="number" id="autoMarkahAsalInput" min="0" max="30" placeholder="Contoh: 22"
+                class="w-32 text-center font-bold border border-neutral-300 rounded-lg py-2 text-sm">
+              <button onclick="simpanMarkahAsalDariAuto()"
+                class="text-xs font-bold bg-[#1E2229] text-white px-4 py-2 rounded-lg hover:bg-black transition-all">
+                💾 Simpan Markah Asal (a)
+              </button>
+              <span id="autoMarkahAsalStatus" class="text-[10px] text-gray-400"></span>
+            </div>
+          </div>
+
           <!-- Semakan Rubrik -->
           <div>
             <h4 class="text-xs font-bold text-[#1E2229] uppercase tracking-wider mb-2">📋 Semakan Kepatuhan Rubrik</h4>
@@ -1838,6 +1853,8 @@
     // ---- Paparan hasil (kongsi antara kedua-dua mod) ----
     function paparHasilAnalisis(hasilRubrik, hasilApa, ulasanTeks) {
       document.getElementById('autoHasilContainer').classList.remove('hidden');
+      document.getElementById('autoMarkahAsalInput').value = (autoSemakSkripDipilih && autoSemakSkripDipilih.markahPemeriksa) || '';
+      document.getElementById('autoMarkahAsalStatus').innerText = '';
 
       const rubrikContainer = document.getElementById('autoRubrikList');
       rubrikContainer.innerHTML = '';
@@ -1899,6 +1916,38 @@
       });
       kiraSkorRubrik();
       alert("✅ Cadangan markah telah dimasukkan ke borang rubrik. Sila semak dan sahkan sebelum menghantar.");
+    }
+
+    // Simpan/kemaskini Markah Pemeriksa Asal (a) — hanya dalam Tab Semakan Automatik, Admin sahaja
+    async function simpanMarkahAsalDariAuto() {
+      if (!autoSemakSkripDipilih) return;
+      const nilai = document.getElementById('autoMarkahAsalInput').value;
+      const status = document.getElementById('autoMarkahAsalStatus');
+      if (nilai === '' || isNaN(parseFloat(nilai))) { status.innerText = '❌ Sila masukkan nilai markah yang sah.'; status.className = 'text-[10px] text-red-500 font-bold'; return; }
+      status.innerText = '⏳ Menyimpan...'; status.className = 'text-[10px] text-gray-400';
+      try {
+        const res = await fetch(urlAPI, {
+          method: 'POST',
+          headers: { 'Content-Type': 'text/plain' },
+          body: JSON.stringify({
+            action: "kemaskiniMarkahAsal",
+            adminEmail: emelPensyarahAktif,
+            adminPassword: _sesiPassword,
+            angkaGiliran: autoSemakSkripDipilih.angkaGiliran,
+            markahAsalBaru: nilai
+          })
+        });
+        const json = await res.json();
+        if (json.status !== "success") { throw new Error(json.message || "Ralat tidak diketahui."); }
+        autoSemakSkripDipilih.markahPemeriksa = nilai;
+        status.innerText = `✅ Markah Asal (a) berjaya dikemaskini kepada ${nilai}.`;
+        status.className = 'text-[10px] text-green-600 font-bold';
+        sambungkanAPI();
+        binaSenaraiSkripAutoSemak();
+      } catch (err) {
+        status.innerText = '❌ Ralat: ' + err.message;
+        status.className = 'text-[10px] text-red-500 font-bold';
+      }
     }
 
     // ============================================================
