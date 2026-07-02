@@ -1241,6 +1241,54 @@
       document.getElementById('markahG').value = a + f;
     }
 
+    // ============================================================
+    // SAMBUNGAN RANGKAIAN YANG LEBIH TEGUH
+    // Masalah biasa: fetch() ke Apps Script kadangkala "gagal" di sisi
+    // pelayar (timeout/respons tidak lengkap) WALAUPUN data sudah
+    // berjaya ditulis ke Sheet di sisi server. Fungsi di bawah menambah
+    // had masa, cubaan semula automatik, dan pengesahan semula selepas
+    // kegagalan supaya pengguna tidak keliru dengan amaran palsu.
+    // ============================================================
+    function fetchDenganTimeout(url, options, timeoutMs) {
+      const controller = new AbortController();
+      const timer = setTimeout(() => controller.abort(), timeoutMs || 20000);
+      return fetch(url, Object.assign({}, options, { signal: controller.signal }))
+        .finally(() => clearTimeout(timer));
+    }
+
+    async function fetchJSONSelamat(url, options, timeoutMs, percubaanMaks) {
+      let ralatTerakhir = null;
+      const maks = percubaanMaks || 2;
+      for (let cubaan = 1; cubaan <= maks; cubaan++) {
+        try {
+          const res = await fetchDenganTimeout(url, options, timeoutMs || 20000);
+          const teks = await res.text();
+          try {
+            return JSON.parse(teks);
+          } catch (eParse) {
+            throw new Error('Respons server tidak sah/tidak lengkap (bukan JSON). ' + teks.substring(0, 150));
+          }
+        } catch (err) {
+          ralatTerakhir = err;
+          if (cubaan < maks) await new Promise(r => setTimeout(r, 1200));
+        }
+      }
+      throw ralatTerakhir;
+    }
+
+    // Semak semula pada server sama ada rekod skor sebenarnya telah tersimpan,
+    // walaupun fetch() tadi kelihatan gagal di sisi pelayar (mis. sambungan terputus).
+    async function semakRekodTelahDisimpan(payload) {
+      try {
+        const res = await fetchDenganTimeout(urlAPI, {}, 15000);
+        const data = await res.json();
+        const kunci = payload.emelPensyarah + '-' + payload.angkaGiliran;
+        const rekod = (data.hasilSemakan || []).find(h => h.kunciUnik === kunci);
+        if (!rekod) return false;
+        return String(rekod.markahAkhir) === String(payload.markahAkhir);
+      } catch (e) { return false; }
+    }
+
     // ---- Simpan Ke Sheets ----
     function simpanRekodKeSheets() {
       if (adminSemakMod) {
@@ -1277,15 +1325,23 @@
       const btn = document.getElementById('btnSimpan');
       btn.innerText = "Menghantar..."; btn.disabled = true;
 
-      fetch(urlAPI, { method: 'POST', headers: { 'Content-Type': 'text/plain' }, body: JSON.stringify(payload) })
-        .then(r => r.json())
+      fetchJSONSelamat(urlAPI, { method: 'POST', headers: { 'Content-Type': 'text/plain' }, body: JSON.stringify(payload) }, 25000, 2)
         .then(res => {
           btn.innerText = "Sahkan & Hantar Skor Ke Sheets"; btn.disabled = false;
           if (res.status === "error") { alert("Ralat: " + res.message); return; }
           alert("Berjaya disimpan ke dalam Helaian 'Hasil_Semakan_Pensyarah'.");
           sambungkanAPI();
         })
-        .catch(() => { btn.innerText = "Sahkan & Hantar Skor Ke Sheets"; btn.disabled = false; alert("Ralat sambungan."); });
+        .catch(async (err) => {
+          btn.innerText = "Sahkan & Hantar Skor Ke Sheets"; btn.disabled = false;
+          const disahkan = await semakRekodTelahDisimpan(payload);
+          if (disahkan) {
+            alert("⚠️ Sambungan tidak stabil semasa menghantar, tetapi selepas disemak semula pada server, data DIDAPATI telah berjaya disimpan. Tiada tindakan lanjut diperlukan.");
+            sambungkanAPI();
+          } else {
+            alert("❌ Ralat sambungan: " + (err && err.message ? err.message : err) + "\n\nData mungkin TIDAK tersimpan. Sila cuba hantar semula.");
+          }
+        });
     }
 
     // ---- CETAKAN BULK (BETUL & TERSUSUN) ----
@@ -1670,29 +1726,37 @@
       const btn = document.getElementById('btnSimpanOverlayAdmin');
       btn.innerText = "Sedang Menyimpan..."; btn.disabled = true;
 
-      fetch(urlAPI, {
-        method: 'POST',
-        headers: { 'Content-Type': 'text/plain' },
-        body: JSON.stringify({
-          action:        "simpanAnotasiAdmin",
-          adminEmail:    emelPensyarahAktif,
-          adminPassword: _sesiPassword,
-          emelPensyarah: adminEmelTonton,
-          angkaGiliran:  adminSkripTonton.angkaGiliran,
-          dataLakaran:   JSON.stringify(gabungan)
+      const payloadOverlay = {
+        action:        "simpanAnotasiAdmin",
+        adminEmail:    emelPensyarahAktif,
+        adminPassword: _sesiPassword,
+        emelPensyarah: adminEmelTonton,
+        angkaGiliran:  adminSkripTonton.angkaGiliran,
+        dataLakaran:   JSON.stringify(gabungan)
+      };
+
+      fetchJSONSelamat(urlAPI, { method: 'POST', headers: { 'Content-Type': 'text/plain' }, body: JSON.stringify(payloadOverlay) }, 25000, 2)
+        .then(res => {
+          btn.innerText = "💾 Simpan Anotasi Admin"; btn.disabled = false;
+          if (res.status !== "success") { alert("Ralat: " + res.message); return; }
+          alert(`✅ Anotasi admin untuk skrip ${adminSkripTonton.angkaGiliran} berjaya disimpan.`);
+          sambungkanAPI();
         })
-      })
-      .then(r => r.json())
-      .then(res => {
-        btn.innerText = "💾 Simpan Anotasi Admin"; btn.disabled = false;
-        if (res.status !== "success") { alert("Ralat: " + res.message); return; }
-        alert(`✅ Anotasi admin untuk skrip ${adminSkripTonton.angkaGiliran} berjaya disimpan.`);
-        sambungkanAPI();
-      })
-      .catch(() => {
-        btn.innerText = "💾 Simpan Anotasi Admin"; btn.disabled = false;
-        alert("Ralat sambungan ke server.");
-      });
+        .catch(async (err) => {
+          btn.innerText = "💾 Simpan Anotasi Admin"; btn.disabled = false;
+          try {
+            const res = await fetchDenganTimeout(urlAPI, {}, 15000);
+            const data = await res.json();
+            const rekodSemasa = (data.hasilSemakan || []).find(h =>
+              h.angkaGiliran.toString().trim() === adminSkripTonton.angkaGiliran.toString().trim() && h.emelPensyarah === adminEmelTonton);
+            if (rekodSemasa && rekodSemasa.dataLakaran === payloadOverlay.dataLakaran) {
+              alert("⚠️ Sambungan tidak stabil, tetapi anotasi DIDAPATI telah berjaya disimpan selepas disemak semula.");
+              sambungkanAPI();
+              return;
+            }
+          } catch (e) { /* abaikan, jatuh ke mesej ralat di bawah */ }
+          alert("❌ Ralat sambungan ke server: " + (err && err.message ? err.message : err) + "\n\nSila cuba simpan semula.");
+        });
     }
 
     // Keluar dari mod semak admin
@@ -1904,7 +1968,7 @@
         } else {
           status.innerText = "⏳ Menghantar ke AI (Groq (GPT-OSS))... ini mungkin ambil masa.";
           const teksDipangkas = teks.length > 12000 ? teks.substring(0, 12000) + "\n...(dipangkas)" : teks;
-          const res = await fetch(urlAPI, {
+          const json = await fetchJSONSelamat(urlAPI, {
             method: 'POST',
             headers: { 'Content-Type': 'text/plain' },
             body: JSON.stringify({
@@ -1913,8 +1977,7 @@
               adminPassword: _sesiPassword,
               teksSkrip: teksDipangkas
             })
-          });
-          const json = await res.json();
+          }, 60000, 2);
           if (json.status !== "success") { throw new Error(json.message || "Ralat AI tidak diketahui."); }
           const { hasilRubrik, hasilApa, senaraiKesalahan, ulasan } = normalisasiHasilAI(json.hasil);
           autoHasilRubrikTerkini = hasilRubrik;
