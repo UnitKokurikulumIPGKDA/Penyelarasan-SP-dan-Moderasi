@@ -784,7 +784,10 @@
     let adminPageOverlayStrokes = []; // strok admin halaman semasa
     let adminAllPagesComments   = {}; // catatan admin per halaman
 
-    window.onload = () => { document.getElementById('lecturerEmailInput').focus(); };
+    window.onload = () => {
+      const dipulihkan = cubaPulihkanSesi();
+      if (!dipulihkan) document.getElementById('lecturerEmailInput').focus();
+    };
 
     // ---- Pen Warna ----
     function tukarWarnaPenSemasa(hexColor, idName) {
@@ -804,6 +807,23 @@
     }
 
     // ---- LOGIN (server-side) ----
+    function masukDashboardSelepasLogin(res, password, simpanSesi) {
+      emelPensyarahAktif = res.email;
+      _sesiPassword = password;
+      document.getElementById('activeLecturerBadge').innerText = `${res.nama} (${res.peranan})`;
+      document.getElementById('loginOverlay').classList.add('hidden');
+      document.getElementById('lecturerPasswordInput').value = '';
+      if (res.peranan === "Admin" || emelPensyarahAktif === "haniff.faizal@ipgm.edu.my") {
+        document.getElementById('adminDashboardPanel').classList.remove('hidden');
+      }
+      if (simpanSesi) {
+        try {
+          sessionStorage.setItem('sesiModerasi', JSON.stringify({ email: res.email, password }));
+        } catch (e) { /* sessionStorage tidak tersedia — abaikan, sesi tidak akan bertahan selepas reload */ }
+      }
+      sambungkanAPI();
+    }
+
     function sahkanLoginPensyarah() {
       const email = document.getElementById('lecturerEmailInput').value.trim();
       const password = document.getElementById('lecturerPasswordInput').value.trim();
@@ -832,15 +852,7 @@
           document.getElementById('lecturerPasswordInput').value = '';
           return;
         }
-        emelPensyarahAktif = res.email;
-        _sesiPassword = password;
-        document.getElementById('activeLecturerBadge').innerText = `${res.nama} (${res.peranan})`;
-        document.getElementById('loginOverlay').classList.add('hidden');
-        document.getElementById('lecturerPasswordInput').value = '';
-        if (res.peranan === "Admin" || emelPensyarahAktif === "haniff.faizal@ipgm.edu.my") {
-          document.getElementById('adminDashboardPanel').classList.remove('hidden');
-        }
-        sambungkanAPI();
+        masukDashboardSelepasLogin(res, password, true);
       })
       .catch(() => {
         btn.innerText = "Sahkan & Masuk Dashboard"; btn.disabled = false;
@@ -849,7 +861,38 @@
       });
     }
 
-    function logoutPensyarah() { _sesiPassword = ''; emelPensyarahAktif = ''; window.location.reload(); }
+    // Cuba pulihkan sesi log masuk selepas muat semula halaman (refresh/reload),
+    // supaya pensyarah/admin TIDAK terkeluar secara automatik selepas tindakan
+    // seperti muat naik skrip/rubrik atau semakan yang menyegarkan data.
+    function cubaPulihkanSesi() {
+      let sesi = null;
+      try { sesi = JSON.parse(sessionStorage.getItem('sesiModerasi') || 'null'); } catch (e) {}
+      if (!sesi || !sesi.email || !sesi.password) return false;
+
+      fetch(urlAPI, {
+        method: 'POST',
+        headers: { 'Content-Type': 'text/plain' },
+        body: JSON.stringify({ action: "login", email: sesi.email, password: sesi.password })
+      })
+      .then(r => r.json())
+      .then(res => {
+        if (res.status === "success") {
+          masukDashboardSelepasLogin(res, sesi.password, false);
+        } else {
+          sessionStorage.removeItem('sesiModerasi');
+          document.getElementById('lecturerEmailInput').focus();
+        }
+      })
+      .catch(() => { document.getElementById('lecturerEmailInput').focus(); });
+      return true;
+    }
+
+    function logoutPensyarah() {
+      _sesiPassword = ''; emelPensyarahAktif = '';
+      try { sessionStorage.removeItem('sesiModerasi'); } catch (e) {}
+      window.location.reload();
+    }
+
 
     // ---- Load Data Selepas Login ----
     function sambungkanAPI() {
@@ -1016,12 +1059,15 @@
             fileData: e.target.result
           })
         }).then(r => r.json()).then(res => {
+          btn.innerText = "Daftar Pelajar & Simpan Fail Ke Cloud"; btn.disabled = false;
           if (res.status === "error") {
             alert("Ralat: " + res.message);
-            btn.innerText = "Daftar Pelajar & Simpan Fail Ke Cloud"; btn.disabled = false;
           } else {
             alert(`Sukses! Skrip ${studentId} berjaya disimpan.`);
-            window.location.reload();
+            document.getElementById('adminStudentNumberInput').value = '';
+            document.getElementById('adminMarkahAInput').value = '';
+            document.getElementById('adminFileUploader').value = '';
+            sambungkanAPI();
           }
         }).catch(() => {
           alert("Ralat sambungan."); btn.innerText = "Daftar Pelajar & Simpan Fail Ke Cloud"; btn.disabled = false;
