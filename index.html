@@ -313,7 +313,7 @@
             </button>
             <button onclick="tukarModeSemakAuto('ai')" id="btnModeAI"
               class="px-3 py-1.5 text-xs font-semibold rounded-md text-gray-500 hover:bg-white/60 transition-all">
-              🤖 AI (Gemini AI)
+              🤖 AI (Groq (GPT-OSS))
             </button>
           </div>
           <p id="modeAutoDesc" class="text-[10px] text-gray-400 max-w-sm text-right">Kaedah kata kunci/corak teks — pantas &amp; percuma, tetapi lebih kasar.</p>
@@ -321,7 +321,7 @@
 
         <div id="autoAiNotis" class="hidden bg-blue-50 border border-blue-200 rounded-lg p-3 text-[10px] text-blue-800 mb-4 leading-relaxed">
           <span class="font-bold">ℹ️ Mod AI:</span> Teks skrip akan dihantar ke model AI melalui backend Apps Script (token disimpan selamat di Script Properties, tidak terdedah di browser).
-          Setiap semakan mod ini menggunakan kuota/kos API Gemini AI anda.
+          Setiap semakan mod ini menggunakan kuota/kos API Groq (GPT-OSS) anda.
         </div>
 
         <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
@@ -1645,7 +1645,7 @@
     // ============================================================
     // ADMIN: SEMAKAN AUTOMATIK (RUBRIK & FORMAT APA 7)
     // Mod 1: Rule-Based (kata kunci/regex) — percuma, tempatan
-    // Mod 2: AI (Gemini AI) — melalui backend Apps Script
+    // Mod 2: AI (Groq (GPT-OSS)) — melalui backend Apps Script
     // ============================================================
     let modeSemakAuto = 'rule';           // 'rule' atau 'ai'
     let autoSemakSkripDipilih = null;
@@ -1669,7 +1669,7 @@
       document.getElementById('btnModeAI').className   = mod === 'ai'   ? aktif : tidakAktif;
       document.getElementById('autoAiNotis').classList.toggle('hidden', mod !== 'ai');
       document.getElementById('modeAutoDesc').innerText = mod === 'ai'
-        ? "Kaedah AI (Gemini AI) — lebih tepat memahami konteks, tetapi guna kuota/kos API."
+        ? "Kaedah AI (Groq (GPT-OSS)) — lebih tepat memahami konteks, tetapi guna kuota/kos API."
         : "Kaedah kata kunci/corak teks — pantas & percuma, tetapi lebih kasar.";
       document.getElementById('autoHasilContainer').classList.add('hidden');
     }
@@ -1742,7 +1742,7 @@
           paparHasilAnalisis(hasilRubrik, hasilApa, buatUlasanAutoRule(hasilRubrik, hasilApa));
           status.innerText = "✅ Semakan rule-based selesai.";
         } else {
-          status.innerText = "⏳ Menghantar ke AI (Gemini AI)... ini mungkin ambil masa.";
+          status.innerText = "⏳ Menghantar ke AI (Groq (GPT-OSS))... ini mungkin ambil masa.";
           const teksDipangkas = teks.length > 12000 ? teks.substring(0, 12000) + "\n...(dipangkas)" : teks;
           const res = await fetch(urlAPI, {
             method: 'POST',
@@ -1821,7 +1821,7 @@
       return ulasan;
     }
 
-    // ---- Mod AI (Gemini AI) ----
+    // ---- Mod AI (Groq (GPT-OSS)) ----
     function normalisasiHasilAI(teksJSON) {
       let bersih = teksJSON.trim().replace(/^```json\s*/i, '').replace(/^```\s*/,'').replace(/```\s*$/,'');
       let obj;
@@ -1846,7 +1846,7 @@
         (obj.apa7.isu || []).forEach(isu => hasilApa.push({ label: "Isu Dikesan", status: 'warn', detail: isu }));
       }
 
-      const ulasan = (obj.ulasanKeseluruhan || '') + `\n\n(Dijana oleh AI - Gemini AI. Sahkan secara manual sebelum finalisasi markah.)`;
+      const ulasan = (obj.ulasanKeseluruhan || '') + `\n\n(Dijana oleh AI - Groq (GPT-OSS). Sahkan secara manual sebelum finalisasi markah.)`;
       return { hasilRubrik, hasilApa, ulasan };
     }
 
