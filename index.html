@@ -204,6 +204,10 @@
         class="admin-tab flex-1 py-2 text-xs font-semibold rounded-lg text-amber-800 hover:bg-amber-200/50 transition-all">
         🔍 Semak Contengan
       </button>
+      <button onclick="tukarTabAdmin('auto')" id="tabAdminAuto"
+        class="admin-tab flex-1 py-2 text-xs font-semibold rounded-lg text-amber-800 hover:bg-amber-200/50 transition-all">
+        ⚙️ Semakan Automatik
+      </button>
     </div>
 
     <!-- TAB 1: Upload Skrip (existing, unchanged) -->
@@ -295,6 +299,85 @@
         Pilih pensyarah → pilih skrip pelajar → PDF dan contengan pensyarah akan dibuka di panel kiri →
         Anda boleh menambah anotasi menggunakan pen (warna pilihan anda) → Klik
         <span class="font-bold">"💾 Simpan Anotasi Admin"</span> pada banner oren yang muncul.
+      </div>
+    </div>
+
+    <!-- TAB 4: Semakan Automatik (Rubrik & Format APA 7) -->
+    <div id="adminTabAuto" class="hidden">
+      <div class="bg-white rounded-xl border border-amber-200 p-4">
+        <div class="flex flex-col sm:flex-row justify-between sm:items-center gap-3 mb-4">
+          <div class="flex items-center gap-1.5 bg-neutral-100 p-1 rounded-lg border border-neutral-200 w-max">
+            <button onclick="tukarModeSemakAuto('rule')" id="btnModeRule"
+              class="px-3 py-1.5 text-xs font-bold rounded-md bg-white border border-amber-300 text-amber-700 shadow-sm transition-all">
+              🧮 Rule-Based (Tanpa Kos)
+            </button>
+            <button onclick="tukarModeSemakAuto('ai')" id="btnModeAI"
+              class="px-3 py-1.5 text-xs font-semibold rounded-md text-gray-500 hover:bg-white/60 transition-all">
+              🤖 AI (GitHub Models)
+            </button>
+          </div>
+          <p id="modeAutoDesc" class="text-[10px] text-gray-400 max-w-sm text-right">Kaedah kata kunci/corak teks — pantas &amp; percuma, tetapi lebih kasar.</p>
+        </div>
+
+        <div id="autoAiNotis" class="hidden bg-blue-50 border border-blue-200 rounded-lg p-3 text-[10px] text-blue-800 mb-4 leading-relaxed">
+          <span class="font-bold">ℹ️ Mod AI:</span> Teks skrip akan dihantar ke model AI melalui backend Apps Script (token disimpan selamat di Script Properties, tidak terdedah di browser).
+          Setiap semakan mod ini menggunakan kuota/kos API GitHub Models anda.
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+          <div>
+            <label class="text-xs font-bold text-amber-900 uppercase tracking-wider mb-2 block">1. Pilih Skrip Pelajar</label>
+            <div id="senaraiSkripAutoSemak" class="flex flex-col gap-1.5 max-h-48 overflow-y-auto pr-1 border border-amber-100 rounded-lg p-2 bg-neutral-50"></div>
+          </div>
+          <div class="flex flex-col gap-2">
+            <label class="text-xs font-bold text-amber-900 uppercase tracking-wider mb-2 block">2. Jalankan Semakan</label>
+            <p id="autoSemakSkripLabel" class="text-[11px] text-gray-500">Sila pilih skrip pelajar dahulu.</p>
+            <button onclick="jalankanSemakanAutomatik()" id="btnJalankanAuto" disabled
+              class="bg-amber-600 hover:bg-amber-700 disabled:opacity-40 disabled:cursor-not-allowed text-white font-bold py-2.5 px-4 rounded-lg text-xs transition-all shadow-sm">
+              ▶️ Jalankan Semakan Automatik
+            </button>
+            <p id="autoSemakStatus" class="text-[10px] text-gray-400"></p>
+          </div>
+        </div>
+
+        <div id="autoHasilContainer" class="hidden flex flex-col gap-4">
+          <!-- Ringkasan Cadangan Markah -->
+          <div class="bg-amber-50 border border-amber-300 rounded-xl p-4 flex justify-between items-center">
+            <div>
+              <p class="text-xs font-bold text-amber-900 uppercase tracking-wider">Cadangan Jumlah Markah (Awal)</p>
+              <p class="text-[10px] text-amber-700 mt-0.5">Panduan awal sahaja — pensyarah/admin perlu sahkan secara manual.</p>
+            </div>
+            <div class="flex items-center gap-3">
+              <span id="autoJumlahCadangan" class="text-2xl font-bold font-mono text-amber-800">0 / 30</span>
+              <button onclick="gunakanCadanganMarkah()"
+                class="text-[10px] font-bold bg-[#1E2229] text-white px-3 py-2 rounded-lg hover:bg-black transition-all whitespace-nowrap">
+                ⤵️ Guna Cadangan Ke Rubrik
+              </button>
+            </div>
+          </div>
+
+          <!-- Semakan Rubrik -->
+          <div>
+            <h4 class="text-xs font-bold text-[#1E2229] uppercase tracking-wider mb-2">📋 Semakan Kepatuhan Rubrik</h4>
+            <div id="autoRubrikList" class="flex flex-col gap-2 text-xs"></div>
+          </div>
+
+          <!-- Semakan APA 7 -->
+          <div>
+            <h4 class="text-xs font-bold text-[#1E2229] uppercase tracking-wider mb-2">📚 Semakan Format Rujukan (APA 7th Edition)</h4>
+            <div id="autoApaList" class="flex flex-col gap-2 text-xs"></div>
+          </div>
+
+          <!-- Ulasan Automatik -->
+          <div>
+            <h4 class="text-xs font-bold text-[#1E2229] uppercase tracking-wider mb-2">✏️ Draf Ulasan Automatik</h4>
+            <textarea id="autoUlasanTeks" rows="6" readonly
+              class="w-full text-xs font-medium border border-neutral-200 rounded-lg p-3 bg-neutral-50 resize-y leading-relaxed text-[#1E2229]"></textarea>
+            <button onclick="salinUlasanAuto()" class="mt-2 text-[10px] font-bold bg-neutral-100 hover:bg-neutral-200 border border-neutral-300 px-3 py-1.5 rounded-lg transition-all">
+              📋 Salin Ulasan
+            </button>
+          </div>
+        </div>
       </div>
     </div>
   </section>
@@ -1191,7 +1274,7 @@
     // ADMIN: TUKAR TAB DASHBOARD
     // ============================================================
     function tukarTabAdmin(tab) {
-      ['upload','rumusan','semak'].forEach(t => {
+      ['upload','rumusan','semak','auto'].forEach(t => {
         document.getElementById(`adminTab${t.charAt(0).toUpperCase()+t.slice(1)}`).classList.add('hidden');
         document.getElementById(`tabAdmin${t.charAt(0).toUpperCase()+t.slice(1)}`).className =
           "admin-tab flex-1 py-2 text-xs font-semibold rounded-lg text-amber-800 hover:bg-amber-200/50 transition-all";
@@ -1201,6 +1284,7 @@
         "admin-tab flex-1 py-2 text-xs font-bold rounded-lg bg-amber-700 text-white shadow-sm transition-all";
       if (tab === 'rumusan') paparRumusanSemakan();
       if (tab === 'semak')   binaSenaraiPilihPensyarahAdmin();
+      if (tab === 'auto')    binaSenaraiSkripAutoSemak();
     }
 
     // ============================================================
@@ -1541,6 +1625,280 @@
       document.getElementById('catatanContainer').classList.add('hidden');
       document.getElementById('adminSemakBanner').classList.add('hidden');
       document.getElementById('catatanInput').value = '';
+    }
+
+    // ============================================================
+    // ADMIN: SEMAKAN AUTOMATIK (RUBRIK & FORMAT APA 7)
+    // Mod 1: Rule-Based (kata kunci/regex) — percuma, tempatan
+    // Mod 2: AI (GitHub Models) — melalui backend Apps Script
+    // ============================================================
+    let modeSemakAuto = 'rule';           // 'rule' atau 'ai'
+    let autoSemakSkripDipilih = null;
+    let autoHasilRubrikTerkini = null;    // { kod: {label, markah, status, catatan} } — untuk butang "Guna Cadangan"
+
+    // Kata kunci rubrik (padanan kod ikut medan rubricA1..rubricC2 dalam borang utama)
+    const KATA_KUNCI_RUBRIK = {
+      a1: { label: "Pengenalan, Konsep, Tujuan & Objektif", kunci: ["pengenalan","konsep","tujuan","objektif","rasional","penubuhan","latar belakang"] },
+      a2: { label: "Rekaan Logo & Moto",                    kunci: ["logo","moto","reka bentuk","ekosistem","lambang","simbol","warna logo","kepentingan logo"] },
+      b1: { label: "Struktur Jawatankuasa & Perlembagaan",  kunci: ["jawatankuasa","struktur organisasi","perlembagaan","carta organisasi","pengerusi","setiausaha","bendahari","ahli jawatankuasa"] },
+      b2: { label: "Takwim Aktiviti Tahunan",                kunci: ["takwim","aktiviti tahunan","jadual aktiviti","perancangan tahunan","kalendar aktiviti","program tahunan"] },
+      c1: { label: "Carta Alir & Surat Permohonan",          kunci: ["carta alir","surat permohonan","penubuhan kelab","proses kelulusan","lampiran"] },
+      c2: { label: "Analisis Mitigasi Risiko",                kunci: ["risiko","mitigasi","pengurusan risiko","cabaran","masalah","langkah pencegahan"] }
+    };
+
+    function tukarModeSemakAuto(mod) {
+      modeSemakAuto = mod;
+      const aktif = "px-3 py-1.5 text-xs font-bold rounded-md bg-white border border-amber-300 text-amber-700 shadow-sm transition-all";
+      const tidakAktif = "px-3 py-1.5 text-xs font-semibold rounded-md text-gray-500 hover:bg-white/60 transition-all";
+      document.getElementById('btnModeRule').className = mod === 'rule' ? aktif : tidakAktif;
+      document.getElementById('btnModeAI').className   = mod === 'ai'   ? aktif : tidakAktif;
+      document.getElementById('autoAiNotis').classList.toggle('hidden', mod !== 'ai');
+      document.getElementById('modeAutoDesc').innerText = mod === 'ai'
+        ? "Kaedah AI (GitHub Models) — lebih tepat memahami konteks, tetapi guna kuota/kos API."
+        : "Kaedah kata kunci/corak teks — pantas & percuma, tetapi lebih kasar.";
+      document.getElementById('autoHasilContainer').classList.add('hidden');
+    }
+
+    // Ekstrak teks penuh daripada PDF menggunakan pdf.js (semua muka surat)
+    async function ekstrakTeksPdfUntukAnalisis(fileId) {
+      const res = await fetch(urlAPI + "?action=fetchPdfProxy&id=" + fileId);
+      const b64 = await res.text();
+      if (b64.startsWith("ERROR")) throw new Error(b64);
+      const raw = atob(b64);
+      const arr = new Uint8Array(raw.length);
+      for (let i = 0; i < raw.length; i++) arr[i] = raw.charCodeAt(i);
+      const pdf = await pdfjsLib.getDocument({ data: arr }).promise;
+      let teksPenuh = '';
+      for (let p = 1; p <= pdf.numPages; p++) {
+        const page = await pdf.getPage(p);
+        const content = await page.getTextContent();
+        const teksHalaman = content.items.map(it => it.str).join(' ');
+        teksPenuh += `\n[MUKA SURAT ${p}]\n` + teksHalaman;
+      }
+      return teksPenuh;
+    }
+
+    // Bina senarai skrip untuk dipilih dalam tab Semakan Automatik
+    function binaSenaraiSkripAutoSemak() {
+      const container = document.getElementById('senaraiSkripAutoSemak');
+      container.innerHTML = '';
+      if (!globalSkripInduk || globalSkripInduk.length === 0) {
+        container.innerHTML = '<p class="text-[10px] text-gray-400 text-center p-4">Tiada skrip didaftarkan.</p>';
+        return;
+      }
+      globalSkripInduk.forEach(p => {
+        const adaFail = !!p.urlSkrip;
+        const aktif = autoSemakSkripDipilih && autoSemakSkripDipilih.angkaGiliran.toString().trim() === p.angkaGiliran.toString().trim();
+        const div = document.createElement('div');
+        div.className = `flex justify-between items-center p-2 rounded-lg border text-xs transition-all ${aktif ? 'ring-2 ring-amber-400 bg-amber-50 border-amber-300' : adaFail ? 'bg-white border-neutral-200 hover:bg-amber-50 hover:border-amber-300 cursor-pointer' : 'bg-neutral-50 border-neutral-100 opacity-50 cursor-not-allowed'}`;
+        if (adaFail) div.onclick = () => pilihSkripUntukAutoSemak(p);
+        div.innerHTML = `
+          <div>
+            <p class="font-bold font-mono text-[#1E2229]">${p.angkaGiliran}</p>
+            <span class="text-[9px] px-1 py-0.5 rounded ${p.fasaModerasi.startsWith('P1') ? 'bg-blue-100 text-blue-700' : 'bg-gray-100 text-gray-600'}">${p.fasaModerasi}</span>
+          </div>
+          <p class="text-[10px] font-bold ${adaFail ? 'text-green-600' : 'text-gray-300'}">${adaFail ? '📄 Ada PDF' : '— Tiada PDF'}</p>`;
+        container.appendChild(div);
+      });
+    }
+
+    function pilihSkripUntukAutoSemak(p) {
+      autoSemakSkripDipilih = p;
+      document.getElementById('autoSemakSkripLabel').innerHTML = `Skrip dipilih: <span class="font-bold font-mono">${p.angkaGiliran}</span> (${p.fasaModerasi})`;
+      document.getElementById('btnJalankanAuto').disabled = false;
+      document.getElementById('autoHasilContainer').classList.add('hidden');
+      binaSenaraiSkripAutoSemak();
+    }
+
+    async function jalankanSemakanAutomatik() {
+      if (!autoSemakSkripDipilih) return;
+      const btn = document.getElementById('btnJalankanAuto');
+      const status = document.getElementById('autoSemakStatus');
+      btn.disabled = true;
+      status.innerText = "⏳ Mengekstrak teks daripada PDF...";
+      try {
+        const teks = await ekstrakTeksPdfUntukAnalisis(autoSemakSkripDipilih.urlSkrip);
+
+        if (modeSemakAuto === 'rule') {
+          status.innerText = "⏳ Menganalisis kandungan (rule-based)...";
+          const hasilRubrik = analisisRubrik(teks);
+          const hasilApa = analisisAPA(teks);
+          autoHasilRubrikTerkini = hasilRubrik;
+          paparHasilAnalisis(hasilRubrik, hasilApa, buatUlasanAutoRule(hasilRubrik, hasilApa));
+          status.innerText = "✅ Semakan rule-based selesai.";
+        } else {
+          status.innerText = "⏳ Menghantar ke AI (GitHub Models)... ini mungkin ambil masa.";
+          const teksDipangkas = teks.length > 12000 ? teks.substring(0, 12000) + "\n...(dipangkas)" : teks;
+          const res = await fetch(urlAPI, {
+            method: 'POST',
+            headers: { 'Content-Type': 'text/plain' },
+            body: JSON.stringify({
+              action: "analisisAI",
+              adminEmail: emelPensyarahAktif,
+              adminPassword: _sesiPassword,
+              teksSkrip: teksDipangkas
+            })
+          });
+          const json = await res.json();
+          if (json.status !== "success") { throw new Error(json.message || "Ralat AI tidak diketahui."); }
+          const { hasilRubrik, hasilApa, ulasan } = normalisasiHasilAI(json.hasil);
+          autoHasilRubrikTerkini = hasilRubrik;
+          paparHasilAnalisis(hasilRubrik, hasilApa, ulasan);
+          status.innerText = "✅ Semakan AI selesai.";
+        }
+      } catch (err) {
+        status.innerText = "❌ Ralat: " + err.message;
+        console.error(err);
+      }
+      btn.disabled = false;
+    }
+
+    // ---- Mod Rule-Based ----
+    function analisisRubrik(teks) {
+      const teksKecil = teks.toLowerCase();
+      const hasil = {};
+      Object.keys(KATA_KUNCI_RUBRIK).forEach(kod => {
+        const item = KATA_KUNCI_RUBRIK[kod];
+        const dijumpai = item.kunci.filter(k => teksKecil.includes(k.toLowerCase()));
+        let markah, status;
+        if (dijumpai.length === 0) { markah = 0; status = 'fail'; }
+        else if (dijumpai.length <= 2) { markah = 3; status = 'warn'; }
+        else { markah = 5; status = 'pass'; }
+        const catatan = dijumpai.length > 0 ? `Kata kunci dijumpai: ${dijumpai.join(', ')}` : 'Tiada kata kunci berkaitan dijumpai dalam teks.';
+        hasil[kod] = { label: item.label, markah, status, catatan };
+      });
+      return hasil;
+    }
+
+    function analisisAPA(teks) {
+      const hasil = [];
+      const adaRujukan = /(?:^|\n)\s*(RUJUKAN|REFERENCES|BIBLIOGRAFI)\s*(?:\n|$)/i.test(teks);
+      hasil.push({ label: "Bahagian 'Rujukan' / 'References' wujud", status: adaRujukan ? 'pass' : 'fail',
+        detail: adaRujukan ? "Tajuk bahagian rujukan dikesan dalam dokumen." : "Tiada tajuk 'RUJUKAN' atau 'REFERENCES' dikesan." });
+
+      const corakPetikan = /\(([A-Z][a-zA-Z.\-]+(?:\s(?:&|dan|and)\s[A-Z][a-zA-Z.\-]+)?,?\s(19|20)\d{2}[a-z]?)\)|([A-Z][a-zA-Z.\-]+\s\((19|20)\d{2}\))/g;
+      const jumlahPetikan = (teks.match(corakPetikan) || []).length;
+      hasil.push({ label: "Petikan dalam teks (in-text citation)", status: jumlahPetikan === 0 ? 'fail' : jumlahPetikan < 3 ? 'warn' : 'pass',
+        detail: `${jumlahPetikan} corak petikan (Nama, Tahun) dikesan.` });
+
+      const corakEntriRujukan = /[A-Z][a-zA-Z\-']+,\s?[A-Z]\.\s?(?:[A-Z]\.)?\s?\((19|20)\d{2}\)\./g;
+      const jumlahEntri = (teks.match(corakEntriRujukan) || []).length;
+      hasil.push({ label: "Format entri rujukan (Nama, I. (Tahun).)", status: jumlahEntri === 0 ? 'fail' : jumlahEntri < jumlahPetikan ? 'warn' : 'pass',
+        detail: `${jumlahEntri} entri rujukan berformat APA dikesan.` });
+
+      const adaDoiUrl = /(https?:\/\/|doi\.org)/i.test(teks);
+      hasil.push({ label: "Pautan DOI/URL untuk sumber atas talian", status: adaDoiUrl ? 'pass' : 'warn',
+        detail: adaDoiUrl ? "Sekurang-kurangnya satu pautan DOI/URL dikesan." : "Tiada pautan DOI/URL dikesan." });
+
+      hasil.push({ label: "Format visual (jarak baris, hanging indent, italic)", status: 'info',
+        detail: "TIDAK dapat disahkan automatik daripada teks PDF. Semak secara manual." });
+      return hasil;
+    }
+
+    function buatUlasanAutoRule(hasilRubrik, hasilApa) {
+      let ulasan = `ULASAN SEMAKAN AUTOMATIK (RULE-BASED) — Skrip ${autoSemakSkripDipilih.angkaGiliran}\n\n`;
+      const jumlah = Object.values(hasilRubrik).reduce((s, i) => s + i.markah, 0);
+      ulasan += `Cadangan jumlah markah awal: ${jumlah} / 30\n\nKepatuhan Rubrik:\n`;
+      Object.values(hasilRubrik).forEach(i => { ulasan += `- ${i.label}: ${i.status === 'pass' ? 'Baik' : i.status === 'warn' ? 'Perlu diperbaiki' : 'Tidak dikesan'}\n`; });
+      ulasan += `\nFormat Rujukan (APA 7):\n`;
+      hasilApa.filter(h => h.status !== 'info').forEach(h => { ulasan += `- ${h.label}: ${h.detail}\n`; });
+      ulasan += `\n(Nota: Kaedah kata kunci automatik, bukan penilaian pakar. Sahkan secara manual.)`;
+      return ulasan;
+    }
+
+    // ---- Mod AI (GitHub Models) ----
+    function normalisasiHasilAI(teksJSON) {
+      let bersih = teksJSON.trim().replace(/^```json\s*/i, '').replace(/^```\s*/,'').replace(/```\s*$/,'');
+      let obj;
+      try { obj = JSON.parse(bersih); } catch(e) { throw new Error("AI tidak memulangkan JSON yang sah."); }
+
+      const hasilRubrik = {};
+      Object.keys(KATA_KUNCI_RUBRIK).forEach(kod => {
+        const r = obj.rubrik && obj.rubrik[kod] ? obj.rubrik[kod] : { markah: 0, ulasan: "Tiada maklum balas AI untuk item ini." };
+        const markah = Math.max(0, Math.min(5, parseFloat(r.markah) || 0));
+        hasilRubrik[kod] = {
+          label: KATA_KUNCI_RUBRIK[kod].label,
+          markah,
+          status: markah >= 4 ? 'pass' : markah >= 2 ? 'warn' : 'fail',
+          catatan: r.ulasan || ''
+        };
+      });
+
+      const hasilApa = [];
+      if (obj.apa7) {
+        const statusMap = { baik: 'pass', sederhana: 'warn', lemah: 'fail' };
+        hasilApa.push({ label: "Status Keseluruhan Format APA 7", status: statusMap[obj.apa7.status] || 'info', detail: obj.apa7.status || '-' });
+        (obj.apa7.isu || []).forEach(isu => hasilApa.push({ label: "Isu Dikesan", status: 'warn', detail: isu }));
+      }
+
+      const ulasan = (obj.ulasanKeseluruhan || '') + `\n\n(Dijana oleh AI - GitHub Models. Sahkan secara manual sebelum finalisasi markah.)`;
+      return { hasilRubrik, hasilApa, ulasan };
+    }
+
+    // ---- Paparan hasil (kongsi antara kedua-dua mod) ----
+    function paparHasilAnalisis(hasilRubrik, hasilApa, ulasanTeks) {
+      document.getElementById('autoHasilContainer').classList.remove('hidden');
+
+      const rubrikContainer = document.getElementById('autoRubrikList');
+      rubrikContainer.innerHTML = '';
+      let jumlahCadangan = 0;
+      Object.keys(hasilRubrik).forEach(kod => {
+        const item = hasilRubrik[kod];
+        jumlahCadangan += item.markah;
+        const warna = item.status === 'pass' ? 'bg-green-50 border-green-200 text-green-800'
+                    : item.status === 'warn' ? 'bg-amber-50 border-amber-200 text-amber-800'
+                    : 'bg-red-50 border-red-200 text-red-800';
+        const ikon = item.status === 'pass' ? '✅' : item.status === 'warn' ? '⚠️' : '❌';
+        const div = document.createElement('div');
+        div.className = `border rounded-lg p-2.5 ${warna}`;
+        div.innerHTML = `
+          <div class="flex justify-between items-start gap-2">
+            <p class="font-bold text-[11px]">${ikon} ${kod.toUpperCase()}: ${item.label}</p>
+            <span class="font-mono font-bold text-xs whitespace-nowrap">${item.markah} / 5</span>
+          </div>
+          <p class="text-[10px] mt-1 opacity-80">${item.catatan || ''}</p>`;
+        rubrikContainer.appendChild(div);
+      });
+      document.getElementById('autoJumlahCadangan').innerText = `${jumlahCadangan} / 30`;
+
+      const apaContainer = document.getElementById('autoApaList');
+      apaContainer.innerHTML = '';
+      hasilApa.forEach(item => {
+        const warna = item.status === 'pass' ? 'bg-green-50 border-green-200 text-green-800'
+                    : item.status === 'warn' ? 'bg-amber-50 border-amber-200 text-amber-800'
+                    : item.status === 'fail' ? 'bg-red-50 border-red-200 text-red-800'
+                    : 'bg-blue-50 border-blue-200 text-blue-800';
+        const ikon = item.status === 'pass' ? '✅' : item.status === 'warn' ? '⚠️' : item.status === 'fail' ? '❌' : 'ℹ️';
+        const div = document.createElement('div');
+        div.className = `border rounded-lg p-2.5 ${warna}`;
+        div.innerHTML = `<p class="font-bold text-[11px]">${ikon} ${item.label}</p><p class="text-[10px] mt-1 opacity-80">${item.detail}</p>`;
+        apaContainer.appendChild(div);
+      });
+
+      document.getElementById('autoUlasanTeks').value = ulasanTeks;
+    }
+
+    function salinUlasanAuto() {
+      const el = document.getElementById('autoUlasanTeks');
+      el.select();
+      document.execCommand('copy');
+      const btn = event.target;
+      const asal = btn.innerText;
+      btn.innerText = "✓ Disalin!";
+      setTimeout(() => { btn.innerText = asal; }, 1500);
+    }
+
+    function gunakanCadanganMarkah() {
+      if (!autoHasilRubrikTerkini || !autoSemakSkripDipilih) return;
+      if (!pelajarSemasa || pelajarSemasa.angkaGiliran.toString().trim() !== autoSemakSkripDipilih.angkaGiliran.toString().trim()) {
+        alert(`Sila pilih skrip pelajar ${autoSemakSkripDipilih.angkaGiliran} di Papan Alur Kerja Moderasi (kanan) terlebih dahulu, kemudian klik butang ini semula.`);
+        return;
+      }
+      Object.keys(autoHasilRubrikTerkini).forEach(kod => {
+        document.getElementById(`rubric${kod.toUpperCase()}`).value = autoHasilRubrikTerkini[kod].markah;
+      });
+      kiraSkorRubrik();
+      alert("✅ Cadangan markah telah dimasukkan ke borang rubrik. Sila semak dan sahkan sebelum menghantar.");
     }
 
     // ============================================================
