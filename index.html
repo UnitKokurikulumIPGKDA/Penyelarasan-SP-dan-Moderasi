@@ -67,7 +67,7 @@
 
       /* Gambar skrip dihadkan tinggi supaya SENTIASA ada ruang untuk
          kotak catatan pada muka surat yang SAMA. Nisbah aspek dikekalkan
-         secara automatik kerana hanya max-width & max-height ditetapkan
+         secara automatik karena hanya max-width & max-height ditetapkan
          secara automatik. */
       .print-canvas-element {
         max-width: 190mm !important;
@@ -212,7 +212,7 @@
 
     <!-- TAB 1: Upload Skrip -->
     <div id="adminTabUpload">
-      <div class="grid grid-cols-1 md:grid-cols-4 gap-4 items-end bg-white p-4 rounded-xl border border-amber-200 text-xs">
+      <div class="grid grid-cols-1 md:grid-cols-4 gap-4 items-end bg-white p-4 rounded-xl border-amber-200 text-xs">
         <div>
           <label class="font-bold text-gray-600 block mb-1">1. Taip Angka Giliran Pelajar:</label>
           <input type="text" id="adminStudentNumberInput" placeholder="Sila taip manual..."
@@ -325,7 +325,7 @@
           <p class="text-[10px] text-gray-500 mb-3">Muat naik fail rubrik rasmi (PDF atau TXT). Semakan AI akan menguji huraian kriteria dan pemecahan markah mengikut rubrik yang anda muat naik.</p>
 
           <div id="rubrikAktifInfo" class="hidden bg-green-50 border border-green-200 rounded-lg p-2.5 mb-3 text-[10px] text-green-800">
-            <span class="font-bold">✅ Rubrik Aktif:</span> <span id="rubrikAktifNama">-</span>
+            <span class="font-bold">✅ Rubrik Rasmi Aktif:</span> <span id="rubrikAktifNama">-</span>
             <span class="text-green-600"> — dimuat naik <span id="rubrikAktifTarikh">-</span></span>
           </div>
           <div id="rubrikTiadaInfo" class="bg-red-50 border border-red-200 rounded-lg p-2.5 mb-3 text-[10px] text-red-700">
@@ -494,7 +494,7 @@
           <div class="flex gap-2 flex-shrink-0">
             <button onclick="simpanAnotasiAdminKeSheets()" id="btnSimpanOverlayAdmin"
               class="text-xs font-bold bg-orange-600 hover:bg-orange-700 text-white px-4 py-2 rounded-lg transition-all shadow-sm whitespace-nowrap">
-              💾 Simpan Anotasi Admin
+              💾 Simpan Anotasi Admin & Penyelarasan
             </button>
             <button onclick="keluarModSemakAdmin()"
               class="text-xs font-bold border border-orange-300 hover:bg-orange-100 text-orange-700 px-3 py-2 rounded-lg transition-all whitespace-nowrap">
@@ -778,18 +778,6 @@
     </div>
   </div>
 
-  <!-- ======================== CUSTOM CONFIRM MODAL ======================== -->
-  <div id="confirmModal" class="hidden fixed inset-0 bg-neutral-900/60 backdrop-blur-sm z-50 flex justify-center items-center p-4">
-    <div class="bg-white max-w-sm w-full p-6 rounded-2xl border border-neutral-200 shadow-2xl flex flex-col gap-4">
-      <h3 class="text-lg font-display font-extrabold text-[#1E2229]" id="confirmTitle">Sahkan Tindakan</h3>
-      <p class="text-xs text-gray-500" id="confirmMessage"></p>
-      <div class="flex gap-2 justify-end mt-2">
-        <button id="btnConfirmCancel" class="px-4 py-2 border rounded-xl text-xs font-bold text-gray-600 hover:bg-neutral-50 transition-all">Batal</button>
-        <button id="btnConfirmProceed" class="px-4 py-2 bg-red-600 hover:bg-red-700 text-white text-xs font-bold rounded-xl transition-all">Teruskan</button>
-      </div>
-    </div>
-  </div>
-
   <!-- ======================== BULK PRINT CONTAINER ======================== -->
   <div id="bulkPrintContainer"></div>
 
@@ -879,23 +867,6 @@
       toast.innerHTML = `<span>${ikon[jenis]}</span> <div>${mesej}</div>`;
       setTimeout(() => { toast.classList.remove('translate-y-10', 'opacity-0'); }, 10);
       setTimeout(() => { toast.classList.add('translate-y-10', 'opacity-0'); }, 3500);
-    }
-
-    // --- Custom Confirmation Dialog ---
-    function tunjukkanSahkan(tajuk, mesej, onProceed) {
-      const modal = document.getElementById('confirmModal');
-      document.getElementById('confirmTitle').innerText = tajuk;
-      document.getElementById('confirmMessage').innerText = mesej;
-      modal.classList.remove('hidden');
-      
-      document.getElementById('btnConfirmCancel').onclick = () => {
-        modal.classList.add('hidden');
-      };
-      
-      document.getElementById('btnConfirmProceed').onclick = () => {
-        modal.classList.add('hidden');
-        onProceed();
-      };
     }
 
     // ---- Pen Warna ----
@@ -1073,6 +1044,9 @@
       adminAllPagesOverlay = {}; adminPageOverlayStrokes = []; adminAllPagesComments = {};
       document.getElementById('adminSemakBanner').classList.add('hidden');
 
+      // Aktifkan semula input rubrik (HP1 & HP5) yang mungkin dikunci ketika Admin Semak Mod
+      setRubricInputsDisabled(false);
+
       if (currentPdfDoc) {
         allPagesAnnotations[currentPdfPageNum] = pageStrokes;
         allPagesComments[currentPdfPageNum] = document.getElementById('catatanInput').value;
@@ -1142,6 +1116,18 @@
       }
 
       muatPdfBerpusatDariAdmin(indukPelajar.urlSkrip);
+    }
+
+    // Utility untuk mengunci/membuka kunci input rubrik
+    function setRubricInputsDisabled(isDisabled) {
+      const keysHP1 = ['HP1_A1','HP1_A2','HP1_B1','HP1_B2','HP1_C1','HP1_C2'];
+      const keysHP5 = ['HP5_D1','HP5_D2','HP5_D3','HP5_D4'];
+      keysHP1.concat(keysHP5).forEach(id => {
+        document.getElementById(`rubric${id}`).disabled = isDisabled;
+      });
+      // Markah P1 (b) & Markah P2 (d) sentiasa dikunci secara manual
+      document.getElementById('markahB').disabled = true;
+      document.getElementById('markahD').disabled = true;
     }
 
     // ---- Admin Upload ----
@@ -1261,7 +1247,6 @@
           document.getElementById('canvasPlaceholder').classList.add('hidden');
           canvas.classList.remove('hidden');
 
-          // JAMINAN PENGIKAT REFERENSI (Canvas Restoration Binder)
           if (!allPagesAnnotations[currentPdfPageNum]) {
             if (allPagesAnnotations[String(currentPdfPageNum)]) {
               allPagesAnnotations[currentPdfPageNum] = allPagesAnnotations[String(currentPdfPageNum)];
@@ -1314,7 +1299,7 @@
       el.focus();
     }
 
-    // ---- Canvas Drawing ----
+    // ---- Canvas ----
     function setupCanvasEventListeners() {
       canvas.onmousedown = e => { isDrawing = true; mulakanLakaran(e); };
       canvas.onmousemove = e => { jikaMelakar(e); };
@@ -1339,6 +1324,12 @@
       
       const strokeList = adminSemakMod ? adminPageOverlayStrokes : pageStrokes;
       strokeList.push({ type: 'start', x, y, color: warnaPenSemasa });
+      
+      if (adminSemakMod) {
+        adminAllPagesOverlay[currentPdfPageNum] = adminPageOverlayStrokes;
+      } else {
+        allPagesAnnotations[currentPdfPageNum] = pageStrokes;
+      }
     }
 
     function jikaMelakar(e) {
@@ -1357,25 +1348,26 @@
       
       const strokeList = adminSemakMod ? adminPageOverlayStrokes : pageStrokes;
       strokeList.push({ type: 'move', x, y, color: warnaPenSemasa });
+      
+      if (adminSemakMod) {
+        adminAllPagesOverlay[currentPdfPageNum] = adminPageOverlayStrokes;
+      } else {
+        allPagesAnnotations[currentPdfPageNum] = pageStrokes;
+      }
     }
 
     function clearCanvasPageOnly() {
-      tunjukkanSahkan(
-        "Padam Lakaran", 
-        "Adakah anda pasti untuk memadamkan semua contengan pada halaman semasa?", 
-        () => {
-          if (adminSemakMod) { 
-            adminPageOverlayStrokes = []; 
-            adminAllPagesOverlay[currentPdfPageNum] = [];
-            renderHalamanAdminSemasa(); 
-          } else { 
-            pageStrokes = []; 
-            allPagesAnnotations[currentPdfPageNum] = [];
-            renderHalamanPdfSemasa(); 
-          }
-          tunjukNotifikasi("Lakaran halaman berjaya dibersihkan.", "info");
+      if (confirm("Kosongkan lakaran halaman ini?")) {
+        if (adminSemakMod) { 
+          adminPageOverlayStrokes = []; 
+          adminAllPagesOverlay[currentPdfPageNum] = [];
+          renderHalamanAdminSemasa(); 
+        } else { 
+          pageStrokes = []; 
+          allPagesAnnotations[currentPdfPageNum] = [];
+          renderHalamanPdfSemasa(); 
         }
-      );
+      }
     }
 
     function lukisSemulaLakaranHalaman() {
@@ -1737,7 +1729,7 @@
         const div = document.createElement('div');
         div.className = `flex justify-between items-center p-2 rounded-lg cursor-pointer border text-xs transition-all ${aktif ? 'ring-2 ring-orange-400 bg-orange-50 border-orange-300' : adaRekod ? 'bg-white border-neutral-200 hover:bg-orange-50 hover:border-orange-300' : 'bg-neutral-50 border-neutral-100 opacity-60 cursor-not-allowed'}`;
         div.onclick = () => {
-          if (!adaRekod) { tunjukNotifikasi(`Pensyarah ini belum membuat semakan untuk skrip ${p.angkaGiliran}.`, "warning"); return; }
+          if (!adaRekod) { alert(`Pensyarah ini belum membuat semakan untuk skrip ${p.angkaGiliran}.`); return; }
           adminSemakSkrip(p, rekod);
         };
         div.innerHTML = `
@@ -1753,6 +1745,7 @@
       });
     }
 
+    // DIBAIKI: adminSemakSkrip sekarang menyemak dan memaparkan skor HP1 & HP5 milik pensyarah yang disemak secara langsung ke panel kanan!
     function adminSemakSkrip(skripInduk, rekodPensyarah) {
       adminSkripTonton    = skripInduk;
       adminSemakMod       = true;
@@ -1763,6 +1756,40 @@
       adminPageOverlayStrokes = [];
       pageStrokes = [];
 
+      // Kunci semua kotak pemarkahan di panel kanan supaya admin tidak tersalah overwrite data pensyarah
+      setRubricInputsDisabled(true);
+
+      // 1. Memaparkan maklumat asas skrip yang ditonton pada borang LAM kanan
+      document.getElementById('formAngkaGiliran').innerText = skripInduk.angkaGiliran;
+      document.getElementById('markahA').value = skripInduk.markahPemeriksa;
+      document.getElementById('markahB').value = rekodPensyarah?.markahModerasiP1 ?? '';
+      document.getElementById('markahC').value = rekodPensyarah?.perbezaanP1 ?? '';
+      document.getElementById('markahD').value = rekodPensyarah?.markahModerasiP2 ?? '';
+      document.getElementById('markahE').value = rekodPensyarah?.perbezaanP2 ?? '';
+      document.getElementById('markahF').value = rekodPensyarah?.markahPenyelarasan ?? '';
+      document.getElementById('markahG').value = rekodPensyarah?.markahAkhir ?? skripInduk.markahPemeriksa;
+
+      // 2. Memaparkan markah kriteria HP1 & HP5 milik pensyarah tersebut secara automatik
+      const keysHP1 = ['HP1_A1','HP1_A2','HP1_B1','HP1_B2','HP1_C1','HP1_C2'];
+      const keysHP5 = ['HP5_D1','HP5_D2','HP5_D3','HP5_D4'];
+      
+      keysHP1.forEach(id => {
+        document.getElementById(`rubric${id}`).value = rekodPensyarah ? (rekodPensyarah[id.toLowerCase()] ?? '') : '';
+      });
+      keysHP5.forEach(id => {
+        document.getElementById(`rubric${id}`).value = rekodPensyarah ? (rekodPensyarah[id.toLowerCase()] ?? '') : '';
+      });
+
+      // 3. Kemaskini dwi-jumlah skor kriteria paparan
+      if (rekodPensyarah) {
+        const jHP1 = keysHP1.reduce((s,k) => s + (parseFloat(rekodPensyarah[k.toLowerCase()]) || 0), 0);
+        const jHP5 = keysHP5.reduce((s,k) => s + (parseFloat(rekodPensyarah[k.toLowerCase()]) || 0), 0);
+        document.getElementById('rubricTotalDisplay').innerText = `${jHP1 + jHP5} / 40`;
+      } else {
+        document.getElementById('rubricTotalDisplay').innerText = "0 / 40";
+      }
+
+      // Membuka data lakaran canvas
       if (rekodPensyarah?.dataLakaran) {
         try {
           const parsed = JSON.parse(rekodPensyarah.dataLakaran);
@@ -1829,16 +1856,8 @@
           document.getElementById('canvasPlaceholder').classList.add('hidden');
           canvas.classList.remove('hidden');
 
-          // JAMINAN PENGIKAT REFERENSI ADMIN (Admin Canvas Restoration Binder)
-          if (!adminAllPagesOverlay[currentPdfPageNum]) {
-            if (adminAllPagesOverlay[String(currentPdfPageNum)]) {
-              adminAllPagesOverlay[currentPdfPageNum] = adminAllPagesOverlay[String(currentPdfPageNum)];
-            } else {
-              adminAllPagesOverlay[currentPdfPageNum] = [];
-            }
-          }
-          adminPageOverlayStrokes = adminAllPagesOverlay[currentPdfPageNum];
           pageStrokes             = allPagesAnnotations[currentPdfPageNum] || allPagesAnnotations[String(currentPdfPageNum)] || [];
+          adminPageOverlayStrokes = adminAllPagesOverlay[currentPdfPageNum] || adminAllPagesOverlay[String(currentPdfPageNum)] || [];
 
           lukisSemulaLakaranHalaman();
           lukisSemulaOverlayAdmin();
@@ -1888,24 +1907,27 @@
       const btn = document.getElementById('btnSimpanOverlayAdmin');
       btn.innerText = "Sedang Menyimpan..."; btn.disabled = true;
 
+      // Hantar data anotasi bersama data Penyelarasan (f) dan Markah Akhir (g)
       const payloadOverlay = {
         action:        "simpanAnotasiAdmin",
         adminEmail:    emelPensyarahAktif,
         adminPassword: _sesiPassword,
         emelPensyarah: adminEmelTonton,
         angkaGiliran:  adminSkripTonton.angkaGiliran,
-        dataLakaran:   JSON.stringify(_gabungan)
+        dataLakaran:   JSON.stringify(_gabungan),
+        markahPenyelarasan: document.getElementById('markahF').value,
+        markahAkhir:        document.getElementById('markahG').value
       };
 
       fetchJSONSelamat(urlAPI, { method: 'POST', headers: { 'Content-Type': 'text/plain' }, body: JSON.stringify(payloadOverlay) }, 25000, 2)
         .then(res => {
-          btn.innerText = "💾 Simpan Anotasi Admin"; btn.disabled = false;
+          btn.innerText = "💾 Simpan Anotasi Admin & Penyelarasan"; btn.disabled = false;
           if (res.status !== "success") { tunjukNotifikasi("Ralat: " + res.message, "error"); return; }
-          tunjukNotifikasi(`✅ Anotasi admin untuk skrip ${adminSkripTonton.angkaGiliran} berjaya disimpan.`, "success");
+          tunjukNotifikasi(`✅ Anotasi & markah akhir skrip ${adminSkripTonton.angkaGiliran} berjaya disimpan.`, "success");
           sambungkanAPI();
         })
         .catch(async (err) => {
-          btn.innerText = "💾 Simpan Anotasi Admin"; btn.disabled = false;
+          btn.innerText = "💾 Simpan Anotasi Admin & Penyelarasan"; btn.disabled = false;
           tunjukNotifikasi("❌ Ralat sambungan ke server. Sila cuba simpan semula.", "error");
         });
     }
@@ -1922,6 +1944,10 @@
       pageStrokes          = [];
       currentPdfDoc        = null;
       currentPdfPageNum    = 1;
+
+      // Buka kunci input pemarkahan semula setelah keluar dari mod admin semak
+      setRubricInputsDisabled(false);
+
       canvas.classList.add('hidden');
       document.getElementById('canvasPlaceholder').classList.remove('hidden');
       document.getElementById('canvasPlaceholder').innerHTML = `
@@ -1943,57 +1969,7 @@
     let autoSemakSkripDipilih = null;
     let autoHasilRubrikTerkini = null;    
 
-    // Peta kata kunci baharu untuk HP1 & HP5
-    const KATA_KUNCI_RUBRIK_BARU = {
-      hp1_a1: { label: "HP1: Pengenalan, Konsep & Rasional", kunci: ["pengenalan","konsep","tujuan","objektif","rasional","penubuhan","latar belakang"], max: 5 },
-      hp1_a2: { label: "HP1: Logo, Moto & Kepentingan",  kunci: ["logo","moto","reka bentuk","ekosistem","lambang","simbol","warna logo","kepentingan logo"], max: 5 },
-      hp1_b1: { label: "HP1: Jawatankuasa & Perlembagaan", kunci: ["jawatankuasa","struktur organisasi","perlembagaan","carta organisasi","pengerusi","setiausaha","bendahari","ahli jawatankuasa"], max: 5 },
-      hp1_b2: { label: "HP1: Takwim Aktiviti Tahunan", kunci: ["takwim","aktiviti tahunan","jadual aktiviti","perancangan tahunan","kalendar aktiviti","program tahunan"], max: 5 },
-      hp1_c1: { label: "HP1: Carta Alir & Surat Penubuhan", kunci: ["carta alir","surat permohonan","penubuhan kelab","proses kelulusan","lampiran"], max: 5 },
-      hp1_c2: { label: "HP1: Analisis Mitigasi Risiko", kunci: ["risiko","mitigasi","pengurusan risiko","cabaran","masalah","langkah pencegahan"], max: 5 },
-      
-      hp5_d1: { label: "HP5: Kelancaran & Koheren Idea", kunci: ["selain itu","seterusnya","oleh hal yang demikian","tambahan pula","di samping itu","rentas perenggan"], max: 2.5 },
-      hp5_d2: { label: "HP5: Justifikasi & Keyakinan Hujah", kunci: ["didapati","dibuktikan","justifikasinya","disokong oleh","jelaslah","meyakinkan"], max: 2.5 },
-      hp5_d3: { label: "HP5: Keaslian Idea & Laras Akademik", kunci: ["analisis","kritikal","pemerhatian","didapati","rasional","perspektif"], max: 2.5 },
-      hp5_d4: { label: "HP5: Ketepatan Tatabahasa & Format APA", kunci: ["rujukan","references","doi","et al.","(20","(19","bibliografi"], max: 2.5 }
-    };
-
-    function paparRubrikAktifInfo() {
-      const adaRubrik = !!(globalRubrikAktif && globalRubrikAktif.namaFail);
-      document.getElementById('rubrikAktifInfo').classList.toggle('hidden', !adaRubrik);
-      document.getElementById('rubrikTiadaInfo').classList.toggle('hidden', adaRubrik);
-      if (adaRubrik) {
-        document.getElementById('rubrikAktifNama').innerText = globalRubrikAktif.namaFail;
-        const tarikh = globalRubrikAktif.tarikhUpload ? new Date(globalRubrikAktif.tarikhUpload).toLocaleString('ms-MY') : '-';
-        document.getElementById('rubrikAktifTarikh').innerText = tarikh;
-      }
-    }
-
-    async function ekstrakTeksDariFailLokal(file) {
-      if (file.type === 'text/plain' || file.name.toLowerCase().endsWith('.txt')) {
-        return await file.text();
-      }
-      const arrayBuf = await file.arrayBuffer();
-      const pdf = await pdfjsLib.getDocument({ data: new Uint8Array(arrayBuf) }).promise;
-      let teksPenuh = '';
-      for (let p = 1; p <= pdf.numPages; p++) {
-        const page = await pdf.getPage(p);
-        const content = await page.getTextContent();
-        teksPenuh += `\n[MUKA SURAT ${p}]\n` + content.items.map(it => it.str).join(' ');
-      }
-      return teksPenuh;
-    }
-
-    function failKeBase64(file) {
-      return new Promise((resolve, reject) => {
-        const reader = new FileReader();
-        reader.onload = () => resolve(reader.result.split(',')[1]);
-        reader.onerror = reject;
-        reader.readAsDataURL(file);
-      });
-    }
-
-    async function muatNaikRubrik() {
+    function muatNaikRubrik() {
       const input = document.getElementById('rubrikFileInput');
       const status = document.getElementById('rubrikUploadStatus');
       const btn = document.getElementById('btnMuatNaikRubrik');
@@ -2003,37 +1979,43 @@
       btn.disabled = true; btn.innerText = 'Sedang Memproses...';
       status.innerText = '⏳ Mengekstrak teks daripada fail rubrik...';
       status.className = 'text-[10px] text-gray-400 mt-2';
-      try {
-        const teksRubrik = await ekstrakTeksDariFailLokal(file);
-        if (!teksRubrik || teksRubrik.trim().length < 20) {
-          throw new Error('Tidak dapat mengekstrak teks.');
-        }
-        status.innerText = '⏳ Memuat naik rubrik ke server...';
-        const fileBase64 = await failKeBase64(file);
-        const res = await fetch(urlAPI, {
-          method: 'POST',
-          headers: { 'Content-Type': 'text/plain' },
-          body: JSON.stringify({
-            action: 'uploadRubrik',
-            adminEmail: emelPensyarahAktif,
-            adminPassword: _sesiPassword,
-            namaFail: file.name,
-            mimeType: file.type || 'application/pdf',
-            teksRubrik: teksRubrik.length > 8000 ? teksRubrik.substring(0, 8000) : teksRubrik,
-            fileBase64
-          })
+      ekstrakTeksDariFailLokal(file)
+        .then(teksRubrik => {
+          if (!teksRubrik || teksRubrik.trim().length < 20) {
+            throw new Error('Tidak dapat mengekstrak teks.');
+          }
+          status.innerText = '⏳ Memuat naik rubrik ke server...';
+          return failKeBase64(file).then(fileBase64 => {
+            return fetch(urlAPI, {
+              method: 'POST',
+              headers: { 'Content-Type': 'text/plain' },
+              body: JSON.stringify({
+                action: 'uploadRubrik',
+                adminEmail: emelPensyarahAktif,
+                adminPassword: _sesiPassword,
+                namaFail: file.name,
+                mimeType: file.type || 'application/pdf',
+                teksRubrik: teksRubrik.length > 8000 ? teksRubrik.substring(0, 8000) : teksRubrik,
+                fileBase64
+              })
+            });
+          });
+        })
+        .then(r => r.json())
+        .then(json => {
+          if (json.status !== 'success') throw new Error(json.message || 'Ralat tidak diketahui.');
+          status.innerText = '✅ Rubrik Rasmi berjaya dimuat naik!';
+          status.className = 'text-[10px] text-green-600 font-bold mt-2';
+          input.value = '';
+          sambungkanAPI();
+        })
+        .catch(err => {
+          status.innerText = '❌ Ralat: ' + err.message;
+          status.className = 'text-[10px] text-red-500 font-bold mt-2';
+        })
+        .finally(() => {
+          btn.disabled = false; btn.innerText = '⬆️ Muat Naik Rubrik';
         });
-        const json = await res.json();
-        if (json.status !== 'success') throw new Error(json.message || 'Ralat tidak diketahui.');
-        status.innerText = '✅ Rubrik Rasmi berjaya dimuat naik!';
-        status.className = 'text-[10px] text-green-600 font-bold mt-2';
-        input.value = '';
-        sambungkanAPI();
-      } catch (err) {
-        status.innerText = '❌ Ralat: ' + err.message;
-        status.className = 'text-[10px] text-red-500 font-bold mt-2';
-      }
-      btn.disabled = false; btn.innerText = '⬆️ Muat Naik Rubrik';
     }
 
     function tukarModeSemakAuto(mod) {
@@ -2390,9 +2372,9 @@
     }
 
     function semakPadanan() {
-      const baru = document.getElementById('tukarPassBaru').value;
-      const sahkan = document.getElementById('tukarPassSahkan').value;
-      const lbl = document.getElementById('padananLabel');
+      const baru    = document.getElementById('tukarPassBaru').value;
+      const sahkan  = document.getElementById('tukarPassSahkan').value;
+      const lbl     = document.getElementById('padananLabel');
       if (!sahkan) { lbl.innerText = ''; return; }
       if (baru === sahkan) {
         lbl.innerText = '✓ Kata laluan sepadan';
