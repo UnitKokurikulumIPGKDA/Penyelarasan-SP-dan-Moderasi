@@ -27,8 +27,6 @@
 
     /* ======================================================
        SISTEM CETAKAN BULK - BETUL & TERSUSUN
-       Setiap muka surat = 1 gambar skrip + 1 kotak catatan,
-       dipastikan SENTIASA berada dalam muka cetak yang SAMA.
        ====================================================== */
     #bulkPrintContainer { display: none; }
 
@@ -38,12 +36,10 @@
         margin: 10mm;
       }
 
-      /* Sembunyikan semua UI - hanya tunjuk kandungan cetakan */
       body > *:not(#bulkPrintContainer) { display: none !important; }
       body { margin: 0; padding: 0; }
       #bulkPrintContainer { display: block !important; }
 
-      /* Setiap halaman PDF = satu muka surat cetak (blok tetap, tidak boleh pecah) */
       .print-page-block {
         page-break-inside: avoid;
         break-inside: avoid;
@@ -54,21 +50,16 @@
         align-items: center;
         justify-content: flex-start;
         width: 100%;
-        max-height: 277mm; /* tinggi A4 selepas margin 10mm atas+bawah */
+        max-height: 277mm;
         overflow: hidden;
         margin: 0;
         padding: 0;
       }
-      /* Halaman terakhir: jangan tambah page-break selepasnya */
       .print-page-block:last-of-type {
         page-break-after: avoid;
         break-after: auto;
       }
 
-      /* Gambar skrip dihadkan tinggi supaya SENTIASA ada ruang untuk
-         kotak catatan pada muka surat yang SAMA. Nisbah aspek dikekalkan
-         secara automatik karena hanya max-width & max-height ditetapkan
-         secara automatik. */
       .print-canvas-element {
         max-width: 190mm !important;
         max-height: 215mm !important;
@@ -79,8 +70,6 @@
         flex-shrink: 0;
       }
 
-      /* Kotak catatan bawah setiap halaman - kekal melekat terus
-         di bawah gambar dalam blok yang sama (tidak pernah terpisah) */
       .print-page-comment-box {
         display: block !important;
         width: 100%;
@@ -111,7 +100,6 @@
         white-space: pre-wrap;
         word-break: break-word;
       }
-      /* Ringkasan akhir */
       .print-report-footer {
         page-break-before: always;
         break-before: page;
@@ -292,9 +280,9 @@
       </div>
       <div class="mt-3 bg-amber-50 border border-amber-200 rounded-xl p-3 text-[10px] text-amber-800 leading-relaxed">
         <span class="font-bold">📌 Arahan:</span>
-        Pilih pensyarah → pilih skrip pelajar → PDF dan contengan pensyarah akan dibuka di panel kiri →
+        Pilih pensyarah → pilih skrip pelajar → PDF and contengan pensyarah akan dibuka di panel kiri →
         Anda boleh menambah anotasi menggunakan pen → Klik
-        <span class="font-bold">"💾 Simpan Anotasi Admin"</span> pada banner oren yang muncul.
+        <span class="font-bold">"💾 Simpan Anotasi Admin & Penyelarasan"</span> pada banner oren yang muncul.
       </div>
     </div>
 
@@ -316,20 +304,20 @@
         </div>
 
         <div id="autoAiNotis" class="hidden bg-blue-50 border border-blue-200 rounded-lg p-3 text-[10px] text-blue-800 mb-4 leading-relaxed">
-          <span class="font-bold">ℹ️ Mod AI:</span> Teks skrip akan dihantar ke model AI melalui backend Apps Script. Semakan AI akan sentiasa berpandukan Rubrik Rasmi (jika telah dimuat naik) dan menguji kepatuhan kualiti HP1 & HP5.
+          <span class="font-bold">ℹ️ Mod AI:</span> Teks skrip akan dihantar ke model AI melalui backend Apps Script. Semakan AI akan sentiasa berpandukan Rubrik Rasmi (jika telah dimuat naik) and menguji kepatuhan kualiti HP1 & HP5.
         </div>
 
         <!-- Muat Naik Rubrik Rasmi (Admin) -->
         <div class="bg-white border-2 border-dashed border-amber-300 rounded-xl p-4 mb-4">
           <p class="text-xs font-bold text-amber-900 uppercase tracking-wider mb-1">📎 Rubrik Rasmi (Panduan Wajib Semakan AI)</p>
-          <p class="text-[10px] text-gray-500 mb-3">Muat naik fail rubrik rasmi (PDF atau TXT). Semakan AI akan menguji huraian kriteria dan pemecahan markah mengikut rubrik yang anda muat naik.</p>
+          <p class="text-[10px] text-gray-500 mb-3">Muat naik fail rubrik rasmi (PDF atau TXT). Semakan AI akan menguji huraian kriteria and pemecahan markah mengikut rubrik yang anda muat naik.</p>
 
           <div id="rubrikAktifInfo" class="hidden bg-green-50 border border-green-200 rounded-lg p-2.5 mb-3 text-[10px] text-green-800">
             <span class="font-bold">✅ Rubrik Rasmi Aktif:</span> <span id="rubrikAktifNama">-</span>
             <span class="text-green-600"> — dimuat naik <span id="rubrikAktifTarikh">-</span></span>
           </div>
           <div id="rubrikTiadaInfo" class="bg-red-50 border border-red-200 rounded-lg p-2.5 mb-3 text-[10px] text-red-700">
-            ⚠️ Belum ada Rubrik Rasmi dimuat naik. Semakan AI menggunakan kriteria standard HP1 dan HP5 yang dibekalkan.
+            ⚠️ Belum ada Rubrik Rasmi dimuat naik. Semakan AI menggunakan kriteria standard HP1 and HP5 yang dibekalkan.
           </div>
 
           <div class="flex flex-col sm:flex-row gap-2 items-stretch sm:items-center">
@@ -364,7 +352,7 @@
           <div class="bg-amber-50 border border-amber-300 rounded-xl p-4 flex justify-between items-center">
             <div>
               <p class="text-xs font-bold text-amber-900 uppercase tracking-wider">Cadangan Jumlah Markah (Awal)</p>
-              <p class="text-[10px] text-amber-700 mt-0.5">Sila sahkan dan edit secara manual di panel utama sebelum menghantar.</p>
+              <p class="text-[10px] text-amber-700 mt-0.5">Sila sahkan and edit secara manual di panel utama sebelum menghantar.</p>
             </div>
             <div class="flex items-center gap-3">
               <span id="autoJumlahCadangan" class="text-2xl font-bold font-mono text-amber-800">0 / 40</span>
@@ -512,7 +500,7 @@
               ✏️ Catatan Komen Semakan —
               <span class="text-red-600">Muka Surat <span id="catatanHalamanLabel">-</span></span>
             </label>
-            <p class="text-[10px] text-gray-400 mt-0.5">Catatan ini akan disimpan dan dicetak bersama halaman tersebut.</p>
+            <p class="text-[10px] text-gray-400 mt-0.5">Catatan ini akan disimpan and dicetak bersama halaman tersebut.</p>
           </div>
           <button onclick="simpanCatatanHalaman(this)"
             class="text-[10px] font-bold bg-[#1E2229] text-white px-3 py-1.5 rounded-lg hover:bg-black transition-all">
@@ -524,7 +512,7 @@
         <div class="flex items-center gap-2 mt-2">
           <span class="text-[10px] text-gray-400">Template pantas:</span>
           <button onclick="insertTemplate('Bahagian ini perlu diperbaiki. ')" class="text-[10px] px-2 py-1 border rounded bg-neutral-50 hover:bg-red-50 hover:text-red-700 transition-all">⚠️ Perlu Baiki</button>
-          <button onclick="insertTemplate('Aliran idea koheren dan laras bahasa mantap. ')" class="text-[10px] px-2 py-1 border rounded bg-neutral-50 hover:bg-green-50 hover:text-green-700 transition-all">✅ Aliran Baik</button>
+          <button onclick="insertTemplate('Aliran idea koheren and laras bahasa mantap. ')" class="text-[10px] px-2 py-1 border rounded bg-neutral-50 hover:bg-green-50 hover:text-green-700 transition-all">✅ Aliran Baik</button>
           <button onclick="insertTemplate('Sila semak ketepatan format rujukan APA 7. ')" class="text-[10px] px-2 py-1 border rounded bg-neutral-50 hover:bg-amber-50 hover:text-amber-700 transition-all">📚 Format APA 7</button>
         </div>
       </div>
@@ -567,7 +555,7 @@
                 <span class="text-xs font-bold text-gray-700">1. Pengenalan, Konsep & Rasional</span>
                 <input type="number" id="rubricHP1_A1" min="0" max="5" step="0.5" oninput="kiraSkorRubrik()" class="w-14 text-center text-xs font-bold border rounded p-1 bg-white" placeholder="/5">
               </div>
-              <p class="text-[10px] text-gray-500 leading-normal">Pengenalan dan konsep, Tujuan, Objektif, and Rasional penubuhan.</p>
+              <p class="text-[10px] text-gray-500 leading-normal">Pengenalan and konsep, Tujuan, Objektif, and Rasional penubuhan.</p>
             </div>
 
             <!-- HP1 A2 -->
@@ -582,7 +570,7 @@
             <!-- HP1 B1 -->
             <div class="flex flex-col gap-1 border-t pt-2 border-neutral-200">
               <div class="flex justify-between items-start gap-3">
-                <span class="text-xs font-bold text-gray-700">3. Structure & Perlembagaan</span>
+                <span class="text-xs font-bold text-gray-700">3. Struktur & Perlembagaan</span>
                 <input type="number" id="rubricHP1_B1" min="0" max="5" step="0.5" oninput="kiraSkorRubrik()" class="w-14 text-center text-xs font-bold border rounded p-1 bg-white" placeholder="/5">
               </div>
               <p class="text-[10px] text-gray-500 leading-normal">Struktur Jawatankuasa (organisasi) and Perlembagaan/Peraturan Kelab lengkap.</p>
@@ -988,6 +976,23 @@
       });
     }
 
+    function paparRubrikAktifInfo() {
+      const adaRubrik = !!(globalRubrikAktif && globalRubrikAktif.namaFail);
+      const infoEl = document.getElementById('rubrikAktifInfo');
+      const tiadaEl = document.getElementById('rubrikTiadaInfo');
+      if (infoEl) infoEl.classList.toggle('hidden', !adaRubrik);
+      if (tiadaEl) tiadaEl.classList.toggle('hidden', adaRubrik);
+      if (adaRubrik) {
+        const namaEl = document.getElementById('rubrikAktifNama');
+        const tarikhEl = document.getElementById('rubrikAktifTarikh');
+        if (namaEl) namaEl.innerText = globalRubrikAktif.namaFail;
+        if (tarikhEl) {
+          const tarikh = globalRubrikAktif.tarikhUpload ? new Date(globalRubrikAktif.tarikhUpload).toLocaleString('ms-MY') : '-';
+          tarikhEl.innerText = tarikh;
+        }
+      }
+    }
+
     function binaSenaraiPelajar() {
       const container = document.getElementById('studentList');
       container.innerHTML = '';
@@ -1044,7 +1049,6 @@
       adminAllPagesOverlay = {}; adminPageOverlayStrokes = []; adminAllPagesComments = {};
       document.getElementById('adminSemakBanner').classList.add('hidden');
 
-      // Aktifkan semula input rubrik (HP1 & HP5) yang mungkin dikunci ketika Admin Semak Mod
       setRubricInputsDisabled(false);
 
       if (currentPdfDoc) {
@@ -1118,14 +1122,12 @@
       muatPdfBerpusatDariAdmin(indukPelajar.urlSkrip);
     }
 
-    // Utility untuk mengunci/membuka kunci input rubrik
     function setRubricInputsDisabled(isDisabled) {
       const keysHP1 = ['HP1_A1','HP1_A2','HP1_B1','HP1_B2','HP1_C1','HP1_C2'];
       const keysHP5 = ['HP5_D1','HP5_D2','HP5_D3','HP5_D4'];
       keysHP1.concat(keysHP5).forEach(id => {
         document.getElementById(`rubric${id}`).disabled = isDisabled;
       });
-      // Markah P1 (b) & Markah P2 (d) sentiasa dikunci secara manual
       document.getElementById('markahB').disabled = true;
       document.getElementById('markahD').disabled = true;
     }
@@ -1729,7 +1731,7 @@
         const div = document.createElement('div');
         div.className = `flex justify-between items-center p-2 rounded-lg cursor-pointer border text-xs transition-all ${aktif ? 'ring-2 ring-orange-400 bg-orange-50 border-orange-300' : adaRekod ? 'bg-white border-neutral-200 hover:bg-orange-50 hover:border-orange-300' : 'bg-neutral-50 border-neutral-100 opacity-60 cursor-not-allowed'}`;
         div.onclick = () => {
-          if (!adaRekod) { alert(`Pensyarah ini belum membuat semakan untuk skrip ${p.angkaGiliran}.`); return; }
+          if (!adaRekod) { return; }
           adminSemakSkrip(p, rekod);
         };
         div.innerHTML = `
@@ -1745,7 +1747,7 @@
       });
     }
 
-    // DIBAIKI: adminSemakSkrip sekarang menyemak dan memaparkan skor HP1 & HP5 milik pensyarah yang disemak secara langsung ke panel kanan!
+    // adminSemakSkrip menyemak dan memaparkan skor HP1 & HP5 milik pensyarah yang disemak secara langsung ke panel kanan!
     function adminSemakSkrip(skripInduk, rekodPensyarah) {
       adminSkripTonton    = skripInduk;
       adminSemakMod       = true;
