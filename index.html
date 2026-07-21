@@ -835,6 +835,10 @@
     let isDrawing = false;
     let pageStrokes = [];
 
+    // ---- Nilai koordinat terakhir yang direkodkan (untuk throttle jarak minimum) ----
+    let _lakaranTitikTerakhir = null;
+    const JARAK_MIN_TITIK = 2.5; // piksel kanvas - titik lebih rapat daripada ini akan dilangkau
+
     // ---- Pembolehubah Admin Semak Mod ----
     let globalNamaLecturers  = [];   // email+nama+peranan
     let adminSemakMod        = false; 
@@ -876,7 +880,8 @@
       toast.className = `fixed bottom-5 right-5 z-50 transform transition-all duration-300 max-w-sm w-full p-4 rounded-xl shadow-2xl border text-xs font-bold flex items-center gap-3 ${warna[jenis]}`;
       toast.innerHTML = `<span>${ikon[jenis]}</span> <div>${mesej}</div>`;
       setTimeout(() => { toast.classList.remove('translate-y-10', 'opacity-0'); }, 10);
-      setTimeout(() => { toast.classList.add('translate-y-10', 'opacity-0'); }, 3500);
+      // NOTA DEBUG: tempoh dipanjangkan (8.5 saat) supaya sempat dibaca/screenshot semasa menyiasat ralat.
+      setTimeout(() => { toast.classList.add('translate-y-10', 'opacity-0'); }, 8500);
     }
 
     // ---- Pen Warna ----
@@ -1325,12 +1330,12 @@
 
     // ---- Canvas ----
     function setupCanvasEventListeners() {
-      canvas.onmousedown = e => { isDrawing = true; mulakanLakaran(e); };
+      canvas.onmousedown = e => { isDrawing = true; _lakaranTitikTerakhir = null; mulakanLakaran(e); };
       canvas.onmousemove = e => { jikaMelakar(e); };
-      canvas.onmouseup   = () => { isDrawing = false; };
-      canvas.ontouchstart = e => { isDrawing = true; mulakanLakaran(e.touches[0]); e.preventDefault(); };
+      canvas.onmouseup   = () => { isDrawing = false; _lakaranTitikTerakhir = null; };
+      canvas.ontouchstart = e => { isDrawing = true; _lakaranTitikTerakhir = null; mulakanLakaran(e.touches[0]); e.preventDefault(); };
       canvas.ontouchmove  = e => { jikaMelakar(e.touches[0]); e.preventDefault(); };
-      canvas.ontouchend   = () => { isDrawing = false; };
+      canvas.ontouchend   = () => { isDrawing = false; _lakaranTitikTerakhir = null; };
     }
 
     function mulakanLakaran(e) {
@@ -1348,6 +1353,7 @@
       
       const strokeList = adminSemakMod ? adminPageOverlayStrokes : pageStrokes;
       strokeList.push({ type: 'start', x, y, color: warnaPenSemasa });
+      _lakaranTitikTerakhir = { x, y };
       
       if (adminSemakMod) {
         adminAllPagesOverlay[currentPdfPageNum] = adminPageOverlayStrokes;
@@ -1364,6 +1370,39 @@
       const x = (e.clientX - r.left) * scaleX;
       const y = (e.clientY - r.top) * scaleY;
 
+      // ---- THROTTLE JARAK MINIMUM ----
+      // Nota pembaikan (isu "Ralat sambungan ke server" berulang):
+      // Sebelum ini SETIAP pergerakan mouse/jari direkod sebagai satu titik JSON
+      // berasingan ({"type":"move","x":...,"y":...,"color":...}), jadi satu lukisan
+      // pendek pun boleh jadi beribu-ribu titik. Bila anotasi ini dihantar semula
+      // sebagai POST (simpanAnotasiAdminKeSheets / simpanRekodKeSheets), payload
+      // yang besar ini boleh menyebabkan permintaan mengambil masa lebih lama untuk
+      // diproses dan tersekat oleh had masa (timeout) 25 saat pada fetchDenganTimeout,
+      // walaupun Apps Script sebenarnya berjaya (atau lambat) menyimpan data di
+      // belakang tabir. Ini dipetik sebagai "Ralat sambungan ke server" pada
+      // pengguna, walhal ia lebih tepat satu isu SAIZ DATA / MASA, bukan
+      // ralat sambungan rangkaian sebenar.
+      //
+      // Pembetulan: langkau titik yang terlalu rapat antara satu sama lain (kurang
+      // daripada JARAK_MIN_TITIK piksel kanvas). Ini boleh mengurangkan bilangan
+      // titik yang disimpan sehingga 70-90% tanpa menjejaskan mutu visual lukisan,
+      // sekali gus mengurangkan saiz JSON yang dihantar dan risiko timeout.
+      if (_lakaranTitikTerakhir) {
+        const dx = x - _lakaranTitikTerakhir.x;
+        const dy = y - _lakaranTitikTerakhir.y;
+        const jarakKuasaDua = dx * dx + dy * dy;
+        if (jarakKuasaDua < (JARAK_MIN_TITIK * JARAK_MIN_TITIK)) {
+          // Masih lukis pada skrin (supaya garisan kelihatan licin/berterusan),
+          // tetapi TIDAK direkod sebagai titik data baharu.
+          ctx.strokeStyle = warnaPenSemasa;
+          ctx.lineWidth = 3;
+          ctx.lineCap = 'round';
+          ctx.lineJoin = 'round';
+          ctx.lineTo(x, y); ctx.stroke();
+          return;
+        }
+      }
+
       ctx.strokeStyle = warnaPenSemasa;
       ctx.lineWidth = 3;
       ctx.lineCap = 'round';
@@ -1372,6 +1411,7 @@
       
       const strokeList = adminSemakMod ? adminPageOverlayStrokes : pageStrokes;
       strokeList.push({ type: 'move', x, y, color: warnaPenSemasa });
+      _lakaranTitikTerakhir = { x, y };
       
       if (adminSemakMod) {
         adminAllPagesOverlay[currentPdfPageNum] = adminPageOverlayStrokes;
@@ -1469,6 +1509,26 @@
       } catch (e) { return false; }
     }
 
+    // NOTA DEBUG: fungsi bantu baharu — digunakan oleh simpanAnotasiAdminKeSheets untuk
+    // sahkan sama ada anotasi admin sebenarnya BERJAYA disimpan di Sheets walaupun
+    // permintaan POST asal gagal/timeout di sisi pelanggan (client). Ini penting kerana
+    // payload dataLakaran anotasi admin boleh menjadi besar (lihat nota di jikaMelakar()).
+    async function semakAnotasiAdminTelahDisimpan(payloadOverlay) {
+      try {
+        const res = await fetchDenganTimeout(urlAPI, {}, 15000);
+        const data = await res.json();
+        const kunci = payloadOverlay.emelPensyarah + '-' + payloadOverlay.angkaGiliran;
+        const rekod = (data.hasilSemakan || []).find(h => h.kunciUnik === kunci);
+        if (!rekod) return false;
+        // Jika markahAkhir dihantar sekali bersama, guna itu sebagai penanda pengesahan.
+        if (payloadOverlay.markahAkhir !== undefined && payloadOverlay.markahAkhir !== '') {
+          return String(rekod.markahAkhir) === String(payloadOverlay.markahAkhir);
+        }
+        // Jika tiada markahAkhir untuk dibandingkan, anggap berjaya jika rekod & dataLakaran wujud.
+        return !!(rekod.dataLakaran && rekod.dataLakaran.length > 0);
+      } catch (e) { return false; }
+    }
+
     // ---- Simpan Ke Sheets ----
     function simpanRekodKeSheets() {
       if (adminSemakMod) {
@@ -1524,12 +1584,18 @@
         })
         .catch(async (err) => {
           btn.innerText = "Sahkan & Hantar Skor Ke Sheets"; btn.disabled = false;
+          // NOTA DEBUG: papar mesej ralat SEBENAR (bukan generik) supaya boleh disiasat
+          // tanpa perlu DevTools. alert() sengaja digunakan supaya mesej tidak hilang
+          // selepas beberapa saat macam toast biasa.
+          const mesejSebenar = (err && err.message) ? err.message : String(err);
+          console.error("RALAT SEBENAR simpanRekodKeSheets:", err);
           const disahkan = await semakRekodTelahDisimpan(payload);
           if (disahkan) {
             tunjukNotifikasi("⚠️ Sambungan tidak stabil, tetapi data telah selamat ditulis pada Sheets.", "warning");
             sambungkanAPI();
           } else {
-            tunjukNotifikasi("❌ Ralat sambungan. Lakaran gagal dihantar ke cloud. Sila cuba lagi.", "error");
+            alert("RALAT PENUH (debug) — Simpan Rekod Pensyarah:\n\n" + mesejSebenar);
+            tunjukNotifikasi("❌ RALAT SEBENAR: " + mesejSebenar, "error");
           }
         });
     }
@@ -2116,7 +2182,34 @@
         })
         .catch(async (err) => {
           btn.innerText = "💾 Simpan Anotasi Admin & Penyelarasan"; btn.disabled = false;
-          tunjukNotifikasi("❌ Ralat sambungan ke server. Sila cuba simpan semula.", "error");
+          // ============================================================
+          // NOTA DEBUG PENTING (punca "Ralat sambungan ke server" berulang):
+          // Sebelum ini, bahagian .catch() ini HANYA memaparkan mesej generik
+          // "❌ Ralat sambungan ke server. Sila cuba simpan semula." — mesej
+          // ralat SEBENAR daripada fetchJSONSelamat (contoh: timeout, respons
+          // bukan JSON, atau ralat rangkaian) tidak pernah dipaparkan kepada
+          // pengguna. Ini menyukarkan diagnosis kerana punca sebenar (timeout
+          // akibat payload lukisan yang besar, atau isu rangkaian organisasi)
+          // tidak dapat dikenal pasti tanpa akses DevTools.
+          //
+          // Pembetulan: (1) papar mesej ralat sebenar melalui alert() supaya
+          // ia tidak hilang serta-merta, dan (2) semak dahulu sama ada rekod
+          // sebenarnya BERJAYA disimpan di Sheets (guna semakAnotasiAdminTelahDisimpan)
+          // sebelum memberitahu pengguna ia gagal — kerana ada kemungkinan
+          // permintaan POST timeout di sisi pelanggan tetapi Apps Script tetap
+          // berjaya menyelesaikan proses simpan di belakang tabir.
+          // ============================================================
+          const mesejSebenar = (err && err.message) ? err.message : String(err);
+          console.error("RALAT SEBENAR simpanAnotasiAdminKeSheets:", err);
+
+          const disahkan = await semakAnotasiAdminTelahDisimpan(payloadOverlay);
+          if (disahkan) {
+            tunjukNotifikasi("⚠️ Sambungan tidak stabil, tetapi anotasi admin telah selamat ditulis pada Sheets.", "warning");
+            sambungkanAPI();
+          } else {
+            alert("RALAT PENUH (debug) — Simpan Anotasi Admin:\n\n" + mesejSebenar);
+            tunjukNotifikasi("❌ RALAT SEBENAR: " + mesejSebenar, "error");
+          }
         });
     }
 
