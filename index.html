@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Sistem Moderasi Digital IPG — MPU3221</title>
 
-  <!-- Google Fonts & Tailwind CSS & PDF.js -->
+  <!-- Google Fonts, Tailwind CSS & PDF.js -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet">
@@ -464,7 +464,7 @@
   <div id="toastContainer" class="fixed bottom-6 right-6 z-[200] flex flex-col gap-3 pointer-events-none"></div>
 
   <script>
-    let urlAPI = 'https://script.google.com/macros/s/AKfycbzUcGDoRpgw0nY7R2RtTasnSBbUsO47zkRoeRg0j4KT4twLALp8YdmWWheinb0ym5zd/exec'; 
+    let urlAPI = 'https://script.google.com/macros/s/AKfycbxwUIQpQ66obbKr_Wttws6e1Gwe5lu5oZbAWpkqh40GEgwXfgSPbkIVse_gfJM3iJI5/exec'; 
     let dataSesi = { email: '', nama: '', peranan: '', password: '' };
     let dbPensyarah = [], dbSkripInduk = [], dbHasilSemakan = [], dbKonfigurasi = {};
     let fasaSemasa = 'P1', pelajarAktif = null;
@@ -604,9 +604,7 @@
       }
     }
 
-    // =========================================================================
     // BORANG RASMI LAM-PT-04-02 (SYARAT STRICT: |c| >= 5 UNTUK PUSINGAN 2)
-    // =========================================================================
     function cetakBorangLamPt0402(fasaFilter = 'semua') {
       const printContainer = document.getElementById('bulkPrintContainer');
       if (!printContainer) return;
