@@ -22,7 +22,7 @@
     body { font-family: 'Plus Jakarta Sans', sans-serif; background-color: var(--bg-color); color: var(--text-main); overflow: hidden; }
     .font-display { font-family: 'Space Grotesk', sans-serif; }
     
-    ::-webkit-scrollbar { width: 8px; height: 8px; }
+    ::-webkit-scrollbar { width: 6px; height: 6px; }
     ::-webkit-scrollbar-track { background: transparent; }
     ::-webkit-scrollbar-thumb { background: #CBD5E1; border-radius: 4px; }
     ::-webkit-scrollbar-thumb:hover { background: #94A3B8; }
@@ -123,7 +123,7 @@
             <!-- KANVAS -->
             <canvas id="scriptCanvas" class="w-full max-w-[800px] h-auto block bg-white border border-slate-200 shadow-xl shrink-0 hidden mb-6"></canvas>
 
-            <!-- KOTAK ULASAN (DI BAWAH KANVAS) -->
+            <!-- KOTAK ULASAN -->
             <div id="commentSection" class="hidden w-full max-w-[800px] bg-white p-6 border border-slate-200 rounded-xl shadow-sm shrink-0 mb-10">
               <div class="flex justify-between items-center mb-4 border-b border-slate-100 pb-3">
                 <h4 class="font-bold text-slate-800">📝 Catatan Ulasan Muka Surat <span id="labelUlasanMuka" class="text-teal-600 font-mono">1</span></h4>
@@ -394,6 +394,31 @@
             </div>
           </div>
 
+          <!-- MODUL LANTIKAN MODERATOR P1 & P2 -->
+          <div class="bg-white rounded-2xl border border-slate-200 overflow-hidden shadow-sm">
+            <div class="p-5 border-b border-slate-100 bg-teal-900 text-white flex justify-between items-center">
+              <div>
+                <h3 class="font-display font-bold text-sm text-teal-100">📌 Pengurusan Lantikan Moderator P1 & P2 (Notifikasi Emel)</h3>
+                <p class="text-[10px] text-teal-300 mt-0.5">Admin memilih pensyarah bertugas dan sistem akan menghantar emel notifikasi secara automatik.</p>
+              </div>
+            </div>
+            <div class="overflow-x-auto bg-slate-50/20">
+              <table class="w-full text-left text-xs border-collapse">
+                <thead class="bg-slate-800 text-white text-[9px] uppercase tracking-widest">
+                  <tr>
+                    <th class="px-4 py-3 font-bold text-center w-12">Bil</th>
+                    <th class="px-4 py-3 font-bold">Angka Giliran</th>
+                    <th class="px-4 py-3 font-bold text-center">Markah Asal (a)</th>
+                    <th class="px-4 py-3 font-bold">Lantikan Moderator P1</th>
+                    <th class="px-4 py-3 font-bold">Lantikan Moderator P2</th>
+                    <th class="px-4 py-3 font-bold text-center">Tindakan</th>
+                  </tr>
+                </thead>
+                <tbody id="jadualLantikanModeratorBody" class="divide-y divide-slate-100 bg-white"></tbody>
+              </table>
+            </div>
+          </div>
+
           <!-- JADUAL RUMUSAN PENSYARAH -->
           <div class="bg-white rounded-2xl border border-slate-200 overflow-hidden shadow-sm">
             <div class="p-5 border-b border-slate-100 flex justify-between items-center bg-white">
@@ -539,7 +564,6 @@
         navContainer.innerHTML = '';
         const btnGaya = "nav-item flex items-center gap-3 px-4 py-3 rounded-lg text-xs text-slate-600 font-medium hover:bg-slate-50 cursor-pointer w-full text-left";
         
-        // HANYA ADMIN Nampak Dashboard & Ringkasan
         if (dataSesi.peranan === "Admin") {
           navContainer.innerHTML += `<button onclick="tukarPandangan('adminDashboard')" class="${btnGaya} active" id="nav_adminDashboard">Dashboard Admin</button>`;
           navContainer.innerHTML += `<button onclick="tukarPandangan('lecSummary')" class="${btnGaya}" id="nav_lecSummary">Ringkasan Moderasi</button>`;
@@ -592,11 +616,91 @@
         dbKonfigurasi = data.konfigurasi || {};
         
         if(dataSesi.peranan === "Admin") {
+          binaJadualLantikanModerator();
           binaJadualPemantauanP2();
           binaJadualRumusanSemakan();
         }
         binaSenaraiKerjaPensyarah();
         binaPapanRingkasanPensyarah();
+      });
+    }
+
+    function binaJadualLantikanModerator() {
+      const tbody = document.getElementById('jadualLantikanModeratorBody');
+      if (!tbody) return;
+      tbody.innerHTML = '';
+
+      if (dbSkripInduk.length === 0) {
+        tbody.innerHTML = `<tr><td colspan="6" class="text-center py-4 text-slate-400">Tiada skrip didaftarkan lagi.</td></tr>`;
+        return;
+      }
+
+      dbSkripInduk.forEach((skrip, idx) => {
+        const tr = document.createElement('tr');
+        tr.className = 'hover:bg-slate-50 transition-colors';
+
+        let optionsP1 = `<option value="">-- Pilih Moderator P1 --</option>`;
+        let optionsP2 = `<option value="">-- Pilih Moderator P2 --</option>`;
+
+        dbPensyarah.forEach(lec => {
+          const selP1 = (skrip.emelP1 && skrip.emelP1.toLowerCase() === lec.email.toLowerCase()) ? 'selected' : '';
+          const selP2 = (skrip.emelP2 && skrip.emelP2.toLowerCase() === lec.email.toLowerCase()) ? 'selected' : '';
+          optionsP1 += `<option value="${lec.email}" ${selP1}>${lec.nama} (${lec.email})</option>`;
+          optionsP2 += `<option value="${lec.email}" ${selP2}>${lec.nama} (${lec.email})</option>`;
+        });
+
+        tr.innerHTML = `
+          <td class="px-4 py-3 text-center font-mono text-slate-400">${idx + 1}</td>
+          <td class="px-4 py-3 font-mono font-bold text-slate-900">${skrip.angkaGiliran}</td>
+          <td class="px-4 py-3 text-center font-mono font-bold text-slate-700">${skrip.markahPemeriksa || '-'}</td>
+          <td class="px-4 py-3">
+            <select id="selP1_${skrip.angkaGiliran}" class="w-full text-xs border border-slate-200 rounded-lg p-2 font-medium bg-slate-50 focus:bg-white focus:outline-none focus:border-teal-500">
+              ${optionsP1}
+            </select>
+          </td>
+          <td class="px-4 py-3">
+            <select id="selP2_${skrip.angkaGiliran}" class="w-full text-xs border border-slate-200 rounded-lg p-2 font-medium bg-slate-50 focus:bg-white focus:outline-none focus:border-teal-500">
+              ${optionsP2}
+            </select>
+          </td>
+          <td class="px-4 py-3 text-center">
+            <button onclick="simpanLantikanModerator('${skrip.angkaGiliran}')" id="btnLantik_${skrip.angkaGiliran}" class="bg-teal-700 hover:bg-teal-800 text-white font-bold px-3 py-2 rounded-lg text-xs transition-all shadow-sm">
+              Lantik & Emel
+            </button>
+          </td>
+        `;
+        tbody.appendChild(tr);
+      });
+    }
+
+    function simpanLantikanModerator(angkaGiliran) {
+      const p1Email = document.getElementById(`selP1_${angkaGiliran}`)?.value || '';
+      const p2Email = document.getElementById(`selP2_${angkaGiliran}`)?.value || '';
+      const btn = document.getElementById(`btnLantik_${angkaGiliran}`);
+
+      if (btn) { btn.innerText = "Menghantar..."; btn.disabled = true; }
+
+      const payload = {
+        action: "lantikModerator",
+        adminEmail: dataSesi.email,
+        adminPassword: dataSesi.password,
+        angkaGiliran: angkaGiliran,
+        p1Email: p1Email,
+        p2Email: p2Email
+      };
+
+      fetch(urlAPI, { method: 'POST', headers: { 'Content-Type': 'text/plain' }, body: JSON.stringify(payload) })
+      .then(r => r.json()).then(res => {
+        if (btn) { btn.innerText = "Lantik & Emel"; btn.disabled = false; }
+        if (res.status === "success") {
+          tunjukToast("Moderator berjaya dilantik & notifikasi emel dikirimkan!", "success");
+          tarikDataDariSheets();
+        } else {
+          tunjukToast("Gagal lantik: " + res.message, "error");
+        }
+      }).catch(err => {
+        if (btn) { btn.innerText = "Lantik & Emel"; btn.disabled = false; }
+        tunjukToast("Ralat penghantaran lantikan.", "error");
       });
     }
 
@@ -619,7 +723,6 @@
       }
     }
 
-    // BORANG RASMI LAM-PT-04-02 (SYARAT STRICT: |c| >= 5 UNTUK PUSINGAN 2)
     function cetakBorangLamPt0402(fasaFilter = 'semua') {
       const printContainer = document.getElementById('bulkPrintContainer');
       if (!printContainer) return;
@@ -721,7 +824,7 @@
       } else {
         lecAdjHtml = `
           <tr style="border-bottom: 1px solid #000;">
-            <td style="border: 1px solid #000; padding: 4px 8px; text-align: left;">MUSAIDI BIN MUSTAFA</td>
+            <td style="border: 1px solid #000; padding: 4px 8px; text-align: left;">HANIFF FAIZAL BIN CHEK ANI</td>
             <td style="border: 1px solid #000; padding: 4px 8px; text-align: center; font-weight: bold; font-family: monospace;">-0.5</td>
           </tr>
         `;
@@ -1259,14 +1362,12 @@
       window.ontouchend = () => { isDrawing = false; titikAkhir = null; };
     }
 
-    // PEMAMPATAN & THROTTLE LAKARAN: mengelakkan ralat saiz data payload
     function rekodLakaran(e, type) {
       if(!canvas || !ctx) return;
       const rect = canvas.getBoundingClientRect();
       const x = Math.round((e.clientX - rect.left) * (canvas.width / rect.width));
       const y = Math.round((e.clientY - rect.top) * (canvas.height / rect.height));
       
-      // Throttle titik yang terlalu hampir (< 3px) bagi mengurangkan saiz JSON sehingga 70%
       if (type === 'move' && titikAkhir) {
         const dx = x - titikAkhir.x;
         const dy = y - titikAkhir.y;
