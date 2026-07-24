@@ -48,6 +48,7 @@
 </head>
 <body class="min-h-screen flex text-sm antialiased selection:bg-teal-100 selection:text-teal-900">
 
+  <!-- ======================== LOGIN OVERLAY ======================== -->
   <div id="loginOverlay" class="fixed inset-0 bg-slate-900/80 backdrop-blur-sm z-[100] flex justify-center items-center p-4 transition-opacity duration-300">
     <div class="bg-white max-w-sm w-full p-8 shadow-2xl border border-slate-200 flex flex-col gap-6 rounded-2xl">
       <div class="text-center border-b border-slate-100 pb-4">
@@ -73,6 +74,7 @@
     </div>
   </div>
 
+  <!-- ======================== MAIN APP LAYOUT ======================== -->
   <div id="appLayout" class="hidden w-full flex h-screen bg-slate-50">
     <aside class="w-64 bg-white border-r border-slate-200 flex flex-col justify-between shrink-0 h-full shadow-sm z-20">
       <div>
@@ -95,22 +97,27 @@
 
     <main class="flex-1 flex flex-col h-screen overflow-hidden relative">
       
+      <!-- ================= WORKSPACE PANEL ================= -->
       <section id="panelWorkspace" class="hidden h-full flex flex-col lg:flex-row overflow-hidden">
+        <!-- Kiri: PDF & Ulasan dalam 1 Scroll Area -->
         <div class="flex-1 flex flex-col bg-slate-100 border-r border-slate-200 h-full relative">
           
           <div class="h-14 bg-white border-b border-slate-200 flex justify-between items-center px-4 shrink-0 shadow-sm z-10">
-            <div class="flex items-center gap-2">
+            <div class="flex gap-2">
               <button onclick="tukarWarnaPen('#EF4444', 'merah')" id="btnPenMerah" class="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold bg-white border border-red-200 text-red-700 shadow-sm ring-1 ring-red-500"><span class="w-2.5 h-2.5 rounded-full bg-red-500"></span> Pen Pemeriksa</button>
               <button onclick="tukarWarnaPen('#10B981', 'hijau')" id="btnPenHijau" class="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold text-slate-600 hover:bg-white border border-transparent"><span class="w-2.5 h-2.5 rounded-full bg-emerald-500"></span> Pen KP (P1)</button>
               <button onclick="tukarWarnaPen('#8B5CF6', 'ungu')" id="btnPenUngu" class="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold text-slate-600 hover:bg-white border border-transparent"><span class="w-2.5 h-2.5 rounded-full bg-violet-500"></span> Pen P2/P3 (Admin)</button>
             </div>
-            
             <div class="flex items-center gap-3">
-              <span id="cloudSyncBadge" class="hidden text-[10px] font-bold px-2.5 py-1 rounded-full border transition-all bg-emerald-50 text-emerald-700 border-emerald-200">☁️ Cloud Disimpan</span>
+              <span id="autoSaveStatusLabel" class="text-[10px] font-bold text-slate-400 flex items-center gap-1.5 select-none">
+                <span id="autoSaveDot" class="w-1.5 h-1.5 rounded-full bg-slate-300"></span>
+                <span id="autoSaveText">Tersimpan</span>
+              </span>
               <button onclick="clearCanvasSesiIni()" class="text-[10px] font-bold text-slate-500 uppercase tracking-widest hover:text-red-600 px-2 py-1 rounded transition-colors border border-slate-200 bg-white">Padam Lakaran Anda</button>
             </div>
           </div>
 
+          <!-- KONTENA SCROLL UTAMA -->
           <div id="scrollAreaCanvas" class="flex-1 overflow-y-auto bg-[#EBE7DF] p-6 flex flex-col items-center">
             
             <div id="canvasPlaceholder" class="flex flex-col items-center text-center mt-20">
@@ -119,14 +126,17 @@
               <p class="text-xs text-slate-500 mt-1">Pilih skrip dari senarai di panel kanan.</p>
             </div>
 
+            <!-- KANVAS -->
             <canvas id="scriptCanvas" class="w-full max-w-[800px] h-auto block bg-white border border-slate-200 shadow-xl shrink-0 hidden mb-6"></canvas>
 
+            <!-- KOTAK ULASAN -->
             <div id="commentSection" class="hidden w-full max-w-[800px] bg-white p-6 border border-slate-200 rounded-xl shadow-sm shrink-0 mb-10">
-              <div class="flex justify-between items-center mb-3 border-b border-slate-100 pb-3">
+              <div class="flex justify-between items-center mb-4 border-b border-slate-100 pb-3">
                 <h4 class="font-bold text-slate-800">📝 Catatan Ulasan Muka Surat <span id="labelUlasanMuka" class="text-teal-600 font-mono">1</span></h4>
               </div>
-              <textarea id="catatanMukaSurat" rows="3" oninput="jadualAutoSimpanCloud()" placeholder="Masukkan ulasan atau catatan untuk muka surat ini..." class="w-full p-3 border border-slate-200 rounded-lg text-xs focus:outline-none focus:border-teal-500 transition-all"></textarea>
+              <textarea id="catatanMukaSurat" rows="3" placeholder="Masukkan ulasan atau catatan untuk muka surat ini..." oninput="ulasanSemuaHalaman[pageNum] = this.value; jadualAutoSave();" class="w-full p-3 border border-slate-200 rounded-lg text-xs focus:outline-none focus:border-teal-500 transition-all"></textarea>
               
+              <!-- KOTAK PAPARAN ULASAN PEMERIKSA / MODERATOR LAIN -->
               <div id="ulasanRakanContainer" class="mt-3 hidden p-3 bg-slate-50 border border-slate-200 rounded-lg text-xs"></div>
             </div>
 
@@ -139,6 +149,7 @@
           </div>
         </div>
 
+        <!-- Kanan: Senarai Tugas & Rubrik MPU3221 -->
         <div class="w-full lg:w-[420px] shrink-0 bg-white h-full flex flex-col shadow-[-4px_0_15px_-3px_rgba(0,0,0,0.05)] z-20">
           <div class="flex-1 overflow-y-auto p-5 space-y-5">
             <div>
@@ -162,22 +173,20 @@
               </div>
 
               <div class="space-y-3">
-                <!-- MARKAH PEMERIKSA ASAL (a) -->
                 <div class="flex justify-between items-center p-3 bg-slate-50 rounded-lg border border-slate-200">
                   <label class="text-[10px] font-bold text-slate-600 uppercase">Markah Pemeriksa Asal (a)</label>
                   <input type="text" id="borangMarkahA" disabled value="-" class="w-14 text-center text-xs font-bold font-mono bg-transparent border-0">
                 </div>
 
-                <!-- KOTAK MODERASI PUSINGAN 2 (HANYA MUNCUL DI BAWAH PEMERIKSA ASAL JIKA BEZA >= 5% / >= 2.0M) -->
-                <div id="pusingan2Container" class="hidden flex flex-col gap-2.5 p-3.5 bg-amber-50 rounded-xl border border-amber-200 transition-all shadow-sm">
-                  <span class="text-[9px] font-bold text-amber-900 bg-amber-200/80 px-2 py-1 rounded-md w-full text-center uppercase tracking-wider">⚠️ Perbezaan ≥ 5% (≥ 2.0M): Moderasi P2 Diperlukan (Pen Ungu)</span>
-                  <div class="flex justify-between items-center gap-4 pt-1">
+                <div id="pusingan2Container" class="hidden flex-col gap-2 p-3 bg-amber-50/60 rounded-lg border border-amber-200 transition-all">
+                  <span class="text-[9px] font-bold text-amber-800 bg-amber-100 px-1.5 py-0.5 rounded-full w-max uppercase tracking-wider">⚠️ Perbezaan ≥ 5% (≥ 2.0M): Moderasi Pusingan 2 Diperlukan (Pen Ungu)</span>
+                  <div class="flex justify-between items-center gap-4">
                     <label class="font-bold text-amber-900 text-xs">(d) Markah Moderasi P2</label>
-                    <input type="number" id="markahD" min="0" max="40" step="0.5" oninput="kiraPerbezaanP2(); kiraSkorAuto();" class="w-20 text-center font-bold border border-amber-300 py-1.5 rounded-lg bg-white text-xs text-amber-900 focus:outline-none focus:ring-2 focus:ring-amber-500">
+                    <input type="number" id="markahD" oninput="kiraPerbezaanP2()" class="w-20 text-center font-bold border border-amber-300 py-1 rounded bg-white text-xs">
                   </div>
                   <div class="flex justify-between items-center gap-4">
                     <label class="font-bold text-amber-900 text-xs">(e) Perbezaan Markah P2</label>
-                    <input type="text" id="markahE" disabled value="-" class="w-20 text-center font-bold bg-amber-100/70 py-1.5 rounded-lg border border-amber-200 text-amber-900 text-xs font-mono">
+                    <input type="text" id="markahE" disabled value="SULIT" class="w-20 text-center font-bold bg-amber-100 py-1 rounded border text-slate-500 text-xs">
                   </div>
                 </div>
                 
@@ -262,12 +271,13 @@
             </div>
           </div>
           <div class="p-4 bg-slate-50 border-t border-slate-200 shrink-0 flex flex-col gap-2">
-            <button onclick="simpanRekodSemakanManually()" id="btnSimpanKerja" class="w-full bg-teal-600 hover:bg-teal-700 text-white font-bold py-3.5 rounded-lg transition-all shadow-md">Simpan Semakan Manual</button>
+            <button onclick="simpanRekodSemakan()" id="btnSimpanKerja" class="w-full bg-teal-600 hover:bg-teal-700 text-white font-bold py-3.5 rounded-lg transition-all shadow-md">Simpan Semakan</button>
             <button onclick="cetakSkripDanContenganGlobal()" class="w-full bg-white hover:bg-slate-100 text-slate-700 border border-slate-300 font-bold py-3.5 rounded-lg transition-all shadow-sm">Cetak Laporan Lengkap Skrip</button>
           </div>
         </div>
       </section>
 
+      <!-- ================= PANEL RINGKASAN SEMAKAN (ADMIN SAHAJA) ================= -->
       <section id="panelLecSummary" class="hidden h-full overflow-y-auto p-6 md:p-8">
         <div class="max-w-6xl mx-auto space-y-6">
           <div class="flex flex-col md:flex-row justify-between items-start md:items-end gap-4 border-b border-slate-200 pb-4">
@@ -325,6 +335,7 @@
         </div>
       </section>
 
+      <!-- ================= PANEL MUAT NAIK P2 PENSYARAH ================= -->
       <section id="panelLecUpload" class="hidden h-full overflow-y-auto p-6 md:p-10">
         <div class="max-w-xl mx-auto">
           <div class="bg-white p-8 rounded-3xl border border-slate-200 shadow-sm">
@@ -343,6 +354,7 @@
         </div>
       </section>
 
+      <!-- ================= PANEL ADMIN DASHBOARD ================= -->
       <section id="panelAdminDashboard" class="hidden h-full overflow-y-auto p-6 md:p-8">
         <div class="max-w-6xl mx-auto space-y-6">
           <div class="flex flex-col md:flex-row justify-between items-start md:items-end gap-4 border-b border-slate-200 pb-4">
@@ -373,6 +385,7 @@
             </div>
           </div>
 
+          <!-- KAD STATISTIK -->
           <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
             <div class="bg-white p-4 rounded-2xl border border-slate-200 border-l-4 border-l-blue-500 shadow-sm flex items-center justify-between">
               <div><p class="text-[10px] font-bold uppercase text-slate-400 tracking-wider">Jumlah Pensyarah</p><p id="statTotalLec" class="text-2xl font-display font-bold text-slate-900 mt-1">0</p></div>
@@ -392,6 +405,7 @@
             </div>
           </div>
 
+          <!-- MODUL LANTIKAN MODERATOR P1 & P2 -->
           <div class="bg-white rounded-2xl border border-slate-200 overflow-hidden shadow-sm">
             <div class="p-5 border-b border-slate-100 bg-teal-900 text-white flex justify-between items-center">
               <div>
@@ -416,6 +430,7 @@
             </div>
           </div>
 
+          <!-- JADUAL RUMUSAN PENSYARAH -->
           <div class="bg-white rounded-2xl border border-slate-200 overflow-hidden shadow-sm">
             <div class="p-5 border-b border-slate-100 flex justify-between items-center bg-white">
               <div>
@@ -441,6 +456,7 @@
             </div>
           </div>
 
+          <!-- P1 REGISTER & P2 MONITORING -->
           <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
             <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm lg:col-span-1">
               <h3 class="font-display font-bold text-slate-900 mb-4 border-l-4 border-blue-500 pl-3">Daftar Sampel P1 (Admin)</h3>
@@ -470,6 +486,7 @@
     </main>
   </div>
 
+  <!-- KONTENA CETAKAN BULK -->
   <div id="bulkPrintContainer"></div>
   <div id="printFooterSummary" style="display:none">
     <div class="grid grid-cols-2 gap-6 p-5 text-xs border border-slate-300 rounded-lg">
@@ -494,15 +511,100 @@
     let isDrawing = false, warnaPen = '#EF4444', titikAkhir = null;
     
     let lakaranOrangLain = {};
-    let ulasanOrangLain = {}; 
+    let ulasanOrangLain = {}; // Pemuatan ulasan pemeriksa/moderator lain
     let lakaranSesiIni = {};
     let ulasanSemuaHalaman = {}; 
 
-    // Queue & Retry System bagi Auto-Simpan Cloud
-    let cloudSaveTimeout = null;
-    let isCloudSaving = false;
-    let needsCloudSave = false;
-    let cloudRetryCount = 0;
+    // ======================= AUTO-SAVE (CLOUD) =======================
+    let autoSaveTimer = null;
+    let autoSaveDirty = false;
+    let autoSaveInProgress = false;
+    let autoSaveRetryTimer = null;
+    let autoSaveSafetyInterval = null;
+
+    function tandaAutoSaveStatus(status) {
+      const dot = document.getElementById('autoSaveDot');
+      const txt = document.getElementById('autoSaveText');
+      if (!dot || !txt) return;
+      const gaya = {
+        pending: { cls: 'bg-amber-400 animate-pulse', label: 'Menunggu perubahan...' },
+        saving:  { cls: 'bg-blue-500 animate-pulse',  label: 'Menyimpan ke cloud...' },
+        saved:   { cls: 'bg-emerald-500',             label: 'Tersimpan di cloud' },
+        error:   { cls: 'bg-red-500 animate-pulse',   label: 'Talian terputus — cuba semula...' }
+      };
+      const g = gaya[status] || gaya.saved;
+      dot.className = `w-1.5 h-1.5 rounded-full ${g.cls}`;
+      txt.innerText = g.label;
+    }
+
+    function jadualAutoSave() {
+      if (!pelajarAktif || !dataSesi.email) return;
+      autoSaveDirty = true;
+      tandaAutoSaveStatus('pending');
+      clearTimeout(autoSaveTimer);
+      autoSaveTimer = setTimeout(hantarAutoSaveLakaran, 1000);
+    }
+
+    function hantarAutoSaveLakaran() {
+      if (!pelajarAktif || !dataSesi.email) return;
+      if (autoSaveInProgress) { autoSaveTimer = setTimeout(hantarAutoSaveLakaran, 1000); return; }
+      clearTimeout(autoSaveRetryTimer);
+
+      const payload = {
+        action: "autosaveLakaran",
+        angkaGiliran: pelajarAktif.angkaGiliran,
+        emelPensyarah: dataSesi.email,
+        fasaModerasi: pelajarAktif.fasaModerasi,
+        markahPemeriksa: document.getElementById('borangMarkahA')?.value || pelajarAktif.markahPemeriksa || 0,
+        dataLakaran: JSON.stringify({ annotations: lakaranSesiIni, comments: ulasanSemuaHalaman })
+      };
+
+      autoSaveInProgress = true;
+      tandaAutoSaveStatus('saving');
+
+      fetch(urlAPI, { method: 'POST', headers: { 'Content-Type': 'text/plain' }, body: JSON.stringify(payload) })
+        .then(r => r.json())
+        .then(res => {
+          autoSaveInProgress = false;
+          if (res && res.status === "success") {
+            autoSaveDirty = false;
+            tandaAutoSaveStatus('saved');
+          } else {
+            tandaAutoSaveStatus('error');
+            autoSaveRetryTimer = setTimeout(hantarAutoSaveLakaran, 5000);
+          }
+        })
+        .catch(() => {
+          autoSaveInProgress = false;
+          tandaAutoSaveStatus('error');
+          autoSaveRetryTimer = setTimeout(hantarAutoSaveLakaran, 5000);
+        });
+    }
+
+    // Cuba simpan sekali lagi automatik apabila talian internet kembali
+    window.addEventListener('online', () => { if (autoSaveDirty && pelajarAktif) hantarAutoSaveLakaran(); });
+
+    // Jaring keselamatan: cuba simpan setiap 20 saat sekiranya ada perubahan tergantung
+    autoSaveSafetyInterval = setInterval(() => {
+      if (autoSaveDirty && pelajarAktif && !autoSaveInProgress) hantarAutoSaveLakaran();
+    }, 20000);
+
+    // Percubaan terakhir menyimpan sebelum pengguna menutup/tinggalkan tab
+    window.addEventListener('beforeunload', function() {
+      if (!autoSaveDirty || !pelajarAktif || !dataSesi.email || !navigator.sendBeacon) return;
+      try {
+        const payload = {
+          action: "autosaveLakaran",
+          angkaGiliran: pelajarAktif.angkaGiliran,
+          emelPensyarah: dataSesi.email,
+          fasaModerasi: pelajarAktif.fasaModerasi,
+          markahPemeriksa: document.getElementById('borangMarkahA')?.value || pelajarAktif.markahPemeriksa || 0,
+          dataLakaran: JSON.stringify({ annotations: lakaranSesiIni, comments: ulasanSemuaHalaman })
+        };
+        const blob = new Blob([JSON.stringify(payload)], { type: 'text/plain' });
+        navigator.sendBeacon(urlAPI, blob);
+      } catch (e) {}
+    });
 
     window.onload = () => {
       let sesiLama = sessionStorage.getItem('modSesiMPU3221');
@@ -705,520 +807,6 @@
       });
     }
 
-    function kiraPerbezaanP1() {
-      const a = parseFloat(document.getElementById('borangMarkahA')?.value) || 0;
-      const b = parseFloat(document.getElementById('borangMarkahG')?.value) || 0;
-      const c = Number((b - a).toFixed(2));
-      const AMBANG_5_PERATUS = 2.0;
-
-      const p2Container = document.getElementById('pusingan2Container');
-      if (Math.abs(c) >= AMBANG_5_PERATUS) {
-        if (p2Container) p2Container.classList.remove('hidden');
-      } else {
-        if (p2Container) p2Container.classList.add('hidden');
-      }
-    }
-
-    function kiraPerbezaanP2() {
-      const a = parseFloat(document.getElementById('borangMarkahA')?.value) || 0;
-      const d = parseFloat(document.getElementById('markahD')?.value) || 0;
-      const eInput = document.getElementById('markahE');
-      if (eInput) {
-        const eVal = Number((d - a).toFixed(2));
-        eInput.value = eVal > 0 ? '+' + eVal : eVal;
-      }
-    }
-
-    function kiraSkorAuto() {
-      let total = 0; 
-      const keysHP1 = ['hp1_a1','hp1_a2','hp1_b1','hp1_b2','hp1_c1','hp1_c2'];
-      const keysHP5 = ['hp5_d1','hp5_d2','hp5_d3','hp5_d4'];
-      keysHP1.concat(keysHP5).forEach(k => { 
-        const el = document.getElementById(`rubric_${k}`); 
-        if(el) total += parseFloat(el.value) || 0; 
-      });
-      const jum = document.getElementById('jumlahMarkahRubrik'); if(jum) jum.innerText = `${total.toFixed(1)} / 40`; 
-      const bG = document.getElementById('borangMarkahG'); if(bG) bG.value = total.toFixed(1);
-      kiraPerbezaanP1();
-      
-      jadualAutoSimpanCloud();
-    }
-
-    function kemaskiniBadgeSync(status) {
-      const badge = document.getElementById('cloudSyncBadge');
-      if (!badge) return;
-      badge.classList.remove('hidden');
-
-      if (status === 'saving') {
-        badge.className = "text-[10px] font-bold px-2.5 py-1 rounded-full border bg-amber-50 text-amber-700 border-amber-200 animate-pulse";
-        badge.innerText = "⏳ Menyimpan ke Cloud...";
-      } else if (status === 'saved') {
-        badge.className = "text-[10px] font-bold px-2.5 py-1 rounded-full border bg-emerald-50 text-emerald-700 border-emerald-200";
-        badge.innerText = "☁️ Auto-Simpan Berjaya";
-      } else if (status === 'error') {
-        badge.className = "text-[10px] font-bold px-2.5 py-1 rounded-full border bg-red-50 text-red-700 border-red-200";
-        badge.innerText = "⚠️ Menyimpan Semula...";
-      }
-    }
-
-    function simpanDrafLocal() {
-      if(!pelajarAktif || !dataSesi.email) return;
-      const key = `draf_${dataSesi.email.toLowerCase()}_${pelajarAktif.angkaGiliran}`;
-      const payload = {
-        lakaran: lakaranSesiIni,
-        ulasan: ulasanSemuaHalaman,
-        updatedAt: new Date().getTime()
-      };
-      try { localStorage.setItem(key, JSON.stringify(payload)); } catch(e){}
-    }
-
-    function jadualAutoSimpanCloud() {
-      simpanUlasanHalamanSemasa();
-      simpanDrafLocal();
-
-      needsCloudSave = true;
-      kemaskiniBadgeSync('saving');
-
-      if (cloudSaveTimeout) clearTimeout(cloudSaveTimeout);
-      cloudSaveTimeout = setTimeout(() => {
-        laksanaAutoSimpanCloud();
-      }, 1800); // 1.8 saat tenang selepas input/stroke
-    }
-
-    async function laksanaAutoSimpanCloud() {
-      if (isCloudSaving) {
-        needsCloudSave = true;
-        return;
-      }
-
-      if (!needsCloudSave || !pelajarAktif || !dataSesi.email) return;
-
-      isCloudSaving = true;
-      needsCloudSave = false;
-
-      const markahA = parseFloat(document.getElementById('borangMarkahA')?.value) || 0;
-      const markahG = parseFloat(document.getElementById('borangMarkahG')?.value) || 0;
-
-      const rekodSediaAda = dbHasilSemakan.filter(h => h.angkaGiliran.toString() === pelajarAktif.angkaGiliran.toString());
-      
-      let modP1 = '', bezP1 = '', modP2 = '', bezP2 = '';
-
-      if (rekodSediaAda.length === 0 || (rekodSediaAda.length === 1 && rekodSediaAda[0].emelPensyarah === dataSesi.email)) {
-        modP1 = markahG;
-        bezP1 = (markahG - markahA);
-      } else {
-        const p1Rec = rekodSediaAda[0];
-        modP1 = (p1Rec.markahModerasiP1 !== undefined && p1Rec.markahModerasiP1 !== '') ? p1Rec.markahModerasiP1 : p1Rec.markahAkhir;
-        bezP1 = (p1Rec.perbezaanP1 !== undefined && p1Rec.perbezaanP1 !== '') ? p1Rec.perbezaanP1 : (modP1 - markahA);
-        modP2 = markahG;
-        bezP2 = (markahG - markahA);
-      }
-
-      const markahPenyelarasan = (bezP2 !== '' && Math.abs(parseFloat(bezP1)) >= 2.0) ? bezP2 : bezP1;
-
-      const payload = {
-        angkaGiliran: pelajarAktif.angkaGiliran, 
-        emelPensyarah: dataSesi.email, 
-        fasaModerasi: pelajarAktif.fasaModerasi,
-        markahPemeriksa: markahA,
-        hp1_a1: document.getElementById('rubric_hp1_a1')?.value || 0, 
-        hp1_a2: document.getElementById('rubric_hp1_a2')?.value || 0,
-        hp1_b1: document.getElementById('rubric_hp1_b1')?.value || 0, 
-        hp1_b2: document.getElementById('rubric_hp1_b2')?.value || 0, 
-        hp1_c1: document.getElementById('rubric_hp1_c1')?.value || 0,
-        hp1_c2: document.getElementById('rubric_hp1_c2')?.value || 0, 
-        hp5_d1: document.getElementById('rubric_hp5_d1')?.value || 0, 
-        hp5_d2: document.getElementById('rubric_hp5_d2')?.value || 0,
-        hp5_d3: document.getElementById('rubric_hp5_d3')?.value || 0,
-        hp5_d4: document.getElementById('rubric_hp5_d4')?.value || 0,
-        markahModerasiP1: modP1,
-        perbezaanP1: bezP1,
-        markahModerasiP2: modP2,
-        perbezaanP2: bezP2,
-        markahPenyelarasan: markahPenyelarasan,
-        markahAkhir: markahG,
-        dataLakaran: JSON.stringify({ annotations: lakaranSesiIni, comments: ulasanSemuaHalaman })
-      };
-
-      // Kemaskini tatasusunan memori tempatan terus
-      const kunciUnik = dataSesi.email + "-" + pelajarAktif.angkaGiliran;
-      const idxSemasa = dbHasilSemakan.findIndex(h => h.kunciUnik === kunciUnik);
-      if (idxSemasa !== -1) {
-        dbHasilSemakan[idxSemasa] = payload;
-      } else {
-        dbHasilSemakan.push({ ...payload, kunciUnik: kunciUnik });
-      }
-
-      try {
-        const res = await fetch(urlAPI, {
-          method: 'POST',
-          headers: { 'Content-Type': 'text/plain;charset=utf-8' },
-          body: JSON.stringify(payload)
-        });
-        const resData = await res.json();
-
-        if (resData.status === "success") {
-          cloudRetryCount = 0;
-          kemaskiniBadgeSync('saved');
-        } else {
-          throw new Error(resData.message || "Gagal menyimpan");
-        }
-      } catch (err) {
-        console.warn("Mencuba semula auto-simpan cloud...", err);
-        cloudRetryCount++;
-        if (cloudRetryCount <= 3) {
-          kemaskiniBadgeSync('saving');
-          setTimeout(() => {
-            isCloudSaving = false;
-            needsCloudSave = true;
-            laksanaAutoSimpanCloud();
-          }, 2500);
-          return;
-        } else {
-          kemaskiniBadgeSync('error');
-        }
-      } finally {
-        isCloudSaving = false;
-        if (needsCloudSave) {
-          setTimeout(() => laksanaAutoSimpanCloud(), 1000);
-        }
-      }
-    }
-
-    function simpanRekodSemakanManually() {
-      const btn = document.getElementById('btnSimpanKerja'); if(btn) { btn.innerText = "Menghantar..."; btn.disabled = true; }
-      needsCloudSave = true;
-      laksanaAutoSimpanCloud();
-      setTimeout(() => { if(btn) { btn.innerText = "Simpan Semakan Manual"; btn.disabled = false; } }, 1500);
-    }
-
-    function pilihPelajar(skrip, rekod) {
-      if(pdfDoc) simpanUlasanHalamanSemasa(); 
-
-      pelajarAktif = skrip; binaSenaraiKerjaPensyarah(); 
-      const pb = document.getElementById('panelBorangMarkah'); if(pb) pb.classList.remove('opacity-50', 'pointer-events-none');
-      const lb = document.getElementById('labelTugasSemasa'); if(lb) lb.innerText = skrip.angkaGiliran;
-      const bA = document.getElementById('borangMarkahA'); if(bA) bA.value = skrip.markahPemeriksa;
-      
-      const keysHP1 = ['hp1_a1','hp1_a2','hp1_b1','hp1_b2','hp1_c1','hp1_c2'];
-      const keysHP5 = ['hp5_d1','hp5_d2','hp5_d3','hp5_d4'];
-      keysHP1.concat(keysHP5).forEach(k => {
-        const el = document.getElementById(`rubric_${k}`);
-        if (el) el.value = rekod ? (rekod[k] || '') : '';
-      });
-
-      const bG = document.getElementById('borangMarkahG'); if(bG) bG.value = rekod ? (rekod.markahAkhir || skrip.markahPemeriksa) : skrip.markahPemeriksa;
-      kiraSkorAuto();
-
-      const pl = document.getElementById('canvasPlaceholder'); if(pl) pl.innerHTML = `<div class="animate-pulse text-teal-700 font-bold mt-4">Memproses dan memuat turun PDF...</div>`;
-      if(canvas) canvas.classList.add('hidden');
-      const comm = document.getElementById('commentSection'); if(comm) comm.classList.add('hidden');
-      const nav = document.getElementById('pdfNavigationControls'); if(nav) nav.classList.add('hidden');
-      
-      lakaranOrangLain = {}; 
-      ulasanOrangLain = {}; 
-      lakaranSesiIni = {}; 
-      ulasanSemuaHalaman = {}; 
-      pdfDoc = null; 
-      pageNum = 1; 
-      
-      const cat = document.getElementById('catatanMukaSurat'); if(cat) cat.value = '';
-
-      const keyLocal = `draf_${dataSesi.email.toLowerCase()}_${skrip.angkaGiliran}`;
-      let localDraft = null;
-      try {
-        const rawLocal = localStorage.getItem(keyLocal);
-        if (rawLocal) localDraft = JSON.parse(rawLocal);
-      } catch(e){}
-
-      const rekodSkripIni = dbHasilSemakan.filter(h => h.angkaGiliran.toString() === skrip.angkaGiliran.toString());
-      rekodSkripIni.forEach(r => {
-        if(r.dataLakaran) {
-          try { 
-            const d = JSON.parse(r.dataLakaran);
-            const lak = d.annotations || d;
-            const comms = d.comments || {};
-            
-            if (r.emelPensyarah && r.emelPensyarah.toLowerCase() === dataSesi.email.toLowerCase()) {
-              lakaranSesiIni = JSON.parse(JSON.stringify(lak || {}));
-              ulasanSemuaHalaman = JSON.parse(JSON.stringify(comms || {}));
-            } else {
-              for (const pg in lak) {
-                if (!lakaranOrangLain[pg]) lakaranOrangLain[pg] = [];
-                lakaranOrangLain[pg] = lakaranOrangLain[pg].concat(lak[pg]);
-              }
-              for (const pg in comms) {
-                if (comms[pg] && comms[pg].toString().trim() !== '') {
-                  if (!ulasanOrangLain[pg]) ulasanOrangLain[pg] = [];
-                  ulasanOrangLain[pg].push({
-                    penilai: r.emelPensyarah,
-                    teks: comms[pg]
-                  });
-                }
-              }
-            }
-          } catch(e) {}
-        }
-      });
-
-      if (localDraft && localDraft.lakaran) {
-        for (const pg in localDraft.lakaran) {
-          if (!lakaranSesiIni[pg] || lakaranSesiIni[pg].length === 0) {
-            lakaranSesiIni[pg] = localDraft.lakaran[pg];
-          }
-        }
-      }
-      if (localDraft && localDraft.ulasan) {
-        for (const pg in localDraft.ulasan) {
-          if (!ulasanSemuaHalaman[pg]) {
-            ulasanSemuaHalaman[pg] = localDraft.ulasan[pg];
-          }
-        }
-      }
-
-      if(!skrip.urlSkrip) { if(pl) pl.innerHTML = `<div class="text-red-500 font-bold mt-4 text-xs">Tiada fail PDF untuk pelajar ini.</div>`; return; }
-
-      fetch(urlAPI + "?action=fetchPdfProxy&id=" + skrip.urlSkrip).then(r => r.text()).then(b64 => {
-          if (b64.startsWith("ERROR")) throw new Error("Gagal load PDF");
-          const raw = atob(b64); const arr = new Uint8Array(raw.length); for (let i = 0; i < raw.length; i++) arr[i] = raw.charCodeAt(i);
-          pdfjsLib.getDocument({ data: arr }).promise.then(pdf => {
-            pdfDoc = pdf; pageTotal = pdf.numPages; 
-            const pt = document.getElementById('pdfTotalPagesNum'); if(pt) pt.innerText = pageTotal;
-            if(nav) nav.classList.remove('hidden');
-            renderHalamanPdf();
-          });
-      }).catch(e => { if(pl) pl.innerHTML = `<div class="text-red-500 text-xs mt-2">Gagal menarik dokumen dari Google Drive.</div>`; });
-    }
-
-    function renderHalamanPdf() {
-      if(!pdfDoc || !canvas || !ctx) return;
-      const cp = document.getElementById('pdfCurrentPageNum'); if(cp) cp.innerText = pageNum;
-      const lm = document.getElementById('labelUlasanMuka'); if(lm) lm.innerText = pageNum;
-      
-      let myComment = ulasanSemuaHalaman[pageNum] || '';
-      const otherComments = ulasanOrangLain[pageNum] || [];
-      
-      if (!myComment && otherComments.length > 0) {
-        myComment = otherComments.map(o => o.teks).join('\n');
-        ulasanSemuaHalaman[pageNum] = myComment;
-      }
-      
-      const cm = document.getElementById('catatanMukaSurat'); if(cm) cm.value = myComment;
-
-      const containerRakan = document.getElementById('ulasanRakanContainer');
-      if (containerRakan) {
-        if (otherComments.length > 0) {
-          containerRakan.classList.remove('hidden');
-          containerRakan.innerHTML = `<p class="font-bold text-teal-800 text-[10px] uppercase tracking-wider mb-2">💬 Ulasan Pemeriksa / Moderator Lain:</p>` +
-            otherComments.map(o => `<div class="mb-1.5 text-slate-700 bg-white p-2.5 rounded-lg border border-slate-200 shadow-sm"><span class="font-bold text-slate-900 block mb-0.5 text-[11px]">${o.penilai}</span>${o.teks}</div>`).join('');
-        } else {
-          containerRakan.classList.add('hidden');
-          containerRakan.innerHTML = '';
-        }
-      }
-
-      pdfDoc.getPage(pageNum).then(page => {
-        const vp = page.getViewport({ scale: 1.5 });
-        canvas.width = 800; const scaleFactor = 800 / vp.width; canvas.height = vp.height * scaleFactor;
-        
-        page.render({ canvasContext: ctx, viewport: page.getViewport({ scale: 1.5 * scaleFactor }) }).promise.then(() => {
-          const pl = document.getElementById('canvasPlaceholder'); if(pl) pl.classList.add('hidden');
-          canvas.classList.remove('hidden');
-          const cs = document.getElementById('commentSection'); if(cs) cs.classList.remove('hidden');
-          
-          lukisSemulaAtasCanvas(); lukisLakaranSesiIni(); setupCanvasEvents();
-        });
-      });
-    }
-
-    function simpanUlasanHalamanSemasa() { const cm = document.getElementById('catatanMukaSurat'); if(cm) ulasanSemuaHalaman[pageNum] = cm.value; }
-
-    function tukarHalamanPdf(arah) {
-      const sasaran = pageNum + arah;
-      if (sasaran >= 1 && sasaran <= pageTotal) { simpanUlasanHalamanSemasa(); pageNum = sasaran; renderHalamanPdf(); }
-    }
-
-    function tukarWarnaPen(hex, namaID) {
-      warnaPen = hex;
-      ['btnPenMerah', 'btnPenHijau', 'btnPenUngu'].forEach(id => { const el=document.getElementById(id); if(el) el.className = "flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold text-slate-600 hover:bg-white border border-transparent"; });
-      const warnaRing = namaID === 'merah' ? 'red' : namaID === 'hijau' ? 'emerald' : 'violet';
-      const bA = document.getElementById(`btnPen${namaID.charAt(0).toUpperCase() + namaID.slice(1)}`);
-      if(bA) bA.className = `flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold bg-white border border-${warnaRing}-200 text-${warnaRing}-700 shadow-sm ring-1 ring-${warnaRing}-500`;
-    }
-
-    function clearCanvasSesiIni() { 
-      lakaranSesiIni[pageNum] = []; 
-      renderHalamanPdf(); 
-      jadualAutoSimpanCloud();
-      tunjukToast("Lakaran halaman ini dipadam.", "info");
-    }
-
-    function setupCanvasEvents() {
-      if(!canvas) return;
-      canvas.onmousedown = e => { isDrawing = true; titikAkhir = null; rekodLakaran(e, 'start'); };
-      canvas.onmousemove = e => { if(isDrawing) rekodLakaran(e, 'move'); };
-      window.onmouseup = () => { if (isDrawing) { isDrawing = false; titikAkhir = null; jadualAutoSimpanCloud(); } };
-      canvas.ontouchstart = e => { isDrawing = true; titikAkhir = null; rekodLakaran(e.touches[0], 'start'); e.preventDefault(); };
-      canvas.ontouchmove = e => { if(isDrawing) rekodLakaran(e.touches[0], 'move'); e.preventDefault(); };
-      window.ontouchend = () => { if (isDrawing) { isDrawing = false; titikAkhir = null; jadualAutoSimpanCloud(); } };
-    }
-
-    function rekodLakaran(e, type) {
-      if(!canvas || !ctx) return;
-      const rect = canvas.getBoundingClientRect();
-      const x = Math.round((e.clientX - rect.left) * (canvas.width / rect.width));
-      const y = Math.round((e.clientY - rect.top) * (canvas.height / rect.height));
-      
-      if (type === 'move' && titikAkhir) {
-        const dx = x - titikAkhir.x;
-        const dy = y - titikAkhir.y;
-        if (dx * dx + dy * dy < 9) return; // Penapis jarak
-      }
-
-      ctx.strokeStyle = warnaPen; ctx.lineWidth = 3; ctx.lineCap = 'round'; ctx.lineJoin = 'round';
-      
-      if(type === 'start') { 
-        ctx.beginPath(); 
-        ctx.moveTo(x, y); 
-      } else { 
-        ctx.lineTo(x, y); 
-        ctx.stroke(); 
-      }
-      
-      if(!lakaranSesiIni[pageNum]) lakaranSesiIni[pageNum] = [];
-      lakaranSesiIni[pageNum].push({ type, x, y, color: warnaPen }); 
-      titikAkhir = { x, y };
-    }
-
-    function lukisSemulaAtasCanvas() {
-      if(!ctx) return;
-      (lakaranOrangLain[pageNum] || []).forEach(pt => {
-        ctx.strokeStyle = pt.color || '#EF4444'; ctx.lineWidth = 3; ctx.lineCap = 'round'; ctx.lineJoin = 'round';
-        if (pt.type === 'start') { ctx.beginPath(); ctx.moveTo(pt.x, pt.y); } else { ctx.lineTo(pt.x, pt.y); ctx.stroke(); }
-      });
-    }
-
-    function lukisLakaranSesiIni() {
-      if(!ctx) return;
-      (lakaranSesiIni[pageNum] || []).forEach(pt => {
-        ctx.strokeStyle = pt.color || '#EF4444'; ctx.lineWidth = 3; ctx.lineCap = 'round'; ctx.lineJoin = 'round';
-        if (pt.type === 'start') { ctx.beginPath(); ctx.moveTo(pt.x, pt.y); } else { ctx.lineTo(pt.x, pt.y); ctx.stroke(); }
-      });
-    }
-
-    function binaSenaraiKerjaPensyarah() {
-      const bekas = document.getElementById('senaraiTugasPelajar'); if(!bekas) return; bekas.innerHTML = '';
-      const tab2 = document.getElementById('tabKerjaP2');
-      const userEmail = (dataSesi.email || '').toLowerCase();
-
-      const adaTugasanP2 = dataSesi.peranan === 'Admin' || dbSkripInduk.some(s => 
-        s.fasaModerasi.includes('P2') && (
-          (s.emelP2 && s.emelP2.toLowerCase() === userEmail) ||
-          (s.emelP1 && s.emelP1.toLowerCase() === userEmail) ||
-          (s.emelPensyarah && s.emelPensyarah.toLowerCase() === userEmail)
-        )
-      );
-
-      if (tab2) {
-        if (adaTugasanP2) {
-          tab2.classList.remove('hidden');
-        } else {
-          tab2.classList.add('hidden');
-          if (fasaSemasa === 'P2') fasaSemasa = 'P1'; 
-        }
-      }
-
-      const skripRelevan = dbSkripInduk.filter(s => {
-        if (!s.fasaModerasi.includes(fasaSemasa)) return false;
-
-        if (dataSesi.peranan === 'Admin') return true;
-
-        const isLantikP1 = s.emelP1 && s.emelP1.toLowerCase() === userEmail;
-        const isLantikP2 = s.emelP2 && s.emelP2.toLowerCase() === userEmail;
-        const isPensyarahAsal = s.emelPensyarah && s.emelPensyarah.toLowerCase() === userEmail;
-
-        if (fasaSemasa === 'P1') {
-          return isLantikP1 || isPensyarahAsal || (!s.emelP1 && !s.emelP2);
-        } else if (fasaSemasa === 'P2') {
-          return isPensyarahAsal || isLantikP2 || isLantikP1;
-        }
-        return true;
-      });
-
-      if(skripRelevan.length === 0) { 
-        bekas.innerHTML = `<div class="p-4 text-center text-xs text-slate-400">Tiada skrip tugasan ${fasaSemasa} yang dilantik untuk anda.</div>`; 
-        return; 
-      }
-
-      skripRelevan.forEach(skrip => {
-        const rekodSiap = dbHasilSemakan.find(h => h.angkaGiliran.toString() === skrip.angkaGiliran.toString() && h.emelPensyarah === dataSesi.email);
-        const isAktif = pelajarAktif && pelajarAktif.angkaGiliran === skrip.angkaGiliran;
-        const div = document.createElement('div');
-        div.className = `flex justify-between items-center p-3 rounded-lg border cursor-pointer transition-all ${isAktif ? 'bg-teal-50 border-teal-300 ring-1 ring-teal-500' : 'bg-white border-slate-200 hover:bg-slate-50'}`;
-        div.onclick = () => pilihPelajar(skrip, rekodSiap);
-        div.innerHTML = `<div><p class="font-mono font-bold text-xs ${isAktif ? 'text-teal-900' : 'text-slate-800'}">${skrip.angkaGiliran}</p></div>
-          <div>${rekodSiap ? `<span class="bg-emerald-50 text-emerald-700 px-2 py-1 rounded text-[10px] font-bold border border-emerald-200">Disemak</span>` : `<span class="bg-slate-50 text-slate-400 px-2 py-1 rounded text-[10px] font-bold border border-slate-200">Menunggu</span>`}</div>`;
-        bekas.appendChild(div);
-      });
-    }
-
-    function tukarFasaKerja(fasa) { 
-      fasaSemasa = fasa;
-      const tab1 = document.getElementById('tabKerjaP1'), tab2 = document.getElementById('tabKerjaP2');
-      if(tab1 && tab2) {
-        tab1.className = fasa === 'P1' ? "flex-1 py-1.5 text-[10px] font-bold bg-white text-slate-900 rounded-md shadow-sm transition-all" : "flex-1 py-1.5 text-[10px] font-medium text-slate-500 rounded-md hover:text-slate-800 transition-all";
-        tab2.className = fasa === 'P2' ? "flex-1 py-1.5 text-[10px] font-bold bg-white text-slate-900 rounded-md shadow-sm transition-all" : "flex-1 py-1.5 text-[10px] font-medium text-slate-500 rounded-md hover:text-slate-800 transition-all";
-      }
-      binaSenaraiKerjaPensyarah(); 
-    }
-
-    function binaPapanRingkasanPensyarah() {
-      const tbody = document.getElementById('jadualLecSummaryBody');
-      if (!tbody) return;
-      tbody.innerHTML = '';
-
-      if (!dataSesi.email) {
-        tbody.innerHTML = `<tr><td colspan="8" class="text-center py-6 text-slate-400 text-xs">Sila log masuk untuk melihat rekod.</td></tr>`;
-        return;
-      }
-
-      const userReviews = dbHasilSemakan.filter(h => h.emelPensyarah === dataSesi.email);
-      if (dbSkripInduk.length === 0) {
-        tbody.innerHTML = `<tr><td colspan="8" class="text-center py-6 text-slate-400 text-xs">Tiada data skrip dikesan.</td></tr>`;
-        return;
-      }
-
-      const AMBANG_5_PERATUS = 2.0;
-
-      dbSkripInduk.forEach((skrip, idx) => {
-        const myReview = userReviews.find(r => r.angkaGiliran.toString() === skrip.angkaGiliran.toString());
-        const isDisemak = !!myReview;
-
-        let markahAsal = parseFloat(skrip.markahPemeriksa);
-        let markahModerasi = isDisemak ? parseFloat(myReview.markahModerasiP1 || myReview.markahModerasiP2 || myReview.markahAkhir) : null;
-        let bezaVal = (isDisemak && !isNaN(markahAsal) && !isNaN(markahModerasi)) ? (markahModerasi - markahAsal) : null;
-        let perluP2 = bezaVal !== null && Math.abs(bezaVal) >= AMBANG_5_PERATUS;
-
-        const tr = document.createElement('tr');
-        tr.className = 'hover:bg-slate-50 transition-colors';
-        tr.innerHTML = `
-          <td class="px-4 py-3 font-mono text-slate-400 text-center">${idx + 1}</td>
-          <td class="px-4 py-3 font-bold font-mono text-slate-900">${skrip.angkaGiliran}</td>
-          <td class="px-4 py-3"><span class="px-2 py-0.5 rounded text-[10px] font-bold border ${skrip.fasaModerasi.includes('P1') ? 'bg-blue-50 text-blue-700 border-blue-200' : 'bg-teal-50 text-teal-700 border-teal-200'}">${skrip.fasaModerasi}</span></td>
-          <td class="px-4 py-3 text-center font-mono text-slate-600">${!isNaN(markahAsal) ? markahAsal : '-'}</td>
-          <td class="px-4 py-3 text-center font-mono font-bold text-slate-800">${(isDisemak && markahModerasi !== null) ? markahModerasi : '-'}</td>
-          <td class="px-4 py-3 text-center font-mono font-bold ${perluP2 ? 'text-red-600' : 'text-slate-600'}">${bezaVal !== null ? (bezaVal > 0 ? '+' + bezaVal.toFixed(1) : bezaVal.toFixed(1)) : '-'}${perluP2 ? ' ⚠️ (Perlu P2)' : ''}</td>
-          <td class="px-4 py-3 text-center font-mono font-bold text-teal-700">${(isDisemak && myReview.markahAkhir) ? myReview.markahAkhir : '-'}</td>
-          <td class="px-4 py-3 text-center">
-            ${isDisemak 
-              ? `<span class="px-2.5 py-1 rounded-md text-[9px] font-bold bg-emerald-50 text-emerald-700 border border-emerald-200 uppercase tracking-wider">✓ Disemak</span>` 
-              : `<span class="px-2.5 py-1 rounded-md text-[9px] font-bold bg-slate-100 text-slate-400 border border-slate-200 uppercase tracking-wider">Menunggu</span>`}
-          </td>
-        `;
-        tbody.appendChild(tr);
-      });
-    }
-
     function laksanaCetakanPilihan(selectJenisId, selectFasaId) {
       const selJenis = document.getElementById(selectJenisId);
       const selFasa = document.getElementById(selectFasaId);
@@ -1238,80 +826,6 @@
       }
     }
 
-    function cetakRingkasanPensyarah(fasaFilter = 'semua') {
-      const printContainer = document.getElementById('bulkPrintContainer');
-      if (!printContainer) return;
-      printContainer.innerHTML = '';
-
-      let scripts = dbSkripInduk.length > 0 ? dbSkripInduk : [];
-      if (fasaFilter && fasaFilter !== 'semua') {
-        scripts = scripts.filter(s => s.fasaModerasi && s.fasaModerasi.toString().toUpperCase().includes(fasaFilter.toUpperCase()));
-      }
-
-      let rowsHtml = '';
-      const userReviews = dbHasilSemakan.filter(h => h.emelPensyarah === dataSesi.email);
-
-      scripts.forEach((skrip, idx) => {
-        const myReview = userReviews.find(r => r.angkaGiliran.toString() === skrip.angkaGiliran.toString());
-        const isDisemak = !!myReview;
-        let a = parseFloat(skrip.markahPemeriksa); if(isNaN(a)) a = '-';
-        let b = isDisemak ? (myReview.markahModerasiP1 || myReview.markahAkhir) : '-';
-        let c = isDisemak && a !== '-' ? (parseFloat(b) - a).toFixed(1) : '-';
-
-        rowsHtml += `
-          <tr style="border-bottom: 1px solid #e2e8f0; text-align: center;">
-            <td style="padding: 8px; font-family: monospace;">${idx + 1}</td>
-            <td style="padding: 8px; font-weight: bold; font-family: monospace;">${skrip.angkaGiliran}</td>
-            <td style="padding: 8px;">${skrip.fasaModerasi}</td>
-            <td style="padding: 8px; font-family: monospace;">${a}</td>
-            <td style="padding: 8px; font-family: monospace; font-weight: bold;">${b}</td>
-            <td style="padding: 8px; font-family: monospace;">${c !== '-' && parseFloat(c) > 0 ? '+' + c : c}</td>
-            <td style="padding: 8px; font-weight: bold;">${isDisemak ? '✓ DISEMAK' : 'BELUM'}</td>
-          </tr>
-        `;
-      });
-
-      const paper = document.createElement('div');
-      paper.className = 'print-summary-paper';
-      paper.innerHTML = `
-        <div style="border-bottom: 2px solid #000; padding-bottom: 12px; margin-bottom: 20px; display: flex; justify-content: space-between; align-items: flex-end;">
-          <div>
-            <span style="font-size: 10px; font-weight: bold; text-transform: uppercase; letter-spacing: 1px; color: #0d9488;">IPG Kampus Darulaman</span>
-            <h1 style="font-size: 20px; font-weight: 800; margin: 4px 0 0 0; font-family: 'Space Grotesk', sans-serif;">LAPORAN PENILAIAN MODERASI PENSYARAH</h1>
-            <p style="font-size: 11px; margin: 2px 0 0 0; color: #475569;">Kursus MPU3221 — Penyelarasan Peringkat Jabatan</p>
-          </div>
-          <div style="text-align: right; font-size: 10px; color: #64748b;">
-            <p style="margin:0;"><strong>Pensyarah:</strong> ${dataSesi.nama}</p>
-            <p style="margin:2px 0 0 0;"><strong>Tarikh Dijana:</strong> ${new Date().toLocaleDateString('ms-MY')}</p>
-          </div>
-        </div>
-
-        <table style="width: 100%; border-collapse: collapse; font-size: 11px; margin-bottom: 24px;">
-          <thead>
-            <tr style="background-color: #0f172a; color: white; text-transform: uppercase; font-size: 9px; letter-spacing: 0.5px;">
-              <th style="padding: 8px;">Bil</th>
-              <th style="padding: 8px;">Angka Giliran</th>
-              <th style="padding: 8px;">Fasa</th>
-              <th style="padding: 8px;">Markah Asal (a)</th>
-              <th style="padding: 8px;">Moderasi (b)</th>
-              <th style="padding: 8px;">Beza (c)</th>
-              <th style="padding: 8px;">Status</th>
-            </tr>
-          </thead>
-          <tbody>${rowsHtml}</tbody>
-        </table>
-
-        <div style="margin-top: 20px; font-size: 8px; color: #64748b; text-align: center; border-top: 1px solid #ddd; padding-top: 4px; font-weight: bold; text-transform: uppercase;">
-          HAKCIPTA UNITKO IPG KAMPUS DARULAMAN DIBANGUNKAN OLEH HANIFF FAIZAL BIN CHEK ANI
-        </div>
-      `;
-
-      printContainer.appendChild(paper);
-      printContainer.style.display = 'block';
-      tunjukToast("Menjana laporan pensyarah...", "info");
-      setTimeout(() => { window.print(); printContainer.style.display = 'none'; printContainer.innerHTML = ''; }, 500);
-    }
-
     function cetakBorangLamPt0402(fasaFilter = 'semua') {
       const printContainer = document.getElementById('bulkPrintContainer');
       if (!printContainer) return;
@@ -1327,7 +841,7 @@
       let lecturerDiffSum = {};
       let lecturerDiffCount = {};
 
-      const AMBANG_5_PERATUS = 2.0;
+      const AMBANG_5_PERATUS = 2.0; // 5% daripada 40 Markah = 2.0 Markah
 
       scripts.forEach((skrip, idx) => {
         const reviews = dbHasilSemakan.filter(h => h.angkaGiliran.toString() === skrip.angkaGiliran.toString());
@@ -1347,6 +861,8 @@
             if (a !== null) c = b - a;
           }
 
+          // SYARAT PERATURAN RASMI IPG:
+          // Jika |c| >= 2.0 markah (5% daripada 40M), baru pusingan kedua (d & e) diisi.
           if (c !== null && Math.abs(c) >= AMBANG_5_PERATUS) {
             if (reviews.length > 1 || (p1Rev.markahModerasiP2 !== undefined && p1Rev.markahModerasiP2 !== null && p1Rev.markahModerasiP2 !== '')) {
               const p2Rev = reviews[1] || p1Rev;
@@ -1359,6 +875,7 @@
               }
             }
           } else {
+            // Jika perbezaan < 5% (kurang daripada 2 markah), markah asal (a) DIKEKALKAN!
             d = null;
             e = null;
           }
@@ -1367,6 +884,7 @@
             f = e;
             if (a !== null) g = a + f;
           } else {
+            // Jika kurang 5%, markah pemeriksa pertama (a) DIKEKALKAN
             f = 0;
             g = a;
           }
@@ -1479,7 +997,7 @@
               <div style="font-weight: bold; text-align: center; border-bottom: 1px solid #000; padding-bottom: 4px; margin-bottom: 6px; text-transform: uppercase;">
                 Pengesahan Ketua Pemeriksa
               </div>
-              <div style="height: 35px; border-bottom: 1px dashed #999; margin-bottom: 6px; display: flex; align-items: flex-end; justify-center: center; font-style: italic; color: #888;">
+              <div style="height: 35px; border-bottom: 1px dashed #999; margin-bottom: 6px; display: flex; align-items: flex-end; justify-content: center; font-style: italic; color: #888;">
                 (Tandatangan & Cop)
               </div>
               <div style="margin-top: 4px;"><strong>Nama:</strong> HANIFF FAIZAL BIN CHEK ANI</div>
@@ -1509,6 +1027,230 @@
         printContainer.style.display = 'none';
         printContainer.innerHTML = '';
       }, 500);
+    }
+
+    function binaSenaraiKerjaPensyarah() {
+      const bekas = document.getElementById('senaraiTugasPelajar'); if(!bekas) return; bekas.innerHTML = '';
+      const tab2 = document.getElementById('tabKerjaP2');
+      const userEmail = (dataSesi.email || '').toLowerCase();
+
+      // 1. Semak sama ada pensyarah ada skrip P2 sendiri ATAU dilantik sebagai Moderator P2 / P1 bagi mana-mana skrip P2
+      const adaTugasanP2 = dataSesi.peranan === 'Admin' || dbSkripInduk.some(s => 
+        s.fasaModerasi.includes('P2') && (
+          (s.emelP2 && s.emelP2.toLowerCase() === userEmail) ||
+          (s.emelP1 && s.emelP1.toLowerCase() === userEmail) ||
+          (s.emelPensyarah && s.emelPensyarah.toLowerCase() === userEmail)
+        )
+      );
+
+      // 2. Tunjuk atau sembunyikan butang Tab P2 di dashboard pensyarah
+      if (tab2) {
+        if (adaTugasanP2) {
+          tab2.classList.remove('hidden');
+        } else {
+          tab2.classList.add('hidden');
+          if (fasaSemasa === 'P2') fasaSemasa = 'P1'; // Kembali ke P1 jika tiada akses P2
+        }
+      }
+
+      // 3. Tapis skrip mengikut fasa & hak akses pensyarah
+      const skripRelevan = dbSkripInduk.filter(s => {
+        if (!s.fasaModerasi.includes(fasaSemasa)) return false;
+
+        // Admin melihat semua skrip
+        if (dataSesi.peranan === 'Admin') return true;
+
+        const isLantikP1 = s.emelP1 && s.emelP1.toLowerCase() === userEmail;
+        const isLantikP2 = s.emelP2 && s.emelP2.toLowerCase() === userEmail;
+        const isPensyarahAsal = s.emelPensyarah && s.emelPensyarah.toLowerCase() === userEmail;
+
+        if (fasaSemasa === 'P1') {
+          return isLantikP1 || isPensyarahAsal || (!s.emelP1 && !s.emelP2);
+        } else if (fasaSemasa === 'P2') {
+          // Skrip P2 Boleh Diakses Jika:
+          // 1. Pensyarah itu sendiri yang muat naik skrip tersebut (isPensyarahAsal)
+          // 2. Dilantik secara rasmi oleh Admin sebagai Moderator P1 / P2
+          return isPensyarahAsal || isLantikP2 || isLantikP1;
+        }
+        return true;
+      });
+
+      if(skripRelevan.length === 0) { 
+        bekas.innerHTML = `<div class="p-4 text-center text-xs text-slate-400">Tiada skrip tugasan ${fasaSemasa} yang dilantik untuk anda.</div>`; 
+        return; 
+      }
+
+      skripRelevan.forEach(skrip => {
+        const rekodSiap = dbHasilSemakan.find(h => h.angkaGiliran.toString() === skrip.angkaGiliran.toString() && h.emelPensyarah === dataSesi.email);
+        const isAktif = pelajarAktif && pelajarAktif.angkaGiliran === skrip.angkaGiliran;
+        const div = document.createElement('div');
+        div.className = `flex justify-between items-center p-3 rounded-lg border cursor-pointer transition-all ${isAktif ? 'bg-teal-50 border-teal-300 ring-1 ring-teal-500' : 'bg-white border-slate-200 hover:bg-slate-50'}`;
+        div.onclick = () => pilihPelajar(skrip, rekodSiap);
+        div.innerHTML = `<div><p class="font-mono font-bold text-xs ${isAktif ? 'text-teal-900' : 'text-slate-800'}">${skrip.angkaGiliran}</p></div>
+          <div>${rekodSiap ? `<span class="bg-emerald-50 text-emerald-700 px-2 py-1 rounded text-[10px] font-bold border border-emerald-200">Disemak</span>` : `<span class="bg-slate-50 text-slate-400 px-2 py-1 rounded text-[10px] font-bold border border-slate-200">Menunggu</span>`}</div>`;
+        bekas.appendChild(div);
+      });
+    }
+
+    function tukarFasaKerja(fasa) { 
+      fasaSemasa = fasa;
+      const tab1 = document.getElementById('tabKerjaP1'), tab2 = document.getElementById('tabKerjaP2');
+      if(tab1 && tab2) {
+        tab1.className = fasa === 'P1' ? "flex-1 py-1.5 text-[10px] font-bold bg-white text-slate-900 rounded-md shadow-sm transition-all" : "flex-1 py-1.5 text-[10px] font-medium text-slate-500 rounded-md hover:text-slate-800 transition-all";
+        tab2.className = fasa === 'P2' ? "flex-1 py-1.5 text-[10px] font-bold bg-white text-slate-900 rounded-md shadow-sm transition-all" : "flex-1 py-1.5 text-[10px] font-medium text-slate-500 rounded-md hover:text-slate-800 transition-all";
+      }
+      binaSenaraiKerjaPensyarah(); 
+    }
+
+    function binaPapanRingkasanPensyarah() {
+      const tbody = document.getElementById('jadualLecSummaryBody');
+      if (!tbody) return;
+      tbody.innerHTML = '';
+
+      if (!dataSesi.email) {
+        tbody.innerHTML = `<tr><td colspan="8" class="text-center py-6 text-slate-400 text-xs">Sila log masuk untuk melihat rekod.</td></tr>`;
+        return;
+      }
+
+      const userReviews = dbHasilSemakan.filter(h => h.emelPensyarah === dataSesi.email);
+      if (dbSkripInduk.length === 0) {
+        tbody.innerHTML = `<tr><td colspan="8" class="text-center py-6 text-slate-400 text-xs">Tiada data skrip dikesan.</td></tr>`;
+        return;
+      }
+
+      const AMBANG_5_PERATUS = 2.0;
+
+      dbSkripInduk.forEach((skrip, idx) => {
+        const myReview = userReviews.find(r => r.angkaGiliran.toString() === skrip.angkaGiliran.toString());
+        const isDisemak = !!myReview;
+
+        let markahAsal = parseFloat(skrip.markahPemeriksa);
+        let markahModerasi = isDisemak ? parseFloat(myReview.markahModerasiP1 || myReview.markahModerasiP2 || myReview.markahAkhir) : null;
+        let bezaVal = (isDisemak && !isNaN(markahAsal) && !isNaN(markahModerasi)) ? (markahModerasi - markahAsal) : null;
+        let perluP2 = bezaVal !== null && Math.abs(bezaVal) >= AMBANG_5_PERATUS;
+
+        const tr = document.createElement('tr');
+        tr.className = 'hover:bg-slate-50 transition-colors';
+        tr.innerHTML = `
+          <td class="px-4 py-3 font-mono text-slate-400 text-center">${idx + 1}</td>
+          <td class="px-4 py-3 font-bold font-mono text-slate-900">${skrip.angkaGiliran}</td>
+          <td class="px-4 py-3"><span class="px-2 py-0.5 rounded text-[10px] font-bold border ${skrip.fasaModerasi.includes('P1') ? 'bg-blue-50 text-blue-700 border-blue-200' : 'bg-teal-50 text-teal-700 border-teal-200'}">${skrip.fasaModerasi}</span></td>
+          <td class="px-4 py-3 text-center font-mono text-slate-600">${!isNaN(markahAsal) ? markahAsal : '-'}</td>
+          <td class="px-4 py-3 text-center font-mono font-bold text-slate-800">${(isDisemak && markahModerasi !== null) ? markahModerasi : '-'}</td>
+          <td class="px-4 py-3 text-center font-mono font-bold ${perluP2 ? 'text-red-600' : 'text-slate-600'}">${bezaVal !== null ? (bezaVal > 0 ? '+' + bezaVal.toFixed(1) : bezaVal.toFixed(1)) : '-'}${perluP2 ? ' ⚠️ (Perlu P2)' : ''}</td>
+          <td class="px-4 py-3 text-center font-mono font-bold text-teal-700">${(isDisemak && myReview.markahAkhir) ? myReview.markahAkhir : '-'}</td>
+          <td class="px-4 py-3 text-center">
+            ${isDisemak 
+              ? `<span class="px-2.5 py-1 rounded-md text-[9px] font-bold bg-emerald-50 text-emerald-700 border border-emerald-200 uppercase tracking-wider">✓ Disemak</span>` 
+              : `<span class="px-2.5 py-1 rounded-md text-[9px] font-bold bg-slate-100 text-slate-400 border border-slate-200 uppercase tracking-wider">Menunggu</span>`}
+          </td>
+        `;
+        tbody.appendChild(tr);
+      });
+    }
+
+    function kiraPerbezaanP1() {
+      const a = parseFloat(document.getElementById('borangMarkahA')?.value) || 0;
+      const b = parseFloat(document.getElementById('borangMarkahG')?.value) || 0;
+      const c = Number((b - a).toFixed(2));
+      const AMBANG_5_PERATUS = 2.0;
+
+      const p2Container = document.getElementById('pusingan2Container');
+      if (Math.abs(c) >= AMBANG_5_PERATUS) {
+        if (p2Container) p2Container.classList.remove('hidden');
+      } else {
+        if (p2Container) p2Container.classList.add('hidden');
+      }
+    }
+
+    function kiraPerbezaanP2() {
+      const a = parseFloat(document.getElementById('borangMarkahA')?.value) || 0;
+      const d = parseFloat(document.getElementById('markahD')?.value) || 0;
+      const eInput = document.getElementById('markahE');
+      if (eInput) {
+        const eVal = Number((d - a).toFixed(2));
+        eInput.value = eVal > 0 ? '+' + eVal : eVal;
+      }
+    }
+
+    function cetakRingkasanPensyarah(fasaFilter = 'semua') {
+      const printContainer = document.getElementById('bulkPrintContainer');
+      if (!printContainer) return;
+      printContainer.innerHTML = '';
+
+      let userReviews = dbHasilSemakan.filter(h => h.emelPensyarah === dataSesi.email);
+      let scripts = dbSkripInduk.length > 0 ? dbSkripInduk : [];
+
+      if (fasaFilter && fasaFilter !== 'semua') {
+        scripts = scripts.filter(s => s.fasaModerasi && s.fasaModerasi.toString().toUpperCase().includes(fasaFilter.toUpperCase()));
+      }
+
+      let rowsHtml = '';
+      scripts.forEach((skrip, idx) => {
+        const myReview = userReviews.find(r => r.angkaGiliran.toString() === skrip.angkaGiliran.toString());
+        const isDisemak = !!myReview;
+        let markahAsal = parseFloat(skrip.markahPemeriksa);
+        let markahMod = isDisemak ? parseFloat(myReview.markahModerasiP1 || myReview.markahModerasiP2 || myReview.markahAkhir) : null;
+        let beza = (isDisemak && !isNaN(markahAsal) && !isNaN(markahMod)) ? (markahMod - markahAsal) : null;
+
+        rowsHtml += `
+          <tr style="border-bottom: 1px solid #e2e8f0; text-align: center;">
+            <td style="padding: 8px; font-family: monospace;">${idx + 1}</td>
+            <td style="padding: 8px; font-weight: bold; font-family: monospace;">${skrip.angkaGiliran}</td>
+            <td style="padding: 8px;">${skrip.fasaModerasi}</td>
+            <td style="padding: 8px; font-family: monospace;">${!isNaN(markahAsal) ? markahAsal : '-'}</td>
+            <td style="padding: 8px; font-family: monospace; font-weight: bold;">${isDisemak && markahMod !== null ? markahMod : '-'}</td>
+            <td style="padding: 8px; font-family: monospace; color: ${beza !== null && Math.abs(beza) >= 2.0 ? '#dc2626' : '#000'}">${beza !== null ? (beza > 0 ? '+' + beza.toFixed(1) : beza.toFixed(1)) : '-'}</td>
+            <td style="padding: 8px; font-family: monospace; font-weight: bold;">${isDisemak ? (myReview.markahAkhir || '-') : '-'}</td>
+            <td style="padding: 8px; font-weight: bold; font-size: 10px;">${isDisemak ? 'DISEMAK' : 'MENUNGGU'}</td>
+          </tr>
+        `;
+      });
+
+      const paper = document.createElement('div');
+      paper.className = 'print-summary-paper';
+      paper.innerHTML = `
+        <div style="border-bottom: 2px solid #000; padding-bottom: 12px; margin-bottom: 20px; display: flex; justify-content: space-between; align-items: flex-end;">
+          <div>
+            <span style="font-size: 10px; font-weight: bold; text-transform: uppercase; letter-spacing: 1px; color: #0d9488;">IPG Kampus Darulaman</span>
+            <h1 style="font-size: 20px; font-weight: 800; margin: 4px 0 0 0; font-family: 'Space Grotesk', sans-serif;">LAPORAN RINGKASAN PENILAIAN MODERASI</h1>
+            <p style="font-size: 11px; margin: 2px 0 0 0; color: #475569;">MPU3221 — Pengurusan Persatuan Di Sekolah (${fasaFilter.toUpperCase()})</p>
+          </div>
+          <div style="text-align: right; font-size: 10px; color: #64748b;">
+            <p style="margin:0;"><strong>Tarikh Cetakan:</strong> ${new Date().toLocaleDateString('ms-MY')}</p>
+          </div>
+        </div>
+
+        <div style="margin-bottom: 16px; font-size: 11px; background: #f8fafc; padding: 12px; border: 1px solid #e2e8f0; border-radius: 6px;">
+          <p style="margin: 0 0 4px 0;"><strong>Nama Pensyarah Penilai:</strong> ${dataSesi.nama}</p>
+          <p style="margin: 0 0 4px 0;"><strong>Emel Rasmi:</strong> ${dataSesi.email}</p>
+        </div>
+
+        <table style="width: 100%; border-collapse: collapse; font-size: 11px; margin-bottom: 24px;">
+          <thead>
+            <tr style="background-color: #0f172a; color: white; text-transform: uppercase; font-size: 9px; letter-spacing: 0.5px;">
+              <th style="padding: 8px;">Bil</th>
+              <th style="padding: 8px;">Angka Giliran</th>
+              <th style="padding: 8px;">Fasa Moderasi</th>
+              <th style="padding: 8px;">Markah Asal (a)</th>
+              <th style="padding: 8px;">Moderasi (b/d)</th>
+              <th style="padding: 8px;">Beza (c/e)</th>
+              <th style="padding: 8px;">Markah Akhir (g)</th>
+              <th style="padding: 8px;">Status</th>
+            </tr>
+          </thead>
+          <tbody>${rowsHtml}</tbody>
+        </table>
+
+        <div style="margin-top: 20px; font-size: 8px; color: #64748b; text-align: center; border-top: 1px solid #ddd; padding-top: 4px; font-weight: bold; text-transform: uppercase;">
+          HAKCIPTA UNITKO IPG KAMPUS DARULAMAN DIBANGUNKAN OLEH HANIFF FAIZAL BIN CHEK ANI
+        </div>
+      `;
+
+      printContainer.appendChild(paper);
+      printContainer.style.display = 'block';
+      tunjukToast("Menjana laporan...", "info");
+      setTimeout(() => { window.print(); printContainer.style.display = 'none'; printContainer.innerHTML = ''; }, 500);
     }
 
     function binaJadualRumusanSemakan() {
@@ -1673,6 +1415,284 @@
     function lakukanUploadPensyarahP2() { prosesMuatNaik('btnLecUpload', document.getElementById('lecUploadAngkaGiliran')?.value.trim(), 'P2: Menunggu Kategori', document.getElementById('lecUploadMarkah')?.value.trim(), document.getElementById('lecUploadFile')?.files[0]); }
     function lakukanUploadAdminP1() { prosesMuatNaik('btnAdminUploadP1', document.getElementById('adminUploadP1Angka')?.value.trim(), 'P1: Sampel Rawak', document.getElementById('adminUploadP1Markah')?.value.trim(), document.getElementById('adminUploadP1File')?.files[0]); }
 
+    function pilihPelajar(skrip, rekod) {
+      if(pdfDoc) { simpanUlasanHalamanSemasa(); if (autoSaveDirty) hantarAutoSaveLakaran(); }
+
+      pelajarAktif = skrip; binaSenaraiKerjaPensyarah(); 
+      const pb = document.getElementById('panelBorangMarkah'); if(pb) pb.classList.remove('opacity-50', 'pointer-events-none');
+      const lb = document.getElementById('labelTugasSemasa'); if(lb) lb.innerText = skrip.angkaGiliran;
+      const bA = document.getElementById('borangMarkahA'); if(bA) bA.value = skrip.markahPemeriksa;
+      
+      const keysHP1 = ['hp1_a1','hp1_a2','hp1_b1','hp1_b2','hp1_c1','hp1_c2'];
+      const keysHP5 = ['hp5_d1','hp5_d2','hp5_d3','hp5_d4'];
+      keysHP1.concat(keysHP5).forEach(k => {
+        const el = document.getElementById(`rubric_${k}`);
+        if (el) el.value = rekod ? (rekod[k] || '') : '';
+      });
+
+      const bG = document.getElementById('borangMarkahG'); if(bG) bG.value = rekod ? (rekod.markahAkhir || skrip.markahPemeriksa) : skrip.markahPemeriksa;
+      kiraSkorAuto();
+
+      const pl = document.getElementById('canvasPlaceholder'); if(pl) pl.innerHTML = `<div class="animate-pulse text-teal-700 font-bold mt-4">Memproses dan memuat turun PDF...</div>`;
+      if(canvas) canvas.classList.add('hidden');
+      const comm = document.getElementById('commentSection'); if(comm) comm.classList.add('hidden');
+      const nav = document.getElementById('pdfNavigationControls'); if(nav) nav.classList.add('hidden');
+      
+      lakaranOrangLain = {}; 
+      ulasanOrangLain = {}; // Reset ulasan pemeriksa lain
+      lakaranSesiIni = {}; 
+      ulasanSemuaHalaman = {}; 
+      pdfDoc = null; 
+      pageNum = 1; 
+      autoSaveDirty = false;
+      clearTimeout(autoSaveTimer);
+      clearTimeout(autoSaveRetryTimer);
+      tandaAutoSaveStatus('saved');
+      
+      const cat = document.getElementById('catatanMukaSurat'); if(cat) cat.value = '';
+
+      const rekodSkripIni = dbHasilSemakan.filter(h => h.angkaGiliran.toString() === skrip.angkaGiliran.toString());
+      rekodSkripIni.forEach(r => {
+        if(r.dataLakaran) {
+          try { 
+            const d = JSON.parse(r.dataLakaran);
+            const lak = d.annotations || d;
+            const comms = d.comments || {};
+            
+            // PENTING: Jika rekod ini kepunyaan akaun pengguna semasa
+            if (r.emelPensyarah && r.emelPensyarah.toLowerCase() === dataSesi.email.toLowerCase()) {
+              lakaranSesiIni = JSON.parse(JSON.stringify(lak || {}));
+              ulasanSemuaHalaman = JSON.parse(JSON.stringify(comms || {}));
+            } else {
+              // Jika rekod pemeriksa/moderator lain
+              for (const pg in lak) {
+                if (!lakaranOrangLain[pg]) lakaranOrangLain[pg] = [];
+                lakaranOrangLain[pg] = lakaranOrangLain[pg].concat(lak[pg]);
+              }
+              // PENTING: Kumpul ulasan teks daripada pemeriksa/moderator lain!
+              for (const pg in comms) {
+                if (comms[pg] && comms[pg].toString().trim() !== '') {
+                  if (!ulasanOrangLain[pg]) ulasanOrangLain[pg] = [];
+                  ulasanOrangLain[pg].push({
+                    penilai: r.emelPensyarah,
+                    teks: comms[pg]
+                  });
+                }
+              }
+            }
+          } catch(e) {}
+        }
+      });
+
+      if(!skrip.urlSkrip) { if(pl) pl.innerHTML = `<div class="text-red-500 font-bold mt-4 text-xs">Tiada fail PDF untuk pelajar ini.</div>`; return; }
+
+      fetch(urlAPI + "?action=fetchPdfProxy&id=" + skrip.urlSkrip).then(r => r.text()).then(b64 => {
+          if (b64.startsWith("ERROR")) throw new Error("Gagal load PDF");
+          const raw = atob(b64); const arr = new Uint8Array(raw.length); for (let i = 0; i < raw.length; i++) arr[i] = raw.charCodeAt(i);
+          pdfjsLib.getDocument({ data: arr }).promise.then(pdf => {
+            pdfDoc = pdf; pageTotal = pdf.numPages; 
+            const pt = document.getElementById('pdfTotalPagesNum'); if(pt) pt.innerText = pageTotal;
+            if(nav) nav.classList.remove('hidden');
+            renderHalamanPdf();
+          });
+      }).catch(e => { if(pl) pl.innerHTML = `<div class="text-red-500 text-xs mt-2">Gagal menarik dokumen dari Google Drive.</div>`; });
+    }
+
+    function kiraSkorAuto() {
+      let total = 0; 
+      const keysHP1 = ['hp1_a1','hp1_a2','hp1_b1','hp1_b2','hp1_c1','hp1_c2'];
+      const keysHP5 = ['hp5_d1','hp5_d2','hp5_d3','hp5_d4'];
+      keysHP1.concat(keysHP5).forEach(k => { 
+        const el = document.getElementById(`rubric_${k}`); 
+        if(el) total += parseFloat(el.value) || 0; 
+      });
+      const jum = document.getElementById('jumlahMarkahRubrik'); if(jum) jum.innerText = `${total.toFixed(1)} / 40`; 
+      const bG = document.getElementById('borangMarkahG'); if(bG) bG.value = total.toFixed(1);
+      kiraPerbezaanP1();
+    }
+
+    function renderHalamanPdf() {
+      if(!pdfDoc || !canvas || !ctx) return;
+      const cp = document.getElementById('pdfCurrentPageNum'); if(cp) cp.innerText = pageNum;
+      const lm = document.getElementById('labelUlasanMuka'); if(lm) lm.innerText = pageNum;
+      
+      let myComment = ulasanSemuaHalaman[pageNum] || '';
+      const otherComments = ulasanOrangLain[pageNum] || [];
+      
+      // Jika pengguna semasa (cth Admin) belum ada ulasan tetapi ada ulasan daripada pensyarah lain
+      if (!myComment && otherComments.length > 0) {
+        myComment = otherComments.map(o => o.teks).join('\n');
+        ulasanSemuaHalaman[pageNum] = myComment; // Serap ke dalam textarea automatik
+      }
+      
+      const cm = document.getElementById('catatanMukaSurat'); if(cm) cm.value = myComment;
+
+      // Paparkan kotak ulasan pemeriksa lain jika wujud
+      const containerRakan = document.getElementById('ulasanRakanContainer');
+      if (containerRakan) {
+        if (otherComments.length > 0) {
+          containerRakan.classList.remove('hidden');
+          containerRakan.innerHTML = `<p class="font-bold text-teal-800 text-[10px] uppercase tracking-wider mb-2">💬 Ulasan Pemeriksa / Moderator Lain:</p>` +
+            otherComments.map(o => `<div class="mb-1.5 text-slate-700 bg-white p-2.5 rounded-lg border border-slate-200 shadow-sm"><span class="font-bold text-slate-900 block mb-0.5 text-[11px]">${o.penilai}</span>${o.teks}</div>`).join('');
+        } else {
+          containerRakan.classList.add('hidden');
+          containerRakan.innerHTML = '';
+        }
+      }
+
+      pdfDoc.getPage(pageNum).then(page => {
+        const vp = page.getViewport({ scale: 1.5 });
+        canvas.width = 800; const scaleFactor = 800 / vp.width; canvas.height = vp.height * scaleFactor;
+        
+        page.render({ canvasContext: ctx, viewport: page.getViewport({ scale: 1.5 * scaleFactor }) }).promise.then(() => {
+          const pl = document.getElementById('canvasPlaceholder'); if(pl) pl.classList.add('hidden');
+          canvas.classList.remove('hidden');
+          const cs = document.getElementById('commentSection'); if(cs) cs.classList.remove('hidden');
+          
+          lukisSemulaAtasCanvas(); lukisLakaranSesiIni(); setupCanvasEvents();
+        });
+      });
+    }
+
+    function simpanUlasanHalamanSemasa() { const cm = document.getElementById('catatanMukaSurat'); if(cm) ulasanSemuaHalaman[pageNum] = cm.value; }
+
+    function tukarHalamanPdf(arah) {
+      const sasaran = pageNum + arah;
+      if (sasaran >= 1 && sasaran <= pageTotal) { 
+        simpanUlasanHalamanSemasa(); 
+        if (autoSaveDirty) hantarAutoSaveLakaran();
+        pageNum = sasaran; renderHalamanPdf(); 
+      }
+    }
+
+    function tukarWarnaPen(hex, namaID) {
+      warnaPen = hex;
+      ['btnPenMerah', 'btnPenHijau', 'btnPenUngu'].forEach(id => { const el=document.getElementById(id); if(el) el.className = "flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold text-slate-600 hover:bg-white border border-transparent"; });
+      const warnaRing = namaID === 'merah' ? 'red' : namaID === 'hijau' ? 'emerald' : 'violet';
+      const bA = document.getElementById(`btnPen${namaID.charAt(0).toUpperCase() + namaID.slice(1)}`);
+      if(bA) bA.className = `flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold bg-white border border-${warnaRing}-200 text-${warnaRing}-700 shadow-sm ring-1 ring-${warnaRing}-500`;
+    }
+
+    function clearCanvasSesiIni() { 
+      lakaranSesiIni[pageNum] = []; 
+      renderHalamanPdf(); 
+      jadualAutoSave();
+      tunjukToast("Lakaran halaman ini dipadam & disimpan.", "info");
+    }
+
+    function setupCanvasEvents() {
+      if(!canvas) return;
+      canvas.onmousedown = e => { isDrawing = true; titikAkhir = null; rekodLakaran(e, 'start'); };
+      canvas.onmousemove = e => { if(isDrawing) rekodLakaran(e, 'move'); };
+      window.onmouseup = () => { if(isDrawing) { isDrawing = false; titikAkhir = null; jadualAutoSave(); } };
+      canvas.ontouchstart = e => { isDrawing = true; titikAkhir = null; rekodLakaran(e.touches[0], 'start'); e.preventDefault(); };
+      canvas.ontouchmove = e => { if(isDrawing) rekodLakaran(e.touches[0], 'move'); e.preventDefault(); };
+      window.ontouchend = () => { if(isDrawing) { isDrawing = false; titikAkhir = null; jadualAutoSave(); } };
+    }
+
+    function rekodLakaran(e, type) {
+      if(!canvas || !ctx) return;
+      const rect = canvas.getBoundingClientRect();
+      const x = Math.round((e.clientX - rect.left) * (canvas.width / rect.width));
+      const y = Math.round((e.clientY - rect.top) * (canvas.height / rect.height));
+      
+      if (type === 'move' && titikAkhir) {
+        const dx = x - titikAkhir.x;
+        const dy = y - titikAkhir.y;
+        if (dx * dx + dy * dy < 9) return;
+      }
+
+      ctx.strokeStyle = warnaPen; ctx.lineWidth = 3; ctx.lineCap = 'round'; ctx.lineJoin = 'round';
+      
+      if(type === 'start') { 
+        ctx.beginPath(); 
+        ctx.moveTo(x, y); 
+      } else { 
+        ctx.lineTo(x, y); 
+        ctx.stroke(); 
+      }
+      
+      if(!lakaranSesiIni[pageNum]) lakaranSesiIni[pageNum] = [];
+      lakaranSesiIni[pageNum].push({ type, x, y, color: warnaPen }); 
+      titikAkhir = { x, y };
+    }
+
+    function lukisSemulaAtasCanvas() {
+      if(!ctx) return;
+      (lakaranOrangLain[pageNum] || []).forEach(pt => {
+        ctx.strokeStyle = pt.color || '#EF4444'; ctx.lineWidth = 3; ctx.lineCap = 'round'; ctx.lineJoin = 'round';
+        if (pt.type === 'start') { ctx.beginPath(); ctx.moveTo(pt.x, pt.y); } else { ctx.lineTo(pt.x, pt.y); ctx.stroke(); }
+      });
+    }
+
+    function lukisLakaranSesiIni() {
+      if(!ctx) return;
+      (lakaranSesiIni[pageNum] || []).forEach(pt => {
+        ctx.strokeStyle = pt.color || '#EF4444'; ctx.lineWidth = 3; ctx.lineCap = 'round'; ctx.lineJoin = 'round';
+        if (pt.type === 'start') { ctx.beginPath(); ctx.moveTo(pt.x, pt.y); } else { ctx.lineTo(pt.x, pt.y); ctx.stroke(); }
+      });
+    }
+
+    function simpanRekodSemakan() {
+      if(!pelajarAktif) return;
+      simpanUlasanHalamanSemasa();
+
+      const markahA = parseFloat(document.getElementById('borangMarkahA')?.value) || 0;
+      const markahG = parseFloat(document.getElementById('borangMarkahG')?.value) || 0;
+
+      const rekodSediaAda = dbHasilSemakan.filter(h => h.angkaGiliran.toString() === pelajarAktif.angkaGiliran.toString());
+      
+      let modP1 = '', bezP1 = '', modP2 = '', bezP2 = '';
+
+      if (rekodSediaAda.length === 0 || (rekodSediaAda.length === 1 && rekodSediaAda[0].emelPensyarah === dataSesi.email)) {
+        modP1 = markahG;
+        bezP1 = (markahG - markahA);
+        modP2 = '';
+        bezP2 = '';
+      } else {
+        const p1Rec = rekodSediaAda[0];
+        modP1 = (p1Rec.markahModerasiP1 !== undefined && p1Rec.markahModerasiP1 !== '') ? p1Rec.markahModerasiP1 : p1Rec.markahAkhir;
+        bezP1 = (p1Rec.perbezaanP1 !== undefined && p1Rec.perbezaanP1 !== '') ? p1Rec.perbezaanP1 : (modP1 - markahA);
+        
+        modP2 = markahG;
+        bezP2 = (markahG - markahA);
+      }
+
+      const markahPenyelarasan = (bezP2 !== '' && Math.abs(parseFloat(bezP1)) >= 2.0) ? bezP2 : bezP1;
+
+      const payload = {
+        angkaGiliran: pelajarAktif.angkaGiliran, 
+        emelPensyarah: dataSesi.email, 
+        fasaModerasi: pelajarAktif.fasaModerasi,
+        markahPemeriksa: markahA,
+        hp1_a1: document.getElementById('rubric_hp1_a1')?.value || 0, 
+        hp1_a2: document.getElementById('rubric_hp1_a2')?.value || 0,
+        hp1_b1: document.getElementById('rubric_hp1_b1')?.value || 0, 
+        hp1_b2: document.getElementById('rubric_hp1_b2')?.value || 0, 
+        hp1_c1: document.getElementById('rubric_hp1_c1')?.value || 0,
+        hp1_c2: document.getElementById('rubric_hp1_c2')?.value || 0, 
+        hp5_d1: document.getElementById('rubric_hp5_d1')?.value || 0, 
+        hp5_d2: document.getElementById('rubric_hp5_d2')?.value || 0,
+        hp5_d3: document.getElementById('rubric_hp5_d3')?.value || 0,
+        hp5_d4: document.getElementById('rubric_hp5_d4')?.value || 0,
+        markahModerasiP1: modP1,
+        perbezaanP1: bezP1,
+        markahModerasiP2: modP2,
+        perbezaanP2: bezP2,
+        markahPenyelarasan: markahPenyelarasan,
+        markahAkhir: markahG,
+        dataLakaran: JSON.stringify({ annotations: lakaranSesiIni, comments: ulasanSemuaHalaman })
+      };
+
+      const btn = document.getElementById('btnSimpanKerja'); if(btn) { btn.innerText = "Menghantar..."; btn.disabled = true; }
+      clearTimeout(autoSaveTimer); clearTimeout(autoSaveRetryTimer);
+      fetch(urlAPI, { method: 'POST', headers: { 'Content-Type': 'text/plain' }, body: JSON.stringify(payload) })
+      .then(r => r.json()).then(res => {
+        if(btn) { btn.innerHTML = `✓ Tersimpan!`; setTimeout(() => { btn.innerHTML = `Simpan Semakan`; btn.disabled = false; }, 2000); }
+        if(res.status === "success") { autoSaveDirty = false; tandaAutoSaveStatus('saved'); tunjukToast("Laporan berjaya disimpan ke Google Sheet.", "success"); tarikDataDariSheets(); } else { tunjukToast("Gagal: " + res.message, "error"); }
+      }).catch(err => { if(btn) { btn.innerHTML = `Simpan Semakan`; btn.disabled = false; } tunjukToast("Ralat menyimpan.", "error"); });
+    }
+
     async function cetakSkripDanContenganGlobal() {
       if (!pelajarAktif || !pdfDoc) { tunjukToast("Sila pilih skrip pelajar.", "warning"); return; }
       simpanUlasanHalamanSemasa();
@@ -1698,6 +1718,7 @@
         const strokesSesi = lakaranSesiIni[pNum] || [];
         strokesSesi.forEach(pt => { pCtx.strokeStyle = pt.color || '#EF4444'; if (pt.type === 'start') { pCtx.beginPath(); pCtx.moveTo(pt.x, pt.y); } else { pCtx.lineTo(pt.x, pt.y); pCtx.stroke(); } });
 
+        // Dapatkan ulasan sendiri ATAU ulasan pemeriksa lain
         let commentText = (ulasanSemuaHalaman[pNum] || '').trim();
         if (!commentText && ulasanOrangLain[pNum] && ulasanOrangLain[pNum].length > 0) {
           commentText = ulasanOrangLain[pNum].map(o => `${o.penilai}: ${o.teks}`).join('\n');
