@@ -931,11 +931,12 @@
       const tab2 = document.getElementById('tabKerjaP2');
       const userEmail = (dataSesi.email || '').toLowerCase();
 
-      // 1. Semak sama ada pensyarah ini dilantik sebagai Moderator P2 / P1 bagi mana-mana skrip P2
+      // 1. Semak sama ada pensyarah ada skrip P2 sendiri ATAU dilantik sebagai Moderator P2 / P1 bagi mana-mana skrip P2
       const adaTugasanP2 = dataSesi.peranan === 'Admin' || dbSkripInduk.some(s => 
         s.fasaModerasi.includes('P2') && (
           (s.emelP2 && s.emelP2.toLowerCase() === userEmail) ||
-          (s.emelP1 && s.emelP1.toLowerCase() === userEmail)
+          (s.emelP1 && s.emelP1.toLowerCase() === userEmail) ||
+          (s.emelPensyarah && s.emelPensyarah.toLowerCase() === userEmail)
         )
       );
 
@@ -949,7 +950,7 @@
         }
       }
 
-      // 3. Tapis skrip mengikut fasa & lantikan emel pensyarah bertugas
+      // 3. Tapis skrip mengikut fasa & hak akses pensyarah
       const skripRelevan = dbSkripInduk.filter(s => {
         if (!s.fasaModerasi.includes(fasaSemasa)) return false;
 
@@ -963,8 +964,10 @@
         if (fasaSemasa === 'P1') {
           return isLantikP1 || isPensyarahAsal || (!s.emelP1 && !s.emelP2);
         } else if (fasaSemasa === 'P2') {
-          // Skrip P2 HANYA dipaparkan jika pensyarah dilantik sebagai Moderator P2 (atau P1)
-          return isLantikP2 || isLantikP1;
+          // Skrip P2 Boleh Diakses Jika:
+          // 1. Pensyarah itu sendiri yang muat naik skrip tersebut (isPensyarahAsal)
+          // 2. Dilantik secara rasmi oleh Admin sebagai Moderator P1 / P2
+          return isPensyarahAsal || isLantikP2 || isLantikP1;
         }
         return true;
       });
@@ -1315,11 +1318,19 @@
           try { 
             const d = JSON.parse(r.dataLakaran);
             const lak = d.annotations || d;
-            for (const pg in lak) {
-              if (!lakaranOrangLain[pg]) lakaranOrangLain[pg] = [];
-              lakaranOrangLain[pg] = lakaranOrangLain[pg].concat(lak[pg]);
+            
+            // PENTING: Jika rekod ini kepunyaan akaun pengguna semasa, muat turun terus ke lakaranSesiIni
+            // supaya pengguna boleh terus menyunting & menambah contengan asal tanpa dipadam!
+            if (r.emelPensyarah && r.emelPensyarah.toLowerCase() === dataSesi.email.toLowerCase()) {
+              lakaranSesiIni = JSON.parse(JSON.stringify(lak || {}));
+              if (d.comments) ulasanSemuaHalaman = JSON.parse(JSON.stringify(d.comments || {}));
+            } else {
+              // Jika rekod pemeriksa/moderator lain, muatkan ke lakaranOrangLain untuk paparan lapisan (multi-layer)
+              for (const pg in lak) {
+                if (!lakaranOrangLain[pg]) lakaranOrangLain[pg] = [];
+                lakaranOrangLain[pg] = lakaranOrangLain[pg].concat(lak[pg]);
+              }
             }
-            if(r.emelPensyarah === dataSesi.email && d.comments) ulasanSemuaHalaman = d.comments; 
           } catch(e) {}
         }
       });
