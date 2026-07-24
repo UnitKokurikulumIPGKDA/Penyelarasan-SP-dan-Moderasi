@@ -897,7 +897,7 @@
               <div style="height: 35px; border-bottom: 1px dashed #999; margin-bottom: 6px; display: flex; align-items: flex-end; justify-content: center; font-style: italic; color: #888;">
                 (Tandatangan & Cop)
               </div>
-              <div style="margin-top: 4px;"><strong>Nama:</strong> MUSAIDI BIN MUSTAFA</div>
+              <div style="margin-top: 4px;"><strong>Nama:</strong> HANIFF FAIZAL BIN CHEK ANI</div>
               <div style="margin-top: 4px;"><strong>Tarikh:</strong> ${new Date().toLocaleDateString('ms-MY', { day: 'numeric', month: 'long', year: 'numeric' }).toUpperCase()}</div>
             </div>
           </div>
@@ -928,8 +928,52 @@
 
     function binaSenaraiKerjaPensyarah() {
       const bekas = document.getElementById('senaraiTugasPelajar'); if(!bekas) return; bekas.innerHTML = '';
-      const skripRelevan = dbSkripInduk.filter(s => s.fasaModerasi.includes(fasaSemasa));
-      if(skripRelevan.length === 0) { bekas.innerHTML += `<div class="p-4 text-center text-xs text-slate-400">Tiada skrip direkodkan.</div>`; return; }
+      const tab2 = document.getElementById('tabKerjaP2');
+      const userEmail = (dataSesi.email || '').toLowerCase();
+
+      // 1. Semak sama ada pensyarah ini dilantik sebagai Moderator P2 / P1 bagi mana-mana skrip P2
+      const adaTugasanP2 = dataSesi.peranan === 'Admin' || dbSkripInduk.some(s => 
+        s.fasaModerasi.includes('P2') && (
+          (s.emelP2 && s.emelP2.toLowerCase() === userEmail) ||
+          (s.emelP1 && s.emelP1.toLowerCase() === userEmail)
+        )
+      );
+
+      // 2. Tunjuk atau sembunyikan butang Tab P2 di dashboard pensyarah
+      if (tab2) {
+        if (adaTugasanP2) {
+          tab2.classList.remove('hidden');
+        } else {
+          tab2.classList.add('hidden');
+          if (fasaSemasa === 'P2') fasaSemasa = 'P1'; // Kembali ke P1 jika tiada akses P2
+        }
+      }
+
+      // 3. Tapis skrip mengikut fasa & lantikan emel pensyarah bertugas
+      const skripRelevan = dbSkripInduk.filter(s => {
+        if (!s.fasaModerasi.includes(fasaSemasa)) return false;
+
+        // Admin melihat semua skrip
+        if (dataSesi.peranan === 'Admin') return true;
+
+        const isLantikP1 = s.emelP1 && s.emelP1.toLowerCase() === userEmail;
+        const isLantikP2 = s.emelP2 && s.emelP2.toLowerCase() === userEmail;
+        const isPensyarahAsal = s.emelPensyarah && s.emelPensyarah.toLowerCase() === userEmail;
+
+        if (fasaSemasa === 'P1') {
+          return isLantikP1 || isPensyarahAsal || (!s.emelP1 && !s.emelP2);
+        } else if (fasaSemasa === 'P2') {
+          // Skrip P2 HANYA dipaparkan jika pensyarah dilantik sebagai Moderator P2 (atau P1)
+          return isLantikP2 || isLantikP1;
+        }
+        return true;
+      });
+
+      if(skripRelevan.length === 0) { 
+        bekas.innerHTML = `<div class="p-4 text-center text-xs text-slate-400">Tiada skrip tugasan ${fasaSemasa} yang dilantik untuk anda.</div>`; 
+        return; 
+      }
+
       skripRelevan.forEach(skrip => {
         const rekodSiap = dbHasilSemakan.find(h => h.angkaGiliran.toString() === skrip.angkaGiliran.toString() && h.emelPensyarah === dataSesi.email);
         const isAktif = pelajarAktif && pelajarAktif.angkaGiliran === skrip.angkaGiliran;
