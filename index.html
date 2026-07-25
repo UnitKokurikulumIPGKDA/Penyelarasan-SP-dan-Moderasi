@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Sistem Moderasi Digital IPG — MPU3221</title>
+  <title>Sistem Moderasi Digital UKO IPGKDA — MPU3221</title>
 
   <!-- Google Fonts, Tailwind CSS & PDF.js -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -1439,7 +1439,27 @@
     function lakukanUploadPensyarahP2() { prosesMuatNaik('btnLecUpload', document.getElementById('lecUploadAngkaGiliran')?.value.trim(), 'P2: Menunggu Kategori', document.getElementById('lecUploadMarkah')?.value.trim(), document.getElementById('lecUploadFile')?.files[0]); }
     function lakukanUploadAdminP1() { prosesMuatNaik('btnAdminUploadP1', document.getElementById('adminUploadP1Angka')?.value.trim(), 'P1: Sampel Rawak', document.getElementById('adminUploadP1Markah')?.value.trim(), document.getElementById('adminUploadP1File')?.files[0]); }
 
-    function pilihPelajar(skrip, rekod) {
+    // Ambil kandungan sebenar data lakaran: jika rujukan "DRIVEFILE:<id>", ambil dari Drive;
+    // jika tidak, ia adalah JSON terus.
+    async function ambilKandunganLakaran(nilaiMentah) {
+      if (!nilaiMentah) return "{}";
+      const teks = nilaiMentah.toString();
+      if (teks.indexOf("DRIVEFILE:") === 0) {
+        const fileId = teks.substring("DRIVEFILE:".length).trim();
+        try {
+          const resp = await fetch(urlAPI + "?action=fetchLakaranProxy&id=" + fileId);
+          const isi = await resp.text();
+          if (isi.startsWith("ERROR")) return "{}";
+          return isi;
+        } catch (e) {
+          console.error('[ambilKandunganLakaran] Gagal ambil fail Drive:', e);
+          return "{}";
+        }
+      }
+      return teks;
+    }
+
+    async function pilihPelajar(skrip, rekod) {
       if(pdfDoc) { simpanUlasanHalamanSemasa(); if (autoSaveDirty) hantarAutoSaveLakaran(); }
 
       pelajarAktif = skrip; binaSenaraiKerjaPensyarah(); 
@@ -1476,10 +1496,11 @@
       const cat = document.getElementById('catatanMukaSurat'); if(cat) cat.value = '';
 
       const rekodSkripIni = dbHasilSemakan.filter(h => h.angkaGiliran.toString() === skrip.angkaGiliran.toString());
-      rekodSkripIni.forEach(r => {
+      for (const r of rekodSkripIni) {
         if(r.dataLakaran) {
           try { 
-            const d = JSON.parse(r.dataLakaran);
+            const teksLakaranSebenar = await ambilKandunganLakaran(r.dataLakaran);
+            const d = JSON.parse(teksLakaranSebenar);
             const lak = d.annotations || d;
             const comms = d.comments || {};
             
@@ -1501,9 +1522,9 @@
                 }
               }
             }
-          } catch(e) {}
+          } catch(e) { console.error('[pilihPelajar] Gagal proses dataLakaran:', e); }
         }
-      });
+      }
 
       if(!skrip.urlSkrip) { if(pl) pl.innerHTML = `<div class="text-red-500 font-bold mt-4 text-xs">Tiada fail PDF untuk pelajar ini.</div>`; return; }
 
