@@ -515,6 +515,39 @@
     let lakaranSesiIni = {};
     let ulasanSemuaHalaman = {}; 
 
+    // ======================= FUNGSI BANTUAN: FETCH SELAMAT =======================
+    function panggilAPISelamat(payload) {
+      return fetch(urlAPI, {
+        method: 'POST',
+        headers: { 'Content-Type': 'text/plain' },
+        body: JSON.stringify(payload)
+      })
+      .then(function(r) { return r.text(); })
+      .then(function(txt) {
+        try {
+          return JSON.parse(txt);
+        } catch (parseErr) {
+          console.error('[panggilAPISelamat] Respon BUKAN JSON sah. Teks sebenar server:');
+          console.error(txt.substring(0, 1000));
+          throw new Error('SERVER_BUKAN_JSON: ' + txt.substring(0, 150));
+        }
+      });
+    }
+
+    // ======================= DIAGNOSTIK SAMBUNGAN (console: ujiSambungan()) =======================
+    function ujiSambungan() {
+      console.log('Menguji sambungan ke:', urlAPI);
+      panggilAPISelamat({ action: 'ping' })
+        .then(function(res) {
+          console.log('✅ SAMBUNGAN OK:', res);
+          tunjukToast('Sambungan server OK: ' + res.masaServer, 'success');
+        })
+        .catch(function(err) {
+          console.error('❌ SAMBUNGAN GAGAL:', err);
+          tunjukToast('Sambungan gagal — semak console (F12) untuk butiran.', 'error');
+        });
+    }
+
     // ======================= AUTO-SAVE (CLOUD) =======================
     let autoSaveTimer = null;
     let autoSaveDirty = false;
@@ -562,20 +595,21 @@
       autoSaveInProgress = true;
       tandaAutoSaveStatus('saving');
 
-      fetch(urlAPI, { method: 'POST', headers: { 'Content-Type': 'text/plain' }, body: JSON.stringify(payload) })
-        .then(r => r.json())
-        .then(res => {
+      panggilAPISelamat(payload)
+        .then(function(res) {
           autoSaveInProgress = false;
           if (res && res.status === "success") {
             autoSaveDirty = false;
             tandaAutoSaveStatus('saved');
           } else {
+            console.error('[autosave] Server pulangkan status ralat:', res);
             tandaAutoSaveStatus('error');
             autoSaveRetryTimer = setTimeout(hantarAutoSaveLakaran, 5000);
           }
         })
-        .catch(() => {
+        .catch(function(err) {
           autoSaveInProgress = false;
+          console.error('[autosave] GAGAL:', err.message || err);
           tandaAutoSaveStatus('error');
           autoSaveRetryTimer = setTimeout(hantarAutoSaveLakaran, 5000);
         });
@@ -641,8 +675,8 @@
       if (!emel || !pass) { errEl.innerText = "Isi emel dan kata laluan."; errEl.classList.remove('hidden'); return; }
       btn.innerText = "Mengesahkan..."; btn.disabled = true;
       
-      fetch(urlAPI, { method: 'POST', headers: { 'Content-Type': 'text/plain' }, body: JSON.stringify({ action: "login", email: emel, password: pass }) })
-      .then(r => r.json()).then(res => {
+      panggilAPISelamat({ action: "login", email: emel, password: pass })
+      .then(res => {
         btn.innerText = "Log Masuk"; btn.disabled = false;
         if (res.status === "success") { 
           dataSesi = { email: res.email, nama: res.nama, peranan: res.peranan, password: pass }; 
@@ -653,7 +687,7 @@
             setTimeout(() => { over.classList.add('hidden'); binaUISelepasLogin(); }, 300); 
           }
         } else { errEl.innerText = res.message || "Gagal log masuk."; errEl.classList.remove('hidden'); }
-      }).catch(err => { btn.innerText = "Log Masuk"; btn.disabled = false; errEl.innerText = "Ralat rangkaian."; errEl.classList.remove('hidden'); });
+      }).catch(err => { btn.innerText = "Log Masuk"; btn.disabled = false; errEl.innerText = "Ralat rangkaian: " + (err.message || ""); errEl.classList.remove('hidden'); });
     }
 
     function logoutPensyarah() { sessionStorage.removeItem('modSesiMPU3221'); window.location.reload(); }
@@ -792,8 +826,8 @@
         p2Email: p2Email
       };
 
-      fetch(urlAPI, { method: 'POST', headers: { 'Content-Type': 'text/plain' }, body: JSON.stringify(payload) })
-      .then(r => r.json()).then(res => {
+      panggilAPISelamat(payload)
+      .then(res => {
         if (btn) { btn.innerText = "Lantik & Emel"; btn.disabled = false; }
         if (res.status === "success") {
           tunjukToast("Moderator berjaya dilantik & notifikasi emel dikirimkan!", "success");
@@ -803,7 +837,7 @@
         }
       }).catch(err => {
         if (btn) { btn.innerText = "Lantik & Emel"; btn.disabled = false; }
-        tunjukToast("Ralat penghantaran lantikan.", "error");
+        tunjukToast("Ralat penghantaran lantikan: " + (err.message || ""), "error");
       });
     }
 
@@ -861,8 +895,6 @@
             if (a !== null) c = b - a;
           }
 
-          // SYARAT PERATURAN RASMI IPG:
-          // Jika |c| >= 2.0 markah (5% daripada 40M), baru pusingan kedua (d & e) diisi.
           if (c !== null && Math.abs(c) >= AMBANG_5_PERATUS) {
             if (reviews.length > 1 || (p1Rev.markahModerasiP2 !== undefined && p1Rev.markahModerasiP2 !== null && p1Rev.markahModerasiP2 !== '')) {
               const p2Rev = reviews[1] || p1Rev;
@@ -875,7 +907,6 @@
               }
             }
           } else {
-            // Jika perbezaan < 5% (kurang daripada 2 markah), markah asal (a) DIKEKALKAN!
             d = null;
             e = null;
           }
@@ -884,7 +915,6 @@
             f = e;
             if (a !== null) g = a + f;
           } else {
-            // Jika kurang 5%, markah pemeriksa pertama (a) DIKEKALKAN
             f = 0;
             g = a;
           }
@@ -1034,7 +1064,6 @@
       const tab2 = document.getElementById('tabKerjaP2');
       const userEmail = (dataSesi.email || '').toLowerCase();
 
-      // 1. Semak sama ada pensyarah ada skrip P2 sendiri ATAU dilantik sebagai Moderator P2 / P1 bagi mana-mana skrip P2
       const adaTugasanP2 = dataSesi.peranan === 'Admin' || dbSkripInduk.some(s => 
         s.fasaModerasi.includes('P2') && (
           (s.emelP2 && s.emelP2.toLowerCase() === userEmail) ||
@@ -1043,21 +1072,18 @@
         )
       );
 
-      // 2. Tunjuk atau sembunyikan butang Tab P2 di dashboard pensyarah
       if (tab2) {
         if (adaTugasanP2) {
           tab2.classList.remove('hidden');
         } else {
           tab2.classList.add('hidden');
-          if (fasaSemasa === 'P2') fasaSemasa = 'P1'; // Kembali ke P1 jika tiada akses P2
+          if (fasaSemasa === 'P2') fasaSemasa = 'P1';
         }
       }
 
-      // 3. Tapis skrip mengikut fasa & hak akses pensyarah
       const skripRelevan = dbSkripInduk.filter(s => {
         if (!s.fasaModerasi.includes(fasaSemasa)) return false;
 
-        // Admin melihat semua skrip
         if (dataSesi.peranan === 'Admin') return true;
 
         const isLantikP1 = s.emelP1 && s.emelP1.toLowerCase() === userEmail;
@@ -1067,9 +1093,6 @@
         if (fasaSemasa === 'P1') {
           return isLantikP1 || isPensyarahAsal || (!s.emelP1 && !s.emelP2);
         } else if (fasaSemasa === 'P2') {
-          // Skrip P2 Boleh Diakses Jika:
-          // 1. Pensyarah itu sendiri yang muat naik skrip tersebut (isPensyarahAsal)
-          // 2. Dilantik secara rasmi oleh Admin sebagai Moderator P1 / P2
           return isPensyarahAsal || isLantikP2 || isLantikP1;
         }
         return true;
@@ -1396,8 +1419,9 @@
 
     function simpanKategoriP2Admin(angka) {
       const s = document.getElementById(`sel_${angka}`); if(!s) return; s.disabled = true;
-      fetch(urlAPI, { method: 'POST', headers: { 'Content-Type': 'text/plain' }, body: JSON.stringify({ action: "kemaskiniKategoriP2", adminEmail: dataSesi.email, adminPassword: dataSesi.password, angkaGiliran: angka, kategoriBaru: s.value }) })
-      .then(r => r.json()).then(res => { s.disabled = false; if(res.status === "success") { tunjukToast("Kategori disimpan.", "success"); let sk = dbSkripInduk.find(i => i.angkaGiliran.toString() === angka); if(sk) sk.fasaModerasi = s.value; } });
+      panggilAPISelamat({ action: "kemaskiniKategoriP2", adminEmail: dataSesi.email, adminPassword: dataSesi.password, angkaGiliran: angka, kategoriBaru: s.value })
+      .then(res => { s.disabled = false; if(res.status === "success") { tunjukToast("Kategori disimpan.", "success"); let sk = dbSkripInduk.find(i => i.angkaGiliran.toString() === angka); if(sk) sk.fasaModerasi = s.value; } })
+      .catch(err => { s.disabled = false; tunjukToast("Ralat: " + (err.message || ""), "error"); });
     }
 
     function prosesMuatNaik(btnId, studentId, fasa, markahA, fileObj) {
@@ -1405,11 +1429,11 @@
       if(btn) { btn.innerText = "Memuat Naik..."; btn.disabled = true; }
       const reader = new FileReader();
       reader.onload = e => {
-        fetch(urlAPI, { method: 'POST', headers: { 'Content-Type': 'text/plain' }, body: JSON.stringify({ action: "adminUploadScript", adminEmail: dataSesi.email, adminPassword: dataSesi.password, email: dataSesi.email, angkaGiliran: studentId, fasaModerasi: fasa, markahPemeriksa: markahA, fileData: e.target.result }) })
-        .then(r => r.json()).then(res => {
+        panggilAPISelamat({ action: "adminUploadScript", adminEmail: dataSesi.email, adminPassword: dataSesi.password, email: dataSesi.email, angkaGiliran: studentId, fasaModerasi: fasa, markahPemeriksa: markahA, fileData: e.target.result })
+        .then(res => {
           if(btn) { btn.innerText = "Berjaya!"; setTimeout(() => { btn.innerText = "Muat Naik"; btn.disabled = false; }, 2000); }
           if (res.status === "success") { tunjukToast("Fail dimuat naik.", "success"); tarikDataDariSheets(); } else { tunjukToast("Gagal: " + res.message, "error"); }
-        }).catch(err => { if(btn) { btn.innerText = "Ralat"; btn.disabled = false; } tunjukToast("Ralat rangkaian.", "error"); });
+        }).catch(err => { if(btn) { btn.innerText = "Ralat"; btn.disabled = false; } tunjukToast("Ralat rangkaian: " + (err.message || ""), "error"); });
       }; reader.readAsDataURL(fileObj);
     }
     function lakukanUploadPensyarahP2() { prosesMuatNaik('btnLecUpload', document.getElementById('lecUploadAngkaGiliran')?.value.trim(), 'P2: Menunggu Kategori', document.getElementById('lecUploadMarkah')?.value.trim(), document.getElementById('lecUploadFile')?.files[0]); }
@@ -1439,7 +1463,7 @@
       const nav = document.getElementById('pdfNavigationControls'); if(nav) nav.classList.add('hidden');
       
       lakaranOrangLain = {}; 
-      ulasanOrangLain = {}; // Reset ulasan pemeriksa lain
+      ulasanOrangLain = {}; 
       lakaranSesiIni = {}; 
       ulasanSemuaHalaman = {}; 
       pdfDoc = null; 
@@ -1459,17 +1483,14 @@
             const lak = d.annotations || d;
             const comms = d.comments || {};
             
-            // PENTING: Jika rekod ini kepunyaan akaun pengguna semasa
             if (r.emelPensyarah && r.emelPensyarah.toLowerCase() === dataSesi.email.toLowerCase()) {
               lakaranSesiIni = JSON.parse(JSON.stringify(lak || {}));
               ulasanSemuaHalaman = JSON.parse(JSON.stringify(comms || {}));
             } else {
-              // Jika rekod pemeriksa/moderator lain
               for (const pg in lak) {
                 if (!lakaranOrangLain[pg]) lakaranOrangLain[pg] = [];
                 lakaranOrangLain[pg] = lakaranOrangLain[pg].concat(lak[pg]);
               }
-              // PENTING: Kumpul ulasan teks daripada pemeriksa/moderator lain!
               for (const pg in comms) {
                 if (comms[pg] && comms[pg].toString().trim() !== '') {
                   if (!ulasanOrangLain[pg]) ulasanOrangLain[pg] = [];
@@ -1519,15 +1540,13 @@
       let myComment = ulasanSemuaHalaman[pageNum] || '';
       const otherComments = ulasanOrangLain[pageNum] || [];
       
-      // Jika pengguna semasa (cth Admin) belum ada ulasan tetapi ada ulasan daripada pensyarah lain
       if (!myComment && otherComments.length > 0) {
         myComment = otherComments.map(o => o.teks).join('\n');
-        ulasanSemuaHalaman[pageNum] = myComment; // Serap ke dalam textarea automatik
+        ulasanSemuaHalaman[pageNum] = myComment;
       }
       
       const cm = document.getElementById('catatanMukaSurat'); if(cm) cm.value = myComment;
 
-      // Paparkan kotak ulasan pemeriksa lain jika wujud
       const containerRakan = document.getElementById('ulasanRakanContainer');
       if (containerRakan) {
         if (otherComments.length > 0) {
@@ -1633,45 +1652,70 @@
       });
     }
 
+    // ======================= SIMPAN REKOD SEMAKAN — versi diperbaiki =======================
+    // Logik: tentukan sama ada pengguna semasa ialah PEMERIKSA ASAL, MODERATOR P1,
+    // atau MODERATOR P2 berdasarkan lantikan rasmi pada Skrip_Pelajar (bukan bilangan rekod).
     function simpanRekodSemakan() {
-      if(!pelajarAktif) return;
+      if (!pelajarAktif) return;
       simpanUlasanHalamanSemasa();
 
-      const markahA = parseFloat(document.getElementById('borangMarkahA')?.value) || 0;
+      const markahA_asal = parseFloat(pelajarAktif.markahPemeriksa) || 0;
       const markahG = parseFloat(document.getElementById('borangMarkahG')?.value) || 0;
+      const userEmail = (dataSesi.email || '').toLowerCase();
+      const emelAsal = (pelajarAktif.emelPensyarah || '').toLowerCase();
+      const emelP1   = (pelajarAktif.emelP1 || '').toLowerCase();
+      const emelP2   = (pelajarAktif.emelP2 || '').toLowerCase();
 
-      const rekodSediaAda = dbHasilSemakan.filter(h => h.angkaGiliran.toString() === pelajarAktif.angkaGiliran.toString());
-      
-      let modP1 = '', bezP1 = '', modP2 = '', bezP2 = '';
+      const adalahPemeriksaAsal = userEmail === emelAsal && userEmail !== emelP1 && userEmail !== emelP2;
+      const adalahModeratorP1   = !!emelP1 && userEmail === emelP1;
+      const adalahModeratorP2   = !!emelP2 && userEmail === emelP2;
 
-      if (rekodSediaAda.length === 0 || (rekodSediaAda.length === 1 && rekodSediaAda[0].emelPensyarah === dataSesi.email)) {
+      let markahAsalUntukHantar = markahA_asal;
+      let modP1 = '', bezP1 = '', modP2 = '', bezP2 = '', penyelarasan = '', markahAkhir = markahG;
+
+      if (adalahPemeriksaAsal) {
+        markahAsalUntukHantar = markahG;
+        markahAkhir = markahG;
+
+      } else if (adalahModeratorP1) {
         modP1 = markahG;
-        bezP1 = (markahG - markahA);
-        modP2 = '';
-        bezP2 = '';
-      } else {
-        const p1Rec = rekodSediaAda[0];
-        modP1 = (p1Rec.markahModerasiP1 !== undefined && p1Rec.markahModerasiP1 !== '') ? p1Rec.markahModerasiP1 : p1Rec.markahAkhir;
-        bezP1 = (p1Rec.perbezaanP1 !== undefined && p1Rec.perbezaanP1 !== '') ? p1Rec.perbezaanP1 : (modP1 - markahA);
-        
+        bezP1 = Number((markahG - markahA_asal).toFixed(1));
+        penyelarasan = bezP1;
+        markahAkhir = (Math.abs(bezP1) >= 2.0) ? markahA_asal : (markahA_asal + bezP1);
+
+      } else if (adalahModeratorP2) {
+        const rekodP1 = dbHasilSemakan.find(h =>
+          h.angkaGiliran.toString() === pelajarAktif.angkaGiliran.toString() &&
+          (h.emelPensyarah || '').toLowerCase() === emelP1
+        );
+        if (rekodP1) {
+          modP1 = rekodP1.markahModerasiP1 || '';
+          bezP1 = rekodP1.perbezaanP1 || '';
+        }
         modP2 = markahG;
-        bezP2 = (markahG - markahA);
+        bezP2 = Number((markahG - markahA_asal).toFixed(1));
+        penyelarasan = bezP2;
+        markahAkhir = markahA_asal + bezP2;
+
+      } else {
+        modP1 = markahG;
+        bezP1 = Number((markahG - markahA_asal).toFixed(1));
+        penyelarasan = bezP1;
       }
 
-      const markahPenyelarasan = (bezP2 !== '' && Math.abs(parseFloat(bezP1)) >= 2.0) ? bezP2 : bezP1;
-
       const payload = {
-        angkaGiliran: pelajarAktif.angkaGiliran, 
-        emelPensyarah: dataSesi.email, 
+        action: "simpanSemakan",
+        angkaGiliran: pelajarAktif.angkaGiliran,
+        emelPensyarah: dataSesi.email,
         fasaModerasi: pelajarAktif.fasaModerasi,
-        markahPemeriksa: markahA,
-        hp1_a1: document.getElementById('rubric_hp1_a1')?.value || 0, 
+        markahPemeriksa: markahAsalUntukHantar,
+        hp1_a1: document.getElementById('rubric_hp1_a1')?.value || 0,
         hp1_a2: document.getElementById('rubric_hp1_a2')?.value || 0,
-        hp1_b1: document.getElementById('rubric_hp1_b1')?.value || 0, 
-        hp1_b2: document.getElementById('rubric_hp1_b2')?.value || 0, 
+        hp1_b1: document.getElementById('rubric_hp1_b1')?.value || 0,
+        hp1_b2: document.getElementById('rubric_hp1_b2')?.value || 0,
         hp1_c1: document.getElementById('rubric_hp1_c1')?.value || 0,
-        hp1_c2: document.getElementById('rubric_hp1_c2')?.value || 0, 
-        hp5_d1: document.getElementById('rubric_hp5_d1')?.value || 0, 
+        hp1_c2: document.getElementById('rubric_hp1_c2')?.value || 0,
+        hp5_d1: document.getElementById('rubric_hp5_d1')?.value || 0,
         hp5_d2: document.getElementById('rubric_hp5_d2')?.value || 0,
         hp5_d3: document.getElementById('rubric_hp5_d3')?.value || 0,
         hp5_d4: document.getElementById('rubric_hp5_d4')?.value || 0,
@@ -1679,18 +1723,35 @@
         perbezaanP1: bezP1,
         markahModerasiP2: modP2,
         perbezaanP2: bezP2,
-        markahPenyelarasan: markahPenyelarasan,
-        markahAkhir: markahG,
-        dataLakaran: JSON.stringify({ annotations: lakaranSesiIni, comments: ulasanSemuaHalaman })
+        markahPenyelarasan: penyelarasan,
+        markahAkhir: markahAkhir,
+        dataLakaran: JSON.stringify({ annotations: lakaranSesiIni, comments: ulasanSemuaHalaman }),
+        kemaskiniMarkahAsalSkrip: adalahPemeriksaAsal
       };
 
-      const btn = document.getElementById('btnSimpanKerja'); if(btn) { btn.innerText = "Menghantar..."; btn.disabled = true; }
-      clearTimeout(autoSaveTimer); clearTimeout(autoSaveRetryTimer);
-      fetch(urlAPI, { method: 'POST', headers: { 'Content-Type': 'text/plain' }, body: JSON.stringify(payload) })
-      .then(r => r.json()).then(res => {
-        if(btn) { btn.innerHTML = `✓ Tersimpan!`; setTimeout(() => { btn.innerHTML = `Simpan Semakan`; btn.disabled = false; }, 2000); }
-        if(res.status === "success") { autoSaveDirty = false; tandaAutoSaveStatus('saved'); tunjukToast("Laporan berjaya disimpan ke Google Sheet.", "success"); tarikDataDariSheets(); } else { tunjukToast("Gagal: " + res.message, "error"); }
-      }).catch(err => { if(btn) { btn.innerHTML = `Simpan Semakan`; btn.disabled = false; } tunjukToast("Ralat menyimpan.", "error"); });
+      const btn = document.getElementById('btnSimpanKerja');
+      if (btn) { btn.innerText = "Menghantar..."; btn.disabled = true; }
+      clearTimeout(autoSaveTimer);
+      clearTimeout(autoSaveRetryTimer);
+
+      panggilAPISelamat(payload)
+        .then(function(res) {
+          if (btn) { btn.innerHTML = "✓ Tersimpan!"; setTimeout(() => { btn.innerHTML = "Simpan Semakan"; btn.disabled = false; }, 2000); }
+          if (res && res.status === "success") {
+            autoSaveDirty = false;
+            tandaAutoSaveStatus('saved');
+            tunjukToast("Laporan berjaya disimpan ke Google Sheet.", "success");
+            tarikDataDariSheets();
+          } else {
+            console.error('[simpanRekodSemakan] Server pulangkan ralat:', res);
+            tunjukToast("Gagal: " + (res && res.message ? res.message : "Ralat tidak diketahui dari server."), "error");
+          }
+        })
+        .catch(function(err) {
+          if (btn) { btn.innerHTML = "Simpan Semakan"; btn.disabled = false; }
+          console.error('[simpanRekodSemakan] GAGAL:', err.message || err);
+          tunjukToast("Ralat menyimpan: " + (err.message || "sambungan terputus") + ". Buka console (F12) untuk butiran.", "error");
+        });
     }
 
     async function cetakSkripDanContenganGlobal() {
@@ -1718,7 +1779,6 @@
         const strokesSesi = lakaranSesiIni[pNum] || [];
         strokesSesi.forEach(pt => { pCtx.strokeStyle = pt.color || '#EF4444'; if (pt.type === 'start') { pCtx.beginPath(); pCtx.moveTo(pt.x, pt.y); } else { pCtx.lineTo(pt.x, pt.y); pCtx.stroke(); } });
 
-        // Dapatkan ulasan sendiri ATAU ulasan pemeriksa lain
         let commentText = (ulasanSemuaHalaman[pNum] || '').trim();
         if (!commentText && ulasanOrangLain[pNum] && ulasanOrangLain[pNum].length > 0) {
           commentText = ulasanOrangLain[pNum].map(o => `${o.penilai}: ${o.teks}`).join('\n');
