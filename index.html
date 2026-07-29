@@ -102,11 +102,21 @@
         <div class="flex-1 flex flex-col bg-slate-100 border-r border-slate-200 h-full relative">
           
           <div class="h-14 bg-white border-b border-slate-200 flex justify-between items-center px-4 shrink-0 shadow-sm z-10">
-            <div class="flex gap-2">
-              <button onclick="tukarWarnaPen('#EF4444', 'merah')" id="btnPenMerah" class="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold bg-white border border-red-200 text-red-700 shadow-sm ring-1 ring-red-500"><span class="w-2.5 h-2.5 rounded-full bg-red-500"></span> Pen Pemeriksa</button>
-              <button onclick="tukarWarnaPen('#10B981', 'hijau')" id="btnPenHijau" class="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold text-slate-600 hover:bg-white border border-transparent"><span class="w-2.5 h-2.5 rounded-full bg-emerald-500"></span> Pen KP (P1)</button>
-              <button onclick="tukarWarnaPen('#8B5CF6', 'ungu')" id="btnPenUngu" class="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold text-slate-600 hover:bg-white border border-transparent"><span class="w-2.5 h-2.5 rounded-full bg-violet-500"></span> Pen P2/P3 (Admin)</button>
+            <div class="flex gap-2 items-center" id="penControlContainer">
+              <!-- Pen Merah — Sentiasa Ada Untuk Pensyarah -->
+              <button onclick="tukarWarnaPen('#EF4444', 'merah')" id="btnPenMerah" class="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold bg-white border border-red-200 text-red-700 shadow-sm ring-1 ring-red-500">
+                <span class="w-2.5 h-2.5 rounded-full bg-red-500"></span> Pen Pemeriksa (Red)
+              </button>
+
+              <!-- Pen Hijau & Ungu — Dihadkan untuk KP, KJ & Admin Sahaja -->
+              <button onclick="tukarWarnaPen('#10B981', 'hijau')" id="btnPenHijau" class="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold text-slate-600 hover:bg-white border border-transparent transition-all">
+                <span class="w-2.5 h-2.5 rounded-full bg-emerald-500"></span> Pen KP/P1 (Green)
+              </button>
+              <button onclick="tukarWarnaPen('#8B5CF6', 'ungu')" id="btnPenUngu" class="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold text-slate-600 hover:bg-white border border-transparent transition-all">
+                <span class="w-2.5 h-2.5 rounded-full bg-violet-500"></span> Pen P2/Admin (Purple)
+              </button>
             </div>
+
             <div class="flex items-center gap-3">
               <span id="autoSaveStatusLabel" class="text-[10px] font-bold text-slate-400 flex items-center gap-1.5 select-none">
                 <span id="autoSaveDot" class="w-1.5 h-1.5 rounded-full bg-slate-300"></span>
@@ -323,7 +333,7 @@
             <div class="p-5 border-b border-slate-100 bg-slate-900 text-white flex justify-between items-center">
               <div>
                 <h3 class="font-display font-bold text-sm text-white">📋 Senarai 13 Sampel Moderasi Terpilih — <span id="labelTajukTugasanSampel" class="text-teal-400 font-mono">Tugasan 1 (/40)</span></h3>
-                <p class="text-[10px] text-slate-300 mt-0.5">3 Aras Tinggi (Maks, Min, Pertengahan), 7 Aras Sederhana, 3 Aras Lemah.</p>
+                <p class="text-[10px] text-slate-300 mt-0.5">3 Aras Tinggi (Maks, Min, Pertengahan), 7 Aras Sederhana, 3 Aras Lemah. Disimpan ke sheet <code class="text-teal-300 font-mono font-bold">Pemilihan_Sample</code>.</p>
               </div>
               <button onclick="daftarkanSampelKeSkripInduk()" id="btnDaftarSampel13" class="bg-teal-500 hover:bg-teal-600 text-slate-950 font-bold px-4 py-2 rounded-xl text-xs transition-all shadow-md">
                 ⚡ Daftar 13 Sampel Ke Tugasan Moderasi
@@ -355,7 +365,7 @@
             <div class="p-5 border-b border-slate-100 bg-amber-50 flex justify-between items-center border-l-4 border-l-amber-500">
               <div>
                 <h3 class="font-display font-bold text-sm text-amber-900">⚠️ Pengesanan Kes Ekstrem (Perbezaan Skor Terpencil / Isu Khas)</h3>
-                <p class="text-[10px] text-amber-700 mt-0.5">Pelajar dengan skor sangat tinggi, sangat lemah, atau jurang varians kritikal yang memerlukan semakan khas.</p>
+                <p class="text-[10px] text-amber-700 mt-0.5">Pelajar dengan skor sangat tinggi, sangat lemah, atau jurang varians kritikal. Disimpan ke sheet <code class="text-amber-900 font-mono font-bold">Pemilihan_Sample_Amat_Cemerlang_Ekstream</code>.</p>
               </div>
             </div>
 
@@ -380,7 +390,7 @@
         </div>
       </section>
 
-      <!-- ================= PANEL RINGKASAN SEMAKAN (ADMIN SAHAJA) ================= -->
+      <!-- ================= PANEL RINGKASAN SEMAKAN (ADMIN / KJ SAHAJA) ================= -->
       <section id="panelLecSummary" class="hidden h-full overflow-y-auto p-6 md:p-8">
         <div class="max-w-6xl mx-auto space-y-6">
           <div class="flex flex-col md:flex-row justify-between items-start md:items-end gap-4 border-b border-slate-200 pb-4">
@@ -438,15 +448,29 @@
         </div>
       </section>
 
-      <!-- ================= PANEL MUAT NAIK P2 PENSYARAH ================= -->
+      <!-- ================= PANEL MUAT NAIK PENSYARAH (SEPARATE SHEET ENTRY) ================= -->
       <section id="panelLecUpload" class="hidden h-full overflow-y-auto p-6 md:p-10">
-        <div class="max-w-xl mx-auto">
+        <div class="max-w-2xl mx-auto space-y-6">
+          
+          <!-- AMARAN PEN MERAH & PENETAPAN MARKAH -->
+          <div class="bg-red-50 border-2 border-red-300 p-5 rounded-2xl text-red-900 shadow-sm flex items-start gap-4">
+            <span class="text-3xl shrink-0">⚠️</span>
+            <div>
+              <h4 class="font-bold text-sm uppercase tracking-wide text-red-800">PERINGATAN PENTING MODERASI PENSYARAH</h4>
+              <p class="text-xs mt-1 leading-relaxed text-red-700">
+                Sila pastikan anda menanda skrip jawapan ini menggunakan <strong class="underline decoration-red-500 font-black">PEN MERAH</strong> pada Kanvas Semakan secara penuh. 
+                Markah pemeriksa asal boleh ditetapkan atau dikemaskini secara automatik selepas anda selesai membuat contengan pada skrip.
+              </p>
+            </div>
+          </div>
+
           <div class="bg-white p-8 rounded-3xl border border-slate-200 shadow-sm">
             <div class="border-b border-slate-100 pb-5 mb-6">
               <span class="text-[10px] font-bold tracking-widest uppercase text-teal-600">Serahan Pensyarah / Wakil Kelas</span>
               <h2 class="text-2xl font-display font-bold text-slate-900 mt-1">Muat Naik Skrip (P2 & Kes Ekstrem)</h2>
-              <p class="text-xs text-slate-500 mt-2">Muat naik fail PDF wakil pelajar kelas (P2) atau Kes Ekstrem yang dikesan untuk tujuan penyelarasan moderasi.</p>
+              <p class="text-xs text-slate-500 mt-2">Data serahan ini akan disimpan khusus ke sheet <code class="bg-slate-100 px-1.5 py-0.5 rounded text-indigo-700 font-mono font-bold">Pemilihan_Sample_Kategori_Setiap_Pensyarah</code>.</p>
             </div>
+            
             <div class="space-y-4 bg-slate-50 p-6 rounded-2xl border border-slate-100">
               <div>
                 <label class="text-[10px] font-bold text-slate-500 uppercase tracking-widest block mb-1.5">Angka Giliran Pelajar</label>
@@ -540,7 +564,7 @@
             <div class="p-5 border-b border-slate-100 bg-teal-900 text-white flex justify-between items-center">
               <div>
                 <h3 class="font-display font-bold text-sm text-teal-100">📌 Pengurusan Lantikan Moderator P1 & P2 (Notifikasi Emel)</h3>
-                <p class="text-[10px] text-teal-300 mt-0.5">Admin memilih pensyarah bertugas dan sistem akan menghantar emel notifikasi secara automatik.</p>
+                <p class="text-[10px] text-teal-300 mt-0.5">Admin/KJ memilih pensyarah bertugas dan sistem akan menghantar emel notifikasi secara automatik.</p>
               </div>
             </div>
             <div class="overflow-x-auto bg-slate-50/20">
@@ -645,24 +669,6 @@
     let ulasanOrangLain = {};
     let lakaranSesiIni = {};
     let ulasanSemuaHalaman = {};
-
-    // Mock Data Contoh untuk Demonstrasi UI/UX Pemilihan Sampel
-    const mockMarkahPelajar = [
-      { angkaGiliran: '2026092340001', nama: 'AHMAD AMIRUL BIN ROSLI', kumpulan: 'PISMP T1S1', hp1: 28.5, hp5: 9.0, hp8: 27.0, hp10: 28.0 },
-      { angkaGiliran: '2026092340002', nama: 'SITI NURHALIZA BINTI ZAKARIA', kumpulan: 'PISMP T1S1', hp1: 29.0, hp5: 9.5, hp8: 28.5, hp10: 29.0 },
-      { angkaGiliran: '2026092340003', nama: 'MOHD FARHAN BIN SHAH', kumpulan: 'PISMP T1S1', hp1: 26.0, hp5: 8.5, hp8: 25.0, hp10: 26.0 },
-      { angkaGiliran: '2026092340004', nama: 'NURUL AIN BINTI OTHMAN', kumpulan: 'PISMP T1S1', hp1: 24.5, hp5: 7.5, hp8: 23.0, hp10: 24.0 },
-      { angkaGiliran: '2026092340005', nama: 'CHONG WEI JIE', kumpulan: 'PISMP T1S1', hp1: 23.0, hp5: 7.0, hp8: 22.0, hp10: 23.0 },
-      { angkaGiliran: '2026092340006', nama: 'KAVITHA A/P RAMAN', kumpulan: 'PISMP T1S1', hp1: 22.5, hp5: 7.0, hp8: 21.0, hp10: 22.0 },
-      { angkaGiliran: '2026092340007', nama: 'MUHAMMAD HAZIM BIN ISMAIL', kumpulan: 'PISMP T1S1', hp1: 21.0, hp5: 6.5, hp8: 20.0, hp10: 21.0 },
-      { angkaGiliran: '2026092340008', nama: 'NUR SYAFIQAH BINTI AZMAN', kumpulan: 'PISMP T1S1', hp1: 20.5, hp5: 6.0, hp8: 19.5, hp10: 20.0 },
-      { angkaGiliran: '2026092340009', nama: 'LEE KAI XIANG', kumpulan: 'PISMP T1S1', hp1: 19.0, hp5: 6.0, hp8: 18.0, hp10: 19.0 },
-      { angkaGiliran: '2026092340010', nama: 'FATIN NABILAH BINTI HASNAN', kumpulan: 'PISMP T1S1', hp1: 18.0, hp5: 5.5, hp8: 17.0, hp10: 18.0 },
-      { angkaGiliran: '2026092340011', nama: 'NURUL SHAHIRA BINTI YUSOF', kumpulan: 'PISMP T1S1', hp1: 14.0, hp5: 4.0, hp8: 13.0, hp10: 14.0 },
-      { angkaGiliran: '2026092340012', nama: 'TAN ZHI WEI', kumpulan: 'PISMP T1S1', hp1: 12.0, hp5: 3.5, hp8: 11.0, hp10: 12.0 },
-      { angkaGiliran: '2026092340013', nama: 'DANIEL AIMAN BIN FAZLI', kumpulan: 'PISMP T1S1', hp1: 10.0, hp5: 3.0, hp8: 9.0, hp10: 10.0 },
-      { angkaGiliran: '2026092340014', nama: 'AZRAN SHAH BIN BAKAR (EKSTREM)', kumpulan: 'PISMP T1S1', hp1: 29.5, hp5: 3.0, hp8: 28.0, hp10: 8.0 }
-    ];
 
     function panggilAPISelamat(payload) {
       return fetch(urlAPI, {
@@ -793,18 +799,7 @@
         } else { errEl.innerText = res.message || "Gagal log masuk."; errEl.classList.remove('hidden'); }
       }).catch(err => { 
         btn.innerText = "Log Masuk"; btn.disabled = false;
-        if (emel.toLowerCase() === "hanifffaizal@gmail.com" && pass === "Admin@MPU3221") {
-          dataSesi = { email: emel, nama: 'HANIFF FAIZAL BIN CHEK ANI', peranan: 'Admin', password: pass };
-          sessionStorage.setItem('modSesiMPU3221', JSON.stringify(dataSesi));
-          const over = document.getElementById('loginOverlay'); 
-          if(over) { 
-            over.classList.add('opacity-0'); 
-            setTimeout(() => { over.classList.add('hidden'); binaUISelepasLogin(); }, 300); 
-          }
-          tunjukToast("Mod Ujian Admin diaktifkan", "info");
-        } else {
-          errEl.innerText = "Ralat rangkaian / kata laluan tidak sah."; errEl.classList.remove('hidden'); 
-        }
+        errEl.innerText = "Ralat rangkaian / kata laluan tidak sah."; errEl.classList.remove('hidden'); 
       });
     }
 
@@ -815,6 +810,20 @@
 
     function semakStatusAdmin() {
       return dataSesi.peranan === "Admin" || dataSesi.peranan === "Ketua Jabatan" || dataSesi.peranan === "KJ";
+    }
+
+    function kemaskiniKawalanPenBerdasarkanPeranan() {
+      const bHijau = document.getElementById('btnPenHijau');
+      const bUngu = document.getElementById('btnPenUngu');
+      
+      if (!semakStatusAdmin()) {
+        if (bHijau) { bHijau.disabled = true; bHijau.classList.add('opacity-40', 'cursor-not-allowed'); bHijau.title = "Disimpan untuk KP / Moderator P1"; }
+        if (bUngu) { bUngu.disabled = true; bUngu.classList.add('opacity-40', 'cursor-not-allowed'); bUngu.title = "Disimpan untuk Admin / KJ / Moderator P2"; }
+        tukarWarnaPen('#EF4444', 'merah');
+      } else {
+        if (bHijau) { bHijau.disabled = false; bHijau.classList.remove('opacity-40', 'cursor-not-allowed'); }
+        if (bUngu) { bUngu.disabled = false; bUngu.classList.remove('opacity-40', 'cursor-not-allowed'); }
+      }
     }
 
     function binaUISelepasLogin() {
@@ -839,6 +848,8 @@
           <button onclick="tukarPandangan('lecUpload')" class="${btnGaya}" id="nav_lecUpload">Muat Naik Skrip (P2 & Ekstrem)</button>
         `;
       }
+      
+      kemaskiniKawalanPenBerdasarkanPeranan();
       tukarPandangan(semakStatusAdmin() ? 'adminDashboard' : 'workspace'); 
       tarikDataDariSheets();
     }
@@ -883,7 +894,7 @@
         dbSkripInduk = data.skripInduk || []; 
         dbHasilSemakan = data.hasilSemakan || [];
         dbKonfigurasi = data.konfigurasi || {};
-        dbMarkahPelajar = (data.markahPelajar && data.markahPelajar.length > 0) ? data.markahPelajar : mockMarkahPelajar;
+        dbMarkahPelajar = data.markahPelajar || [];
         
         if(semakStatusAdmin()) {
           binaJadualLantikanModerator();
@@ -894,8 +905,7 @@
         binaPapanRingkasanPensyarah();
         janaPemilihanSampel13();
       }).catch(err => {
-        dbMarkahPelajar = mockMarkahPelajar;
-        janaPemilihanSampel13();
+        tunjukToast("Gagal menarik data terus dari Google Sheets.", "error");
       });
     }
 
@@ -937,9 +947,13 @@
         if(labelTajuk) labelTajuk.innerText = "Tugasan 2 (HP8+HP10, /60)";
       }
 
-      const markahGuna = (dbMarkahPelajar && dbMarkahPelajar.length > 0) ? dbMarkahPelajar : mockMarkahPelajar;
+      if (!dbMarkahPelajar || dbMarkahPelajar.length === 0) {
+        tbody13.innerHTML = `<tr><td colspan="9" class="text-center py-6 text-slate-400">Tiada data pelajar ditemui dalam sheet MARKAH_PELAJAR.</td></tr>`;
+        if(tbodyEkstrem) tbodyEkstrem.innerHTML = `<tr><td colspan="7" class="text-center py-6 text-slate-400">Tiada rekod.</td></tr>`;
+        return;
+      }
 
-      let senaraiDataSedia = markahGuna.map(p => {
+      let senaraiDataSedia = dbMarkahPelajar.map(p => {
         let m1 = 0, m2 = 0, maxSkor = 40;
         if (modTugasanSemasa === 1) {
           m1 = parseFloat(p.hp1) || 0;
@@ -1042,7 +1056,7 @@
       if (tbodyEkstrem) {
         tbodyEkstrem.innerHTML = '';
         if (senaraiEkstremTerpilih.length === 0) {
-          tbodyEkstrem.innerHTML = `<tr><td colspan="7" class="text-center py-4 text-slate-400">Tiada kes ekstrem atau jurang terpencil dikesan untuk ${modTugasanSemasa === 1 ? 'Tugasan 1' : 'Tugasan 2'}.</td></tr>`;
+          tbodyEkstrem.innerHTML = `<tr><td colspan="7" class="text-center py-4 text-slate-400">Tiada kes ekstrem dikesan untuk ${modTugasanSemasa === 1 ? 'Tugasan 1' : 'Tugasan 2'}.</td></tr>`;
         } else {
           senaraiEkstremTerpilih.forEach((e, idx) => {
             let sebab = [];
@@ -1060,7 +1074,7 @@
               <td class="px-4 py-3 text-center font-mono font-bold text-amber-900">${e.jumlahSkor} / ${e.maxSkor}</td>
               <td class="px-4 py-3 text-xs font-bold text-red-600">${sebab.join(" • ")}</td>
               <td class="px-4 py-3 text-center">
-                <button onclick="daftarEkstremTunggal('${e.angkaGiliran}', ${e.jumlahSkor})" class="bg-amber-800 hover:bg-amber-900 text-white font-bold px-3 py-1.5 rounded-lg text-[10px] transition-all">
+                <button onclick="daftarEkstremTunggal('${e.angkaGiliran}', ${e.jumlahSkor}, '${e.nama}', '${e.kumpulan}', '${sebab.join(", ")}')" class="bg-amber-800 hover:bg-amber-900 text-white font-bold px-3 py-1.5 rounded-lg text-[10px] transition-all">
                   + Daftar Kes Ekstrem
                 </button>
               </td>
@@ -1081,8 +1095,11 @@
 
       let senaraiPayload = senarai13Terpilih.map(s => ({
         angkaGiliran: s.angkaGiliran,
+        nama: s.nama,
+        kumpulan: s.kumpulan,
         fasaModerasi: `P1: ${s.tagSampel} (Tugasan ${modTugasanSemasa})`,
-        markahPemeriksa: s.jumlahSkor
+        markahPemeriksa: s.jumlahSkor,
+        tagSampel: s.tagSampel
       }));
 
       panggilAPISelamat({
@@ -1094,7 +1111,7 @@
       .then(res => {
         if(btn) { btn.innerText = "⚡ Daftar 13 Sampel Ke Tugasan Moderasi"; btn.disabled = false; }
         if (res.status === "success") {
-          tunjukToast("13 Sampel berjaya didaftarkan ke senarai moderasi!", "success");
+          tunjukToast("13 Sampel berjaya didaftarkan ke sheet Pemilihan_Sample!", "success");
           tarikDataDariSheets();
         } else {
           tunjukToast("Gagal daftar sampel: " + res.message, "error");
@@ -1106,20 +1123,23 @@
       });
     }
 
-    function daftarEkstremTunggal(angka, markah) {
+    function daftarEkstremTunggal(angka, markah, nama, kumpulan, sebab) {
       panggilAPISelamat({
         action: "daftarDuaBelasSampel",
         adminEmail: dataSesi.email,
         adminPassword: dataSesi.password,
         sampelArray: [{
           angkaGiliran: angka,
+          nama: nama,
+          kumpulan: kumpulan,
           fasaModerasi: `P1: Kes Ekstrem (Tugasan ${modTugasanSemasa})`,
-          markahPemeriksa: markah
+          markahPemeriksa: markah,
+          sebabEkstrem: sebab
         }]
       })
       .then(res => {
         if (res.status === "success") {
-          tunjukToast("Kes ekstrem berjaya didaftarkan!", "success");
+          tunjukToast("Kes ekstrem berjaya didaftarkan ke sheet Pemilihan_Sample_Amat_Cemerlang_Ekstream!", "success");
           tarikDataDariSheets();
         } else {
           tunjukToast("Gagal: " + res.message, "error");
@@ -1635,15 +1655,26 @@
       .catch(err => { s.disabled = false; tunjukToast("Tersimpan dalam tetapan!", "success"); });
     }
 
-    function prosesMuatNaik(btnId, studentId, fasa, markahA, fileObj) {
+    function prosesMuatNaik(btnId, studentId, fasa, markahA, fileObj, extraInfo = {}) {
       const btn = document.getElementById(btnId); if(!studentId || !markahA || !fileObj) { tunjukToast("Lengkapkan maklumat dan fail PDF.", "warning"); return; }
       if(btn) { btn.innerText = "Memuat Naik..."; btn.disabled = true; }
       const reader = new FileReader();
       reader.onload = e => {
-        panggilAPISelamat({ action: "adminUploadScript", adminEmail: dataSesi.email, adminPassword: dataSesi.password, email: dataSesi.email, angkaGiliran: studentId, fasaModerasi: fasa, markahPemeriksa: markahA, fileData: e.target.result })
+        panggilAPISelamat({ 
+          action: "adminUploadScript", 
+          adminEmail: dataSesi.email, 
+          adminPassword: dataSesi.password, 
+          email: dataSesi.email, 
+          namaPensyarah: dataSesi.nama,
+          angkaGiliran: studentId, 
+          fasaModerasi: fasa, 
+          tugasanKursus: extraInfo.tugasan || "Tugasan 1",
+          markahPemeriksa: markahA, 
+          fileData: e.target.result 
+        })
         .then(res => {
           if(btn) { btn.innerText = "Berjaya!"; setTimeout(() => { btn.innerText = "Muat Naik"; btn.disabled = false; }, 2000); }
-          if (res.status === "success") { tunjukToast("Fail dimuat naik.", "success"); tarikDataDariSheets(); } else { tunjukToast("Gagal: " + res.message, "error"); }
+          if (res.status === "success") { tunjukToast("Fail dimuat naik & direkodkan ke sheet!", "success"); tarikDataDariSheets(); } else { tunjukToast("Gagal: " + res.message, "error"); }
         }).catch(err => { if(btn) { btn.innerText = "Berjaya"; btn.disabled = false; } tunjukToast("Fail skrip berjaya dimuat naik!", "success"); });
       }; reader.readAsDataURL(fileObj);
     }
@@ -1661,7 +1692,7 @@
       }
 
       const fasaLengkap = `${kat} (${tugasan})`;
-      prosesMuatNaik('btnLecUpload', angka, fasaLengkap, markah, file); 
+      prosesMuatNaik('btnLecUpload', angka, fasaLengkap, markah, file, { tugasan: tugasan }); 
     }
 
     function lakukanUploadAdminP1() { prosesMuatNaik('btnAdminUploadP1', document.getElementById('adminUploadP1Angka')?.value.trim(), 'P1: Sampel Rawak', document.getElementById('adminUploadP1Markah')?.value.trim(), document.getElementById('adminUploadP1File')?.files[0]); }
@@ -1819,8 +1850,13 @@
     }
 
     function tukarWarnaPen(hex, namaID) {
+      if ((namaID === 'hijau' || namaID === 'ungu') && !semakStatusAdmin()) {
+        tunjukToast("Hanya Admin, KP, dan Ketua Jabatan dibenarkan menggunakan Pen " + namaID + ".", "warning");
+        return;
+      }
+
       warnaPen = hex;
-      ['btnPenMerah', 'btnPenHijau', 'btnPenUngu'].forEach(id => { const el=document.getElementById(id); if(el) el.className = "flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold text-slate-600 hover:bg-white border border-transparent"; });
+      ['btnPenMerah', 'btnPenHijau', 'btnPenUngu'].forEach(id => { const el=document.getElementById(id); if(el) el.className = "flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold text-slate-600 hover:bg-white border border-transparent transition-all"; });
       const warnaRing = namaID === 'merah' ? 'red' : namaID === 'hijau' ? 'emerald' : 'violet';
       const bA = document.getElementById(`btnPen${namaID.charAt(0).toUpperCase() + namaID.slice(1)}`);
       if(bA) bA.className = `flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold bg-white border border-${warnaRing}-200 text-${warnaRing}-700 shadow-sm ring-1 ring-${warnaRing}-500`;
@@ -2011,7 +2047,7 @@
         }
 
         const commentBox = document.createElement('div'); commentBox.className = 'print-page-comment-box';
-        commentBox.innerHTML = `<div style="font-weight:bold; margin-bottom:4px;">📝 Ulasan Muka Surat ${pNum}</div><div>${commentText || '(Tiada ulasan untuk muka surat ini)'}</div>`;
+        commentBox.innerHTML = `<div style="font-weight:bold; margin-bottom:4px;">📝 Ulasan Muka Surat ${pNum}</div><div>${commentText || '(Tiada ulasan untuk muka surat me-1)'}</div>`;
         pageBlock.appendChild(commentBox); printContainer.appendChild(pageBlock);
       }
 
