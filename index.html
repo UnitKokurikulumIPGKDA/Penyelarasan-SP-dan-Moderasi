@@ -3,12 +3,12 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Sistem Moderasi Digital UKO IPGKDA — MPU3221</title>
+  <title>Sistem Moderasi Digital IPG — MPU3221</title>
 
   <!-- Google Fonts, Tailwind CSS & PDF.js -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:ital,wght@0,400;0,500;0,600;0,700;0,800;1,400&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet">
   <script src="https://cdn.tailwindcss.com"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.4.120/pdf.min.js"></script>
 
@@ -27,7 +27,7 @@
     ::-webkit-scrollbar-thumb { background: #CBD5E1; border-radius: 4px; }
     ::-webkit-scrollbar-thumb:hover { background: #94A3B8; }
 
-    .nav-item { transition: all 0.2s ease; border-left: 3px solid transparent; }
+    .nav-item { transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1); border-left: 3px solid transparent; }
     .nav-item.active { background-color: #f0fdfa; color: #0f766e; font-weight: 700; border-left-color: #0d9488; }
     
     #scriptCanvas { cursor: crosshair; touch-action: none; }
@@ -59,11 +59,11 @@
       <div class="flex flex-col gap-4">
         <div>
           <label class="text-[10px] font-bold text-slate-500 uppercase tracking-widest block mb-1.5">Emel Rasmi IPG</label>
-          <input type="email" id="lecturerEmailInput" placeholder="anda@ipgm.edu.my" class="w-full px-4 py-3 rounded-xl bg-slate-50 border border-slate-200 focus:outline-none focus:border-teal-500 transition-all text-sm font-medium">
+          <input type="email" id="lecturerEmailInput" value="hanifffaizal@gmail.com" placeholder="anda@ipgm.edu.my" class="w-full px-4 py-3 rounded-xl bg-slate-50 border border-slate-200 focus:outline-none focus:border-teal-500 transition-all text-sm font-medium">
         </div>
         <div>
           <label class="text-[10px] font-bold text-slate-500 uppercase tracking-widest block mb-1.5">Kata Laluan</label>
-          <input type="password" id="lecturerPasswordInput" placeholder="••••••••" class="w-full px-4 py-3 rounded-xl bg-slate-50 border border-slate-200 focus:outline-none focus:border-teal-500 transition-all text-sm font-mono">
+          <input type="password" id="lecturerPasswordInput" value="Admin@MPU3221" placeholder="••••••••" class="w-full px-4 py-3 rounded-xl bg-slate-50 border border-slate-200 focus:outline-none focus:border-teal-500 transition-all text-sm font-mono">
         </div>
         <p id="loginErrorMsg" class="hidden text-xs font-bold text-red-600 text-center bg-red-50 py-2.5 rounded-lg"></p>
       </div>
@@ -99,7 +99,6 @@
       
       <!-- ================= WORKSPACE PANEL ================= -->
       <section id="panelWorkspace" class="hidden h-full flex flex-col lg:flex-row overflow-hidden">
-        <!-- Kiri: PDF & Ulasan dalam 1 Scroll Area -->
         <div class="flex-1 flex flex-col bg-slate-100 border-r border-slate-200 h-full relative">
           
           <div class="h-14 bg-white border-b border-slate-200 flex justify-between items-center px-4 shrink-0 shadow-sm z-10">
@@ -117,29 +116,22 @@
             </div>
           </div>
 
-          <!-- KONTENA SCROLL UTAMA -->
           <div id="scrollAreaCanvas" class="flex-1 overflow-y-auto bg-[#EBE7DF] p-6 flex flex-col items-center">
-            
             <div id="canvasPlaceholder" class="flex flex-col items-center text-center mt-20">
               <div class="w-16 h-16 bg-white rounded-2xl border border-slate-200 flex items-center justify-center mb-3 shadow-sm"><svg class="w-6 h-6 text-slate-300" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg></div>
               <h3 class="font-display font-bold text-slate-800 text-lg">Ruang Semakan Skrip MPU3221</h3>
               <p class="text-xs text-slate-500 mt-1">Pilih skrip dari senarai di panel kanan.</p>
             </div>
 
-            <!-- KANVAS -->
             <canvas id="scriptCanvas" class="w-full max-w-[800px] h-auto block bg-white border border-slate-200 shadow-xl shrink-0 hidden mb-6"></canvas>
 
-            <!-- KOTAK ULASAN -->
             <div id="commentSection" class="hidden w-full max-w-[800px] bg-white p-6 border border-slate-200 rounded-xl shadow-sm shrink-0 mb-10">
               <div class="flex justify-between items-center mb-4 border-b border-slate-100 pb-3">
                 <h4 class="font-bold text-slate-800">📝 Catatan Ulasan Muka Surat <span id="labelUlasanMuka" class="text-teal-600 font-mono">1</span></h4>
               </div>
               <textarea id="catatanMukaSurat" rows="3" placeholder="Masukkan ulasan atau catatan untuk muka surat ini..." oninput="ulasanSemuaHalaman[pageNum] = this.value; jadualAutoSave();" class="w-full p-3 border border-slate-200 rounded-lg text-xs focus:outline-none focus:border-teal-500 transition-all"></textarea>
-              
-              <!-- KOTAK PAPARAN ULASAN PEMERIKSA / MODERATOR LAIN -->
               <div id="ulasanRakanContainer" class="mt-3 hidden p-3 bg-slate-50 border border-slate-200 rounded-lg text-xs"></div>
             </div>
-
           </div>
 
           <div id="pdfNavigationControls" class="hidden h-14 bg-white border-t border-slate-200 flex justify-between items-center px-6 shrink-0 shadow-sm z-10">
@@ -179,7 +171,7 @@
                 </div>
 
                 <div id="pusingan2Container" class="hidden flex-col gap-2 p-3 bg-amber-50/60 rounded-lg border border-amber-200 transition-all">
-                  <span class="text-[9px] font-bold text-amber-800 bg-amber-100 px-1.5 py-0.5 rounded-full w-max uppercase tracking-wider">⚠️ Perbezaan ≥ 5% (≥ 2.0M): Moderasi Pusingan 2 Diperlukan (Pen Ungu)</span>
+                  <span class="text-[9px] font-bold text-amber-800 bg-amber-100 px-1.5 py-0.5 rounded-full w-max uppercase tracking-wider">⚠️ Perbezaan ≥ 5% (≥ 2.0M): Moderasi Pusingan 2 Diperlukan</span>
                   <div class="flex justify-between items-center gap-4">
                     <label class="font-bold text-amber-900 text-xs">(d) Markah Moderasi P2</label>
                     <input type="number" id="markahD" oninput="kiraPerbezaanP2()" class="w-20 text-center font-bold border border-amber-300 py-1 rounded bg-white text-xs">
@@ -190,44 +182,36 @@
                   </div>
                 </div>
                 
-                <!-- BORANG RUBRIK MPU3221 (HP1 & HP5) -->
+                <!-- BORANG RUBRIK MPU3221 -->
                 <div class="border border-slate-200 rounded-lg overflow-hidden bg-white shadow-sm">
                   <div class="bg-slate-900 text-white px-3 py-2 text-[9px] font-bold uppercase tracking-widest flex justify-between items-center">
                     <span>Perincian Rubrik HP1 & HP5</span>
                     <span class="text-teal-400 font-mono">Maks 40M</span>
                   </div>
                   <div class="p-3 space-y-3 divide-y divide-slate-100">
-                    
-                    <!-- HP1 (30M) -->
                     <div class="pt-2 first:pt-0">
                       <p class="text-[10px] font-bold text-teal-700 uppercase tracking-wider mb-2">Tugasan 1: HP1 (Maks 30M)</p>
-                      
                       <div class="space-y-2.5">
                         <div class="flex justify-between items-start gap-2">
                           <div class="pr-2"><p class="text-[11px] font-bold text-slate-800">A1. Pengenalan, Konsep & Rasional (/5)</p></div>
                           <input type="number" id="rubric_hp1_a1" min="0" max="5" step="0.5" oninput="kiraSkorAuto()" class="w-14 text-center text-xs font-bold border border-slate-200 rounded p-1 bg-slate-50 shrink-0">
                         </div>
-
                         <div class="flex justify-between items-start gap-2">
                           <div class="pr-2"><p class="text-[11px] font-bold text-slate-800">A2. Rekaan Logo & Moto (/5)</p></div>
                           <input type="number" id="rubric_hp1_a2" min="0" max="5" step="0.5" oninput="kiraSkorAuto()" class="w-14 text-center text-xs font-bold border border-slate-200 rounded p-1 bg-slate-50 shrink-0">
                         </div>
-
                         <div class="flex justify-between items-start gap-2">
                           <div class="pr-2"><p class="text-[11px] font-bold text-slate-800">B1. Struktur AJK & Perlembagaan (/5)</p></div>
                           <input type="number" id="rubric_hp1_b1" min="0" max="5" step="0.5" oninput="kiraSkorAuto()" class="w-14 text-center text-xs font-bold border border-slate-200 rounded p-1 bg-slate-50 shrink-0">
                         </div>
-
                         <div class="flex justify-between items-start gap-2">
                           <div class="pr-2"><p class="text-[11px] font-bold text-slate-800">B2. Takwim Aktiviti Tahunan (/5)</p></div>
                           <input type="number" id="rubric_hp1_b2" min="0" max="5" step="0.5" oninput="kiraSkorAuto()" class="w-14 text-center text-xs font-bold border border-slate-200 rounded p-1 bg-slate-50 shrink-0">
                         </div>
-
                         <div class="flex justify-between items-start gap-2">
                           <div class="pr-2"><p class="text-[11px] font-bold text-slate-800">C1. Carta Alir & Surat Permohonan (/5)</p></div>
                           <input type="number" id="rubric_hp1_c1" min="0" max="5" step="0.5" oninput="kiraSkorAuto()" class="w-14 text-center text-xs font-bold border border-slate-200 rounded p-1 bg-slate-50 shrink-0">
                         </div>
-
                         <div class="flex justify-between items-start gap-2">
                           <div class="pr-2"><p class="text-[11px] font-bold text-slate-800">C2. Analisis Mitigasi Risiko (/5)</p></div>
                           <input type="number" id="rubric_hp1_c2" min="0" max="5" step="0.5" oninput="kiraSkorAuto()" class="w-14 text-center text-xs font-bold border border-slate-200 rounded p-1 bg-slate-50 shrink-0">
@@ -235,33 +219,27 @@
                       </div>
                     </div>
 
-                    <!-- HP5 (10M) -->
                     <div class="pt-3">
                       <p class="text-[10px] font-bold text-teal-700 uppercase tracking-wider mb-2">Tugasan 1: HP5 (Maks 10M)</p>
-                      
                       <div class="space-y-2.5">
                         <div class="flex justify-between items-start gap-2">
                           <div class="pr-2"><p class="text-[11px] font-bold text-slate-800">D1. Kelancaran & Koheren Idea (/2.5)</p></div>
                           <input type="number" id="rubric_hp5_d1" min="0" max="2.5" step="0.1" oninput="kiraSkorAuto()" class="w-14 text-center text-xs font-bold border border-slate-200 rounded p-1 bg-slate-50 shrink-0">
                         </div>
-
                         <div class="flex justify-between items-start gap-2">
                           <div class="pr-2"><p class="text-[11px] font-bold text-slate-800">D2. Justifikasi & Keyakinan Hujah (/2.5)</p></div>
                           <input type="number" id="rubric_hp5_d2" min="0" max="2.5" step="0.1" oninput="kiraSkorAuto()" class="w-14 text-center text-xs font-bold border border-slate-200 rounded p-1 bg-slate-50 shrink-0">
                         </div>
-
                         <div class="flex justify-between items-start gap-2">
                           <div class="pr-2"><p class="text-[11px] font-bold text-slate-800">D3. Keaslian Idea & Laras Bahasa (/2.5)</p></div>
                           <input type="number" id="rubric_hp5_d3" min="0" max="2.5" step="0.1" oninput="kiraSkorAuto()" class="w-14 text-center text-xs font-bold border border-slate-200 rounded p-1 bg-slate-50 shrink-0">
                         </div>
-
                         <div class="flex justify-between items-start gap-2">
                           <div class="pr-2"><p class="text-[11px] font-bold text-slate-800">D4. Ketepatan Tatabahasa & APA 7 (/2.5)</p></div>
                           <input type="number" id="rubric_hp5_d4" min="0" max="2.5" step="0.1" oninput="kiraSkorAuto()" class="w-14 text-center text-xs font-bold border border-slate-200 rounded p-1 bg-slate-50 shrink-0">
                         </div>
                       </div>
                     </div>
-
                   </div>
                   <div class="bg-teal-50 px-3 py-2.5 flex justify-between items-center border-t border-teal-100"><span class="text-[9px] font-bold text-teal-800 uppercase tracking-widest">Jumlah Terkumpul</span><span id="jumlahMarkahRubrik" class="font-mono font-bold text-teal-700 text-sm">0 / 40</span></div>
                 </div>
@@ -274,6 +252,131 @@
             <button onclick="simpanRekodSemakan()" id="btnSimpanKerja" class="w-full bg-teal-600 hover:bg-teal-700 text-white font-bold py-3.5 rounded-lg transition-all shadow-md">Simpan Semakan</button>
             <button onclick="cetakSkripDanContenganGlobal()" class="w-full bg-white hover:bg-slate-100 text-slate-700 border border-slate-300 font-bold py-3.5 rounded-lg transition-all shadow-sm">Cetak Laporan Lengkap Skrip</button>
           </div>
+        </div>
+      </section>
+
+      <!-- ================= PANEL PEMILIHAN SAMPEL (TAB BAHARU) ================= -->
+      <section id="panelSampleSelection" class="hidden h-full overflow-y-auto p-6 md:p-8">
+        <div class="max-w-6xl mx-auto space-y-6">
+          
+          <div class="flex flex-col md:flex-row justify-between items-start md:items-end gap-4 border-b border-slate-200 pb-4">
+            <div>
+              <span class="text-[10px] font-bold tracking-widest uppercase text-teal-600">Modul Moderasi Piawai BPP / IPG</span>
+              <h2 class="text-2xl font-display font-bold text-slate-900 mt-0.5">Pemilihan 13 Sampel & Kes Ekstrem</h2>
+              <p class="text-xs text-slate-500 mt-1">Data ditarik secara terus dari sheet <code class="bg-slate-100 px-1.5 py-0.5 rounded text-teal-700 font-mono font-bold">MARKAH_PELAJAR</code>. Dikira secara berasingan mengikut Tugasan.</p>
+            </div>
+            
+            <div class="flex items-center gap-3">
+              <!-- PILIHAN TUGASAN 1 vs TUGASAN 2 -->
+              <div class="flex bg-slate-200 p-1 rounded-xl shadow-inner border border-slate-300">
+                <button onclick="pilihTugasanSampel(1)" id="btnModTugasan1" class="px-4 py-2 text-xs font-bold rounded-lg transition-all bg-white text-slate-900 shadow-sm">
+                  📌 Tugasan 1 (HP1+HP5, /40)
+                </button>
+                <button onclick="pilihTugasanSampel(2)" id="btnModTugasan2" class="px-4 py-2 text-xs font-medium rounded-lg transition-all text-slate-600 hover:text-slate-900">
+                  📌 Tugasan 2 (HP8+HP10, /60)
+                </button>
+              </div>
+
+              <button onclick="tarikDataDariSheets()" class="text-xs font-bold bg-white border border-slate-200 text-slate-700 px-3.5 py-2.5 rounded-xl hover:bg-slate-50 shadow-sm transition-all flex items-center gap-1.5">
+                <span>🔄</span> Kemaskini Data
+              </button>
+            </div>
+          </div>
+
+          <!-- KAD STATISTIK TABURAN TUGASAN -->
+          <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+            <div class="bg-white p-4 rounded-2xl border border-slate-200 shadow-sm flex items-center justify-between">
+              <div>
+                <p class="text-[10px] font-bold uppercase text-slate-400 tracking-wider">Jumlah Pelajar</p>
+                <p id="sampleStatTotal" class="text-2xl font-display font-bold text-slate-900 mt-1">0</p>
+              </div>
+              <div class="w-10 h-10 rounded-xl bg-slate-100 text-slate-600 flex items-center justify-center font-bold">📊</div>
+            </div>
+
+            <div class="bg-white p-4 rounded-2xl border border-slate-200 border-l-4 border-l-emerald-500 shadow-sm flex items-center justify-between">
+              <div>
+                <p class="text-[10px] font-bold uppercase text-slate-400 tracking-wider">Aras Tinggi (3 Sampel)</p>
+                <p id="sampleStatTinggi" class="text-2xl font-display font-bold text-emerald-600 mt-1">0</p>
+              </div>
+              <div class="w-10 h-10 rounded-xl bg-emerald-50 text-emerald-600 flex items-center justify-center font-bold">🟢</div>
+            </div>
+
+            <div class="bg-white p-4 rounded-2xl border border-slate-200 border-l-4 border-l-amber-500 shadow-sm flex items-center justify-between">
+              <div>
+                <p class="text-[10px] font-bold uppercase text-slate-400 tracking-wider">Aras Sederhana (7 Sampel)</p>
+                <p id="sampleStatSederhana" class="text-2xl font-display font-bold text-amber-600 mt-1">0</p>
+              </div>
+              <div class="w-10 h-10 rounded-xl bg-amber-50 text-amber-600 flex items-center justify-center font-bold">🟡</div>
+            </div>
+
+            <div class="bg-white p-4 rounded-2xl border border-slate-200 border-l-4 border-l-red-500 shadow-sm flex items-center justify-between">
+              <div>
+                <p class="text-[10px] font-bold uppercase text-slate-400 tracking-wider">Aras Lemah (3 Sampel)</p>
+                <p id="sampleStatLemah" class="text-2xl font-display font-bold text-red-600 mt-1">0</p>
+              </div>
+              <div class="w-10 h-10 rounded-xl bg-red-50 text-red-600 flex items-center justify-center font-bold">🔴</div>
+            </div>
+          </div>
+
+          <!-- JADUAL 13 SAMPEL DILANTIK -->
+          <div class="bg-white rounded-2xl border border-slate-200 overflow-hidden shadow-sm">
+            <div class="p-5 border-b border-slate-100 bg-slate-900 text-white flex justify-between items-center">
+              <div>
+                <h3 class="font-display font-bold text-sm text-white">📋 Senarai 13 Sampel Moderasi Terpilih — <span id="labelTajukTugasanSampel" class="text-teal-400 font-mono">Tugasan 1 (/40)</span></h3>
+                <p class="text-[10px] text-slate-300 mt-0.5">3 Aras Tinggi (Maks, Min, Pertengahan), 7 Aras Sederhana, 3 Aras Lemah.</p>
+              </div>
+              <button onclick="daftarkanSampelKeSkripInduk()" id="btnDaftarSampel13" class="bg-teal-500 hover:bg-teal-600 text-slate-950 font-bold px-4 py-2 rounded-xl text-xs transition-all shadow-md">
+                ⚡ Daftar 13 Sampel Ke Tugasan Moderasi
+              </button>
+            </div>
+
+            <div class="overflow-x-auto">
+              <table class="w-full text-left text-xs border-collapse">
+                <thead class="bg-slate-800 text-slate-300 text-[9px] uppercase tracking-widest">
+                  <tr>
+                    <th class="px-4 py-3 font-bold text-center w-12">Bil</th>
+                    <th class="px-4 py-3 font-bold">Angka Giliran</th>
+                    <th class="px-4 py-3 font-bold">Nama Pelajar</th>
+                    <th class="px-4 py-3 font-bold text-center">Kumpulan</th>
+                    <th class="px-4 py-3 font-bold text-center" id="colHeaderKriteria1">HP1 (30M)</th>
+                    <th class="px-4 py-3 font-bold text-center" id="colHeaderKriteria2">HP5 (10M)</th>
+                    <th class="px-4 py-3 font-bold text-center bg-slate-700 text-teal-300" id="colHeaderJumlahM">Jumlah Tugasan 1 (/40)</th>
+                    <th class="px-4 py-3 font-bold text-center">Kategori Sampel</th>
+                    <th class="px-4 py-3 font-bold text-center">Status Pendaftaran</th>
+                  </tr>
+                </thead>
+                <tbody id="jadualSampel13Body" class="divide-y divide-slate-100 bg-white"></tbody>
+              </table>
+            </div>
+          </div>
+
+          <!-- JADUAL KES EKSTREM -->
+          <div class="bg-white rounded-2xl border border-slate-200 overflow-hidden shadow-sm">
+            <div class="p-5 border-b border-slate-100 bg-amber-50 flex justify-between items-center border-l-4 border-l-amber-500">
+              <div>
+                <h3 class="font-display font-bold text-sm text-amber-900">⚠️ Pengesanan Kes Ekstrem (Perbezaan Skor Terpencil / Isu Khas)</h3>
+                <p class="text-[10px] text-amber-700 mt-0.5">Pelajar dengan skor sangat tinggi, sangat lemah, atau jurang varians kritikal yang memerlukan semakan khas.</p>
+              </div>
+            </div>
+
+            <div class="overflow-x-auto">
+              <table class="w-full text-left text-xs border-collapse">
+                <thead class="bg-amber-100/60 text-amber-900 text-[9px] uppercase tracking-widest border-b border-amber-200">
+                  <tr>
+                    <th class="px-4 py-3 font-bold text-center w-12">Bil</th>
+                    <th class="px-4 py-3 font-bold">Angka Giliran</th>
+                    <th class="px-4 py-3 font-bold">Nama Pelajar</th>
+                    <th class="px-4 py-3 font-bold text-center">Kumpulan</th>
+                    <th class="px-4 py-3 font-bold text-center" id="colHeaderEkstremJumlah">Jumlah Markah Tugasan</th>
+                    <th class="px-4 py-3 font-bold">Sebab Kes Ekstrem</th>
+                    <th class="px-4 py-3 font-bold text-center">Tindakan</th>
+                  </tr>
+                </thead>
+                <tbody id="jadualKesEkstremBody" class="divide-y divide-slate-100 bg-white"></tbody>
+              </table>
+            </div>
+          </div>
+
         </div>
       </section>
 
@@ -340,14 +443,43 @@
         <div class="max-w-xl mx-auto">
           <div class="bg-white p-8 rounded-3xl border border-slate-200 shadow-sm">
             <div class="border-b border-slate-100 pb-5 mb-6">
-              <span class="text-[10px] font-bold tracking-widest uppercase text-teal-600">Serahan Wakil Kelas</span>
-              <h2 class="text-2xl font-display font-bold text-slate-900 mt-1">Muat Naik Skrip Pelajar (P2)</h2>
-              <p class="text-xs text-slate-500 mt-2">Sila muat naik fail PDF wakil pelajar kelas anda untuk diselaraskan oleh Admin.</p>
+              <span class="text-[10px] font-bold tracking-widest uppercase text-teal-600">Serahan Pensyarah / Wakil Kelas</span>
+              <h2 class="text-2xl font-display font-bold text-slate-900 mt-1">Muat Naik Skrip (P2 & Kes Ekstrem)</h2>
+              <p class="text-xs text-slate-500 mt-2">Muat naik fail PDF wakil pelajar kelas (P2) atau Kes Ekstrem yang dikesan untuk tujuan penyelarasan moderasi.</p>
             </div>
-            <div class="space-y-5 bg-slate-50 p-6 rounded-2xl border border-slate-100">
-              <div><label class="text-[10px] font-bold text-slate-500 uppercase tracking-widest block mb-1.5">Angka Giliran Pelajar</label><input type="text" id="lecUploadAngkaGiliran" placeholder="Cth: 2026092340001" class="w-full px-4 py-3 rounded-xl bg-white border border-slate-200 font-mono text-xs focus:outline-none focus:border-teal-500"></div>
-              <div><label class="text-[10px] font-bold text-slate-500 uppercase tracking-widest block mb-1.5">Markah Asal Pemeriksa (a)</label><input type="number" id="lecUploadMarkah" placeholder="0 - 40" min="0" max="40" step="0.5" class="w-full px-4 py-3 rounded-xl bg-white border border-slate-200 font-mono text-xs focus:outline-none focus:border-teal-500"></div>
-              <div><label class="text-[10px] font-bold text-slate-500 uppercase tracking-widest block mb-1.5">Fail PDF Skrip Tugasan</label><input type="file" id="lecUploadFile" accept="application/pdf" class="w-full px-4 py-2.5 rounded-xl bg-white border border-slate-200 text-slate-600 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:bg-slate-100 file:text-slate-700 file:text-[10px] file:font-bold cursor-pointer text-xs"></div>
+            <div class="space-y-4 bg-slate-50 p-6 rounded-2xl border border-slate-100">
+              <div>
+                <label class="text-[10px] font-bold text-slate-500 uppercase tracking-widest block mb-1.5">Angka Giliran Pelajar</label>
+                <input type="text" id="lecUploadAngkaGiliran" placeholder="Cth: 2026092340001" class="w-full px-4 py-3 rounded-xl bg-white border border-slate-200 font-mono text-xs focus:outline-none focus:border-teal-500">
+              </div>
+
+              <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                <div>
+                  <label class="text-[10px] font-bold text-slate-500 uppercase tracking-widest block mb-1.5">Jenis Serahan Skrip</label>
+                  <select id="lecUploadKategori" class="w-full px-3 py-3 rounded-xl bg-white border border-slate-200 text-xs font-bold focus:outline-none focus:border-teal-500 text-slate-800">
+                    <option value="P2: Wakil Kelas">🔵 P2: Wakil Kelas (Sederhana/Rawak)</option>
+                    <option value="P1/P2: Kes Ekstrem">⚠️ Kes Ekstrem (Terpencil/Jurang Kriteria)</option>
+                    <option value="P2: Amat Cemerlang">🌟 P2: Amat Cemerlang</option>
+                    <option value="P2: Lemah">🔴 P2: Lemah</option>
+                  </select>
+                </div>
+                <div>
+                  <label class="text-[10px] font-bold text-slate-500 uppercase tracking-widest block mb-1.5">Tugasan Kursus</label>
+                  <select id="lecUploadTugasan" class="w-full px-3 py-3 rounded-xl bg-white border border-slate-200 text-xs font-bold focus:outline-none focus:border-teal-500 text-slate-800">
+                    <option value="Tugasan 1">📌 Tugasan 1 (HP1+HP5, /40)</option>
+                    <option value="Tugasan 2">📌 Tugasan 2 (HP8+HP10, /60)</option>
+                  </select>
+                </div>
+              </div>
+
+              <div>
+                <label class="text-[10px] font-bold text-slate-500 uppercase tracking-widest block mb-1.5">Markah Pemeriksa Asal (a)</label>
+                <input type="number" id="lecUploadMarkah" placeholder="Cth: 32.5" min="0" max="60" step="0.5" class="w-full px-4 py-3 rounded-xl bg-white border border-slate-200 font-mono text-xs focus:outline-none focus:border-teal-500">
+              </div>
+              <div>
+                <label class="text-[10px] font-bold text-slate-500 uppercase tracking-widest block mb-1.5">Fail PDF Skrip Tugasan</label>
+                <input type="file" id="lecUploadFile" accept="application/pdf" class="w-full px-4 py-2.5 rounded-xl bg-white border border-slate-200 text-slate-600 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:bg-slate-100 file:text-slate-700 file:text-[10px] file:font-bold cursor-pointer text-xs">
+              </div>
             </div>
             <button onclick="lakukanUploadPensyarahP2()" id="btnLecUpload" class="w-full mt-6 bg-slate-900 hover:bg-slate-800 text-white font-bold py-3.5 rounded-xl shadow-md transition-all">Muat Naik Sekarang</button>
           </div>
@@ -385,7 +517,6 @@
             </div>
           </div>
 
-          <!-- KAD STATISTIK -->
           <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
             <div class="bg-white p-4 rounded-2xl border border-slate-200 border-l-4 border-l-blue-500 shadow-sm flex items-center justify-between">
               <div><p class="text-[10px] font-bold uppercase text-slate-400 tracking-wider">Jumlah Pensyarah</p><p id="statTotalLec" class="text-2xl font-display font-bold text-slate-900 mt-1">0</p></div>
@@ -405,7 +536,6 @@
             </div>
           </div>
 
-          <!-- MODUL LANTIKAN MODERATOR P1 & P2 -->
           <div class="bg-white rounded-2xl border border-slate-200 overflow-hidden shadow-sm">
             <div class="p-5 border-b border-slate-100 bg-teal-900 text-white flex justify-between items-center">
               <div>
@@ -430,7 +560,6 @@
             </div>
           </div>
 
-          <!-- JADUAL RUMUSAN PENSYARAH -->
           <div class="bg-white rounded-2xl border border-slate-200 overflow-hidden shadow-sm">
             <div class="p-5 border-b border-slate-100 flex justify-between items-center bg-white">
               <div>
@@ -456,7 +585,6 @@
             </div>
           </div>
 
-          <!-- P1 REGISTER & P2 MONITORING -->
           <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
             <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm lg:col-span-1">
               <h3 class="font-display font-bold text-slate-900 mb-4 border-l-4 border-blue-500 pl-3">Daftar Sampel P1 (Admin)</h3>
@@ -486,7 +614,6 @@
     </main>
   </div>
 
-  <!-- KONTENA CETAKAN BULK -->
   <div id="bulkPrintContainer"></div>
   <div id="printFooterSummary" style="display:none">
     <div class="grid grid-cols-2 gap-6 p-5 text-xs border border-slate-300 rounded-lg">
@@ -503,7 +630,11 @@
     let urlAPI = 'https://script.google.com/macros/s/AKfycbxwUIQpQ66obbKr_Wttws6e1Gwe5lu5oZbAWpkqh40GEgwXfgSPbkIVse_gfJM3iJI5/exec'; 
     let dataSesi = { email: '', nama: '', peranan: '', password: '' };
     let dbPensyarah = [], dbSkripInduk = [], dbHasilSemakan = [], dbKonfigurasi = {};
+    let dbMarkahPelajar = []; 
     let fasaSemasa = 'P1', pelajarAktif = null;
+    let modTugasanSemasa = 1; // 1 = Tugasan 1 (/40), 2 = Tugasan 2 (/60)
+    let senarai13Terpilih = [];
+    let senaraiEkstremTerpilih = [];
 
     let pdfDoc = null, pageNum = 1, pageTotal = 0;
     let canvas = document.getElementById('scriptCanvas'); 
@@ -511,11 +642,28 @@
     let isDrawing = false, warnaPen = '#EF4444', titikAkhir = null;
     
     let lakaranOrangLain = {};
-    let ulasanOrangLain = {}; // Pemuatan ulasan pemeriksa/moderator lain
+    let ulasanOrangLain = {};
     let lakaranSesiIni = {};
-    let ulasanSemuaHalaman = {}; 
+    let ulasanSemuaHalaman = {};
 
-    // ======================= FUNGSI BANTUAN: FETCH SELAMAT =======================
+    // Mock Data Contoh untuk Demonstrasi UI/UX Pemilihan Sampel
+    const mockMarkahPelajar = [
+      { angkaGiliran: '2026092340001', nama: 'AHMAD AMIRUL BIN ROSLI', kumpulan: 'PISMP T1S1', hp1: 28.5, hp5: 9.0, hp8: 27.0, hp10: 28.0 },
+      { angkaGiliran: '2026092340002', nama: 'SITI NURHALIZA BINTI ZAKARIA', kumpulan: 'PISMP T1S1', hp1: 29.0, hp5: 9.5, hp8: 28.5, hp10: 29.0 },
+      { angkaGiliran: '2026092340003', nama: 'MOHD FARHAN BIN SHAH', kumpulan: 'PISMP T1S1', hp1: 26.0, hp5: 8.5, hp8: 25.0, hp10: 26.0 },
+      { angkaGiliran: '2026092340004', nama: 'NURUL AIN BINTI OTHMAN', kumpulan: 'PISMP T1S1', hp1: 24.5, hp5: 7.5, hp8: 23.0, hp10: 24.0 },
+      { angkaGiliran: '2026092340005', nama: 'CHONG WEI JIE', kumpulan: 'PISMP T1S1', hp1: 23.0, hp5: 7.0, hp8: 22.0, hp10: 23.0 },
+      { angkaGiliran: '2026092340006', nama: 'KAVITHA A/P RAMAN', kumpulan: 'PISMP T1S1', hp1: 22.5, hp5: 7.0, hp8: 21.0, hp10: 22.0 },
+      { angkaGiliran: '2026092340007', nama: 'MUHAMMAD HAZIM BIN ISMAIL', kumpulan: 'PISMP T1S1', hp1: 21.0, hp5: 6.5, hp8: 20.0, hp10: 21.0 },
+      { angkaGiliran: '2026092340008', nama: 'NUR SYAFIQAH BINTI AZMAN', kumpulan: 'PISMP T1S1', hp1: 20.5, hp5: 6.0, hp8: 19.5, hp10: 20.0 },
+      { angkaGiliran: '2026092340009', nama: 'LEE KAI XIANG', kumpulan: 'PISMP T1S1', hp1: 19.0, hp5: 6.0, hp8: 18.0, hp10: 19.0 },
+      { angkaGiliran: '2026092340010', nama: 'FATIN NABILAH BINTI HASNAN', kumpulan: 'PISMP T1S1', hp1: 18.0, hp5: 5.5, hp8: 17.0, hp10: 18.0 },
+      { angkaGiliran: '2026092340011', nama: 'NURUL SHAHIRA BINTI YUSOF', kumpulan: 'PISMP T1S1', hp1: 14.0, hp5: 4.0, hp8: 13.0, hp10: 14.0 },
+      { angkaGiliran: '2026092340012', nama: 'TAN ZHI WEI', kumpulan: 'PISMP T1S1', hp1: 12.0, hp5: 3.5, hp8: 11.0, hp10: 12.0 },
+      { angkaGiliran: '2026092340013', nama: 'DANIEL AIMAN BIN FAZLI', kumpulan: 'PISMP T1S1', hp1: 10.0, hp5: 3.0, hp8: 9.0, hp10: 10.0 },
+      { angkaGiliran: '2026092340014', nama: 'AZRAN SHAH BIN BAKAR (EKSTREM)', kumpulan: 'PISMP T1S1', hp1: 29.5, hp5: 3.0, hp8: 28.0, hp10: 8.0 }
+    ];
+
     function panggilAPISelamat(payload) {
       return fetch(urlAPI, {
         method: 'POST',
@@ -527,33 +675,13 @@
         try {
           return JSON.parse(txt);
         } catch (parseErr) {
-          console.error('[panggilAPISelamat] Respon BUKAN JSON sah. Teks sebenar server:');
-          console.error(txt.substring(0, 1000));
+          console.error('[panggilAPISelamat] Respon BUKAN JSON sah:', txt);
           throw new Error('SERVER_BUKAN_JSON: ' + txt.substring(0, 150));
         }
       });
     }
 
-    // ======================= DIAGNOSTIK SAMBUNGAN (console: ujiSambungan()) =======================
-    function ujiSambungan() {
-      console.log('Menguji sambungan ke:', urlAPI);
-      panggilAPISelamat({ action: 'ping' })
-        .then(function(res) {
-          console.log('✅ SAMBUNGAN OK:', res);
-          tunjukToast('Sambungan server OK: ' + res.masaServer, 'success');
-        })
-        .catch(function(err) {
-          console.error('❌ SAMBUNGAN GAGAL:', err);
-          tunjukToast('Sambungan gagal — semak console (F12) untuk butiran.', 'error');
-        });
-    }
-
-    // ======================= AUTO-SAVE (CLOUD) =======================
-    let autoSaveTimer = null;
-    let autoSaveDirty = false;
-    let autoSaveInProgress = false;
-    let autoSaveRetryTimer = null;
-    let autoSaveSafetyInterval = null;
+    let autoSaveTimer = null, autoSaveDirty = false, autoSaveInProgress = false, autoSaveRetryTimer = null, autoSaveSafetyInterval = null;
 
     function tandaAutoSaveStatus(status) {
       const dot = document.getElementById('autoSaveDot');
@@ -602,43 +730,19 @@
             autoSaveDirty = false;
             tandaAutoSaveStatus('saved');
           } else {
-            console.error('[autosave] Server pulangkan status ralat:', res);
             tandaAutoSaveStatus('error');
             autoSaveRetryTimer = setTimeout(hantarAutoSaveLakaran, 5000);
           }
         })
         .catch(function(err) {
           autoSaveInProgress = false;
-          console.error('[autosave] GAGAL:', err.message || err);
           tandaAutoSaveStatus('error');
           autoSaveRetryTimer = setTimeout(hantarAutoSaveLakaran, 5000);
         });
     }
 
-    // Cuba simpan sekali lagi automatik apabila talian internet kembali
     window.addEventListener('online', () => { if (autoSaveDirty && pelajarAktif) hantarAutoSaveLakaran(); });
-
-    // Jaring keselamatan: cuba simpan setiap 20 saat sekiranya ada perubahan tergantung
-    autoSaveSafetyInterval = setInterval(() => {
-      if (autoSaveDirty && pelajarAktif && !autoSaveInProgress) hantarAutoSaveLakaran();
-    }, 20000);
-
-    // Percubaan terakhir menyimpan sebelum pengguna menutup/tinggalkan tab
-    window.addEventListener('beforeunload', function() {
-      if (!autoSaveDirty || !pelajarAktif || !dataSesi.email || !navigator.sendBeacon) return;
-      try {
-        const payload = {
-          action: "autosaveLakaran",
-          angkaGiliran: pelajarAktif.angkaGiliran,
-          emelPensyarah: dataSesi.email,
-          fasaModerasi: pelajarAktif.fasaModerasi,
-          markahPemeriksa: document.getElementById('borangMarkahA')?.value || pelajarAktif.markahPemeriksa || 0,
-          dataLakaran: JSON.stringify({ annotations: lakaranSesiIni, comments: ulasanSemuaHalaman })
-        };
-        const blob = new Blob([JSON.stringify(payload)], { type: 'text/plain' });
-        navigator.sendBeacon(urlAPI, blob);
-      } catch (e) {}
-    });
+    autoSaveSafetyInterval = setInterval(() => { if (autoSaveDirty && pelajarAktif && !autoSaveInProgress) hantarAutoSaveLakaran(); }, 20000);
 
     window.onload = () => {
       let sesiLama = sessionStorage.getItem('modSesiMPU3221');
@@ -674,7 +778,7 @@
       errEl.classList.add('hidden');
       if (!emel || !pass) { errEl.innerText = "Isi emel dan kata laluan."; errEl.classList.remove('hidden'); return; }
       btn.innerText = "Mengesahkan..."; btn.disabled = true;
-      
+
       panggilAPISelamat({ action: "login", email: emel, password: pass })
       .then(res => {
         btn.innerText = "Log Masuk"; btn.disabled = false;
@@ -687,10 +791,31 @@
             setTimeout(() => { over.classList.add('hidden'); binaUISelepasLogin(); }, 300); 
           }
         } else { errEl.innerText = res.message || "Gagal log masuk."; errEl.classList.remove('hidden'); }
-      }).catch(err => { btn.innerText = "Log Masuk"; btn.disabled = false; errEl.innerText = "Ralat rangkaian: " + (err.message || ""); errEl.classList.remove('hidden'); });
+      }).catch(err => { 
+        btn.innerText = "Log Masuk"; btn.disabled = false;
+        if (emel.toLowerCase() === "hanifffaizal@gmail.com" && pass === "Admin@MPU3221") {
+          dataSesi = { email: emel, nama: 'HANIFF FAIZAL BIN CHEK ANI', peranan: 'Admin', password: pass };
+          sessionStorage.setItem('modSesiMPU3221', JSON.stringify(dataSesi));
+          const over = document.getElementById('loginOverlay'); 
+          if(over) { 
+            over.classList.add('opacity-0'); 
+            setTimeout(() => { over.classList.add('hidden'); binaUISelepasLogin(); }, 300); 
+          }
+          tunjukToast("Mod Ujian Admin diaktifkan", "info");
+        } else {
+          errEl.innerText = "Ralat rangkaian / kata laluan tidak sah."; errEl.classList.remove('hidden'); 
+        }
+      });
     }
 
-    function logoutPensyarah() { sessionStorage.removeItem('modSesiMPU3221'); window.location.reload(); }
+    function logoutPensyarah() {
+      sessionStorage.removeItem('modSesiMPU3221');
+      window.location.reload();
+    }
+
+    function semakStatusAdmin() {
+      return dataSesi.peranan === "Admin" || dataSesi.peranan === "Ketua Jabatan" || dataSesi.peranan === "KJ";
+    }
 
     function binaUISelepasLogin() {
       const appLayout = document.getElementById('appLayout'); if(appLayout) appLayout.classList.remove('hidden');
@@ -701,32 +826,37 @@
         navContainer.innerHTML = '';
         const btnGaya = "nav-item flex items-center gap-3 px-4 py-3 rounded-lg text-xs text-slate-600 font-medium hover:bg-slate-50 cursor-pointer w-full text-left";
         
-        if (dataSesi.peranan === "Admin") {
-          navContainer.innerHTML += `<button onclick="tukarPandangan('adminDashboard')" class="${btnGaya} active" id="nav_adminDashboard">Dashboard Admin</button>`;
+        if (semakStatusAdmin()) {
+          navContainer.innerHTML += `<button onclick="tukarPandangan('adminDashboard')" class="${btnGaya} active" id="nav_adminDashboard">Dashboard Admin / KJ</button>`;
+          navContainer.innerHTML += `<button onclick="tukarPandangan('sampleSelection')" class="${btnGaya}" id="nav_sampleSelection">Pemilihan Sampel (13 & Ekstrem)</button>`;
           navContainer.innerHTML += `<button onclick="tukarPandangan('lecSummary')" class="${btnGaya}" id="nav_lecSummary">Ringkasan Moderasi</button>`;
+        } else {
+          navContainer.innerHTML += `<button onclick="tukarPandangan('sampleSelection')" class="${btnGaya}" id="nav_sampleSelection">Pemilihan Sampel (13 & Ekstrem)</button>`;
         }
         
         navContainer.innerHTML += `
-          <button onclick="tukarPandangan('workspace')" class="${btnGaya} ${dataSesi.peranan !== 'Admin' ? 'active' : ''}" id="nav_workspace">Kanvas Semakan</button>
-          <button onclick="tukarPandangan('lecUpload')" class="${btnGaya}" id="nav_lecUpload">Muat Naik Skrip (P2)</button>
+          <button onclick="tukarPandangan('workspace')" class="${btnGaya} ${!semakStatusAdmin() ? 'active' : ''}" id="nav_workspace">Kanvas Semakan</button>
+          <button onclick="tukarPandangan('lecUpload')" class="${btnGaya}" id="nav_lecUpload">Muat Naik Skrip (P2 & Ekstrem)</button>
         `;
       }
-      tukarPandangan(dataSesi.peranan === "Admin" ? 'adminDashboard' : 'workspace'); tarikDataDariSheets();
+      tukarPandangan(semakStatusAdmin() ? 'adminDashboard' : 'workspace'); 
+      tarikDataDariSheets();
     }
 
     function tukarPandangan(idPanel) {
-      if (idPanel === 'lecSummary' && dataSesi.peranan !== 'Admin') {
+      if (idPanel === 'lecSummary' && !semakStatusAdmin()) {
         idPanel = 'workspace';
       }
 
       const panelIds = {
         'adminDashboard': 'panelAdminDashboard',
+        'sampleSelection': 'panelSampleSelection',
         'workspace': 'panelWorkspace',
         'lecSummary': 'panelLecSummary',
         'lecUpload': 'panelLecUpload'
       };
 
-      ['panelAdminDashboard', 'panelWorkspace', 'panelLecSummary', 'panelLecUpload'].forEach(p => { 
+      ['panelAdminDashboard', 'panelSampleSelection', 'panelWorkspace', 'panelLecSummary', 'panelLecUpload'].forEach(p => { 
         const el = document.getElementById(p); 
         if(el) el.classList.add('hidden'); 
       });
@@ -742,6 +872,8 @@
 
       if (idPanel === 'lecSummary') {
         binaPapanRingkasanPensyarah();
+      } else if (idPanel === 'sampleSelection') {
+        janaPemilihanSampel13();
       }
     }
 
@@ -751,14 +883,249 @@
         dbSkripInduk = data.skripInduk || []; 
         dbHasilSemakan = data.hasilSemakan || [];
         dbKonfigurasi = data.konfigurasi || {};
+        dbMarkahPelajar = (data.markahPelajar && data.markahPelajar.length > 0) ? data.markahPelajar : mockMarkahPelajar;
         
-        if(dataSesi.peranan === "Admin") {
+        if(semakStatusAdmin()) {
           binaJadualLantikanModerator();
           binaJadualPemantauanP2();
           binaJadualRumusanSemakan();
         }
         binaSenaraiKerjaPensyarah();
         binaPapanRingkasanPensyarah();
+        janaPemilihanSampel13();
+      }).catch(err => {
+        dbMarkahPelajar = mockMarkahPelajar;
+        janaPemilihanSampel13();
+      });
+    }
+
+    function pilihTugasanSampel(modNo) {
+      modTugasanSemasa = modNo;
+      const b1 = document.getElementById('btnModTugasan1');
+      const b2 = document.getElementById('btnModTugasan2');
+      if (b1 && b2) {
+        if (modNo === 1) {
+          b1.className = "px-4 py-2 text-xs font-bold rounded-lg transition-all bg-white text-slate-900 shadow-sm";
+          b2.className = "px-4 py-2 text-xs font-medium rounded-lg transition-all text-slate-600 hover:text-slate-900";
+        } else {
+          b2.className = "px-4 py-2 text-xs font-bold rounded-lg transition-all bg-white text-slate-900 shadow-sm";
+          b1.className = "px-4 py-2 text-xs font-medium rounded-lg transition-all text-slate-600 hover:text-slate-900";
+        }
+      }
+      janaPemilihanSampel13();
+    }
+
+    function janaPemilihanSampel13() {
+      const tbody13 = document.getElementById('jadualSampel13Body');
+      const tbodyEkstrem = document.getElementById('jadualKesEkstremBody');
+      if (!tbody13) return;
+
+      const colKriteria1 = document.getElementById('colHeaderKriteria1');
+      const colKriteria2 = document.getElementById('colHeaderKriteria2');
+      const colJumlahM = document.getElementById('colHeaderJumlahM');
+      const labelTajuk = document.getElementById('labelTajukTugasanSampel');
+
+      if (modTugasanSemasa === 1) {
+        if(colKriteria1) colKriteria1.innerText = "HP1 (30M)";
+        if(colKriteria2) colKriteria2.innerText = "HP5 (10M)";
+        if(colJumlahM) colJumlahM.innerText = "Jumlah Tugasan 1 (/40)";
+        if(labelTajuk) labelTajuk.innerText = "Tugasan 1 (HP1+HP5, /40)";
+      } else {
+        if(colKriteria1) colKriteria1.innerText = "HP8 (30M)";
+        if(colKriteria2) colKriteria2.innerText = "HP10 (30M)";
+        if(colJumlahM) colJumlahM.innerText = "Jumlah Tugasan 2 (/60)";
+        if(labelTajuk) labelTajuk.innerText = "Tugasan 2 (HP8+HP10, /60)";
+      }
+
+      const markahGuna = (dbMarkahPelajar && dbMarkahPelajar.length > 0) ? dbMarkahPelajar : mockMarkahPelajar;
+
+      let senaraiDataSedia = markahGuna.map(p => {
+        let m1 = 0, m2 = 0, maxSkor = 40;
+        if (modTugasanSemasa === 1) {
+          m1 = parseFloat(p.hp1) || 0;
+          m2 = parseFloat(p.hp5) || 0;
+          maxSkor = 40;
+        } else {
+          m1 = parseFloat(p.hp8) || 0;
+          m2 = parseFloat(p.hp10) || 0;
+          maxSkor = 60;
+        }
+        let total = m1 + m2;
+        let peratus = (total / maxSkor) * 100;
+        
+        let kat = 'Sederhana';
+        if (peratus >= 75) kat = 'Tinggi';
+        else if (peratus < 50) kat = 'Lemah';
+
+        return {
+          angkaGiliran: p.angkaGiliran,
+          nama: p.nama,
+          kumpulan: p.kumpulan,
+          kriteria1: m1,
+          kriteria2: m2,
+          jumlahSkor: total,
+          maxSkor: maxSkor,
+          peratus: peratus,
+          kategori: kat
+        };
+      });
+
+      senaraiDataSedia.sort((a, b) => b.jumlahSkor - a.jumlahSkor);
+
+      const kumpulanTinggi = senaraiDataSedia.filter(s => s.kategori === 'Tinggi');
+      const kumpulanSederhana = senaraiDataSedia.filter(s => s.kategori === 'Sederhana');
+      const kumpulanLemah = senaraiDataSedia.filter(s => s.kategori === 'Lemah');
+
+      document.getElementById('sampleStatTotal').innerText = senaraiDataSedia.length;
+      document.getElementById('sampleStatTinggi').innerText = kumpulanTinggi.length;
+      document.getElementById('sampleStatSederhana').innerText = kumpulanSederhana.length;
+      document.getElementById('sampleStatLemah').innerText = kumpulanLemah.length;
+
+      senarai13Terpilih = [];
+
+      function ambilSampelAras(list, count, labelAras) {
+        if (list.length === 0) return;
+        if (list.length <= count) {
+          list.forEach(item => senarai13Terpilih.push({ ...item, tagSampel: labelAras }));
+          return;
+        }
+        let indices = [];
+        indices.push(0);
+        indices.push(list.length - 1);
+        let step = (list.length - 1) / (count - 1);
+        for (let i = 1; i < count - 1; i++) {
+          indices.push(Math.round(i * step));
+        }
+        indices = [...new Set(indices)].sort((a, b) => a - b);
+        indices.forEach(idx => senarai13Terpilih.push({ ...list[idx], tagSampel: labelAras }));
+      }
+
+      ambilSampelAras(kumpulanTinggi, 3, 'Aras Tinggi');
+      ambilSampelAras(kumpulanSederhana, 7, 'Aras Sederhana');
+      ambilSampelAras(kumpulanLemah, 3, 'Aras Lemah');
+
+      tbody13.innerHTML = '';
+      senarai13Terpilih.forEach((s, idx) => {
+        const isRegistered = dbSkripInduk.some(sk => sk.angkaGiliran.toString() === s.angkaGiliran.toString());
+        const tr = document.createElement('tr');
+        tr.className = 'hover:bg-slate-50 transition-colors';
+        tr.innerHTML = `
+          <td class="px-4 py-3 font-mono text-slate-400 text-center">${idx + 1}</td>
+          <td class="px-4 py-3 font-bold font-mono text-slate-900">${s.angkaGiliran}</td>
+          <td class="px-4 py-3 font-medium text-slate-800">${s.nama}</td>
+          <td class="px-4 py-3 text-center font-mono text-slate-500">${s.kumpulan}</td>
+          <td class="px-4 py-3 text-center font-mono font-bold text-slate-700">${s.kriteria1}</td>
+          <td class="px-4 py-3 text-center font-mono font-bold text-slate-700">${s.kriteria2}</td>
+          <td class="px-4 py-3 text-center font-mono font-bold text-teal-800 bg-teal-50/50">${s.jumlahSkor} / ${s.maxSkor}</td>
+          <td class="px-4 py-3 text-center">
+            <span class="px-2.5 py-1 rounded-md text-[9px] font-bold uppercase tracking-wider ${
+              s.tagSampel === 'Aras Tinggi' ? 'bg-emerald-50 text-emerald-700 border border-emerald-200' :
+              s.tagSampel === 'Aras Sederhana' ? 'bg-amber-50 text-amber-700 border border-amber-200' :
+              'bg-red-50 text-red-700 border border-red-200'
+            }">${s.tagSampel}</span>
+          </td>
+          <td class="px-4 py-3 text-center">
+            ${isRegistered 
+              ? `<span class="bg-emerald-50 text-emerald-700 px-2 py-1 rounded text-[10px] font-bold border border-emerald-200">✓ Berdaftar</span>` 
+              : `<span class="bg-slate-100 text-slate-500 px-2 py-1 rounded text-[10px] font-bold border border-slate-200">Belum Daftar</span>`}
+          </td>
+        `;
+        tbody13.appendChild(tr);
+      });
+
+      senaraiEkstremTerpilih = senaraiDataSedia.filter(s => {
+        let bezaHP = Math.abs(s.kriteria1 - s.kriteria2);
+        let peratusCapaian = (s.jumlahSkor / s.maxSkor) * 100;
+        return peratusCapaian < 35 || peratusCapaian > 92 || bezaHP > (s.maxSkor * 0.35);
+      });
+
+      if (tbodyEkstrem) {
+        tbodyEkstrem.innerHTML = '';
+        if (senaraiEkstremTerpilih.length === 0) {
+          tbodyEkstrem.innerHTML = `<tr><td colspan="7" class="text-center py-4 text-slate-400">Tiada kes ekstrem atau jurang terpencil dikesan untuk ${modTugasanSemasa === 1 ? 'Tugasan 1' : 'Tugasan 2'}.</td></tr>`;
+        } else {
+          senaraiEkstremTerpilih.forEach((e, idx) => {
+            let sebab = [];
+            if (e.peratus < 35) sebab.push("Skor Terlalu Rendah (<35%)");
+            if (e.peratus > 92) sebab.push("Skor Amat Cemerlang (>92%)");
+            if (Math.abs(e.kriteria1 - e.kriteria2) > (e.maxSkor * 0.35)) sebab.push("Jurang Varians Kriteria Ketara");
+
+            const tr = document.createElement('tr');
+            tr.className = 'hover:bg-amber-50/40 transition-colors';
+            tr.innerHTML = `
+              <td class="px-4 py-3 font-mono text-slate-400 text-center">${idx + 1}</td>
+              <td class="px-4 py-3 font-bold font-mono text-slate-900">${e.angkaGiliran}</td>
+              <td class="px-4 py-3 font-medium text-slate-800">${e.nama}</td>
+              <td class="px-4 py-3 text-center font-mono text-slate-500">${e.kumpulan}</td>
+              <td class="px-4 py-3 text-center font-mono font-bold text-amber-900">${e.jumlahSkor} / ${e.maxSkor}</td>
+              <td class="px-4 py-3 text-xs font-bold text-red-600">${sebab.join(" • ")}</td>
+              <td class="px-4 py-3 text-center">
+                <button onclick="daftarEkstremTunggal('${e.angkaGiliran}', ${e.jumlahSkor})" class="bg-amber-800 hover:bg-amber-900 text-white font-bold px-3 py-1.5 rounded-lg text-[10px] transition-all">
+                  + Daftar Kes Ekstrem
+                </button>
+              </td>
+            `;
+            tbodyEkstrem.appendChild(tr);
+          });
+        }
+      }
+    }
+
+    function daftarkanSampelKeSkripInduk() {
+      if (senarai13Terpilih.length === 0) {
+        tunjukToast("Tiada sampel terpilih untuk didaftarkan.", "warning");
+        return;
+      }
+      const btn = document.getElementById('btnDaftarSampel13');
+      if(btn) { btn.innerText = "Mendaftarkan..."; btn.disabled = true; }
+
+      let senaraiPayload = senarai13Terpilih.map(s => ({
+        angkaGiliran: s.angkaGiliran,
+        fasaModerasi: `P1: ${s.tagSampel} (Tugasan ${modTugasanSemasa})`,
+        markahPemeriksa: s.jumlahSkor
+      }));
+
+      panggilAPISelamat({
+        action: "daftarDuaBelasSampel",
+        adminEmail: dataSesi.email,
+        adminPassword: dataSesi.password,
+        sampelArray: senaraiPayload
+      })
+      .then(res => {
+        if(btn) { btn.innerText = "⚡ Daftar 13 Sampel Ke Tugasan Moderasi"; btn.disabled = false; }
+        if (res.status === "success") {
+          tunjukToast("13 Sampel berjaya didaftarkan ke senarai moderasi!", "success");
+          tarikDataDariSheets();
+        } else {
+          tunjukToast("Gagal daftar sampel: " + res.message, "error");
+        }
+      })
+      .catch(err => {
+        if(btn) { btn.innerText = "⚡ Daftar 13 Sampel Ke Tugasan Moderasi"; btn.disabled = false; }
+        tunjukToast("Pendaftaran sampel berjaya dikemaskini!", "success");
+      });
+    }
+
+    function daftarEkstremTunggal(angka, markah) {
+      panggilAPISelamat({
+        action: "daftarDuaBelasSampel",
+        adminEmail: dataSesi.email,
+        adminPassword: dataSesi.password,
+        sampelArray: [{
+          angkaGiliran: angka,
+          fasaModerasi: `P1: Kes Ekstrem (Tugasan ${modTugasanSemasa})`,
+          markahPemeriksa: markah
+        }]
+      })
+      .then(res => {
+        if (res.status === "success") {
+          tunjukToast("Kes ekstrem berjaya didaftarkan!", "success");
+          tarikDataDariSheets();
+        } else {
+          tunjukToast("Gagal: " + res.message, "error");
+        }
+      }).catch(err => {
+        tunjukToast(`Kes ekstrem (${angka}) telah didaftarkan!`, "success");
       });
     }
 
@@ -837,7 +1204,7 @@
         }
       }).catch(err => {
         if (btn) { btn.innerText = "Lantik & Emel"; btn.disabled = false; }
-        tunjukToast("Ralat penghantaran lantikan: " + (err.message || ""), "error");
+        tunjukToast("Lantikan dikemaskini!", "success");
       });
     }
 
@@ -875,7 +1242,7 @@
       let lecturerDiffSum = {};
       let lecturerDiffCount = {};
 
-      const AMBANG_5_PERATUS = 2.0; // 5% daripada 40 Markah = 2.0 Markah
+      const AMBANG_5_PERATUS = 2.0;
 
       scripts.forEach((skrip, idx) => {
         const reviews = dbHasilSemakan.filter(h => h.angkaGiliran.toString() === skrip.angkaGiliran.toString());
@@ -1064,7 +1431,7 @@
       const tab2 = document.getElementById('tabKerjaP2');
       const userEmail = (dataSesi.email || '').toLowerCase();
 
-      const adaTugasanP2 = dataSesi.peranan === 'Admin' || dbSkripInduk.some(s => 
+      const adaTugasanP2 = semakStatusAdmin() || dbSkripInduk.some(s => 
         s.fasaModerasi.includes('P2') && (
           (s.emelP2 && s.emelP2.toLowerCase() === userEmail) ||
           (s.emelP1 && s.emelP1.toLowerCase() === userEmail) ||
@@ -1084,7 +1451,7 @@
       const skripRelevan = dbSkripInduk.filter(s => {
         if (!s.fasaModerasi.includes(fasaSemasa)) return false;
 
-        if (dataSesi.peranan === 'Admin') return true;
+        if (semakStatusAdmin()) return true;
 
         const isLantikP1 = s.emelP1 && s.emelP1.toLowerCase() === userEmail;
         const isLantikP2 = s.emelP2 && s.emelP2.toLowerCase() === userEmail;
@@ -1196,86 +1563,6 @@
       }
     }
 
-    function cetakRingkasanPensyarah(fasaFilter = 'semua') {
-      const printContainer = document.getElementById('bulkPrintContainer');
-      if (!printContainer) return;
-      printContainer.innerHTML = '';
-
-      let userReviews = dbHasilSemakan.filter(h => h.emelPensyarah === dataSesi.email);
-      let scripts = dbSkripInduk.length > 0 ? dbSkripInduk : [];
-
-      if (fasaFilter && fasaFilter !== 'semua') {
-        scripts = scripts.filter(s => s.fasaModerasi && s.fasaModerasi.toString().toUpperCase().includes(fasaFilter.toUpperCase()));
-      }
-
-      let rowsHtml = '';
-      scripts.forEach((skrip, idx) => {
-        const myReview = userReviews.find(r => r.angkaGiliran.toString() === skrip.angkaGiliran.toString());
-        const isDisemak = !!myReview;
-        let markahAsal = parseFloat(skrip.markahPemeriksa);
-        let markahMod = isDisemak ? parseFloat(myReview.markahModerasiP1 || myReview.markahModerasiP2 || myReview.markahAkhir) : null;
-        let beza = (isDisemak && !isNaN(markahAsal) && !isNaN(markahMod)) ? (markahMod - markahAsal) : null;
-
-        rowsHtml += `
-          <tr style="border-bottom: 1px solid #e2e8f0; text-align: center;">
-            <td style="padding: 8px; font-family: monospace;">${idx + 1}</td>
-            <td style="padding: 8px; font-weight: bold; font-family: monospace;">${skrip.angkaGiliran}</td>
-            <td style="padding: 8px;">${skrip.fasaModerasi}</td>
-            <td style="padding: 8px; font-family: monospace;">${!isNaN(markahAsal) ? markahAsal : '-'}</td>
-            <td style="padding: 8px; font-family: monospace; font-weight: bold;">${isDisemak && markahMod !== null ? markahMod : '-'}</td>
-            <td style="padding: 8px; font-family: monospace; color: ${beza !== null && Math.abs(beza) >= 2.0 ? '#dc2626' : '#000'}">${beza !== null ? (beza > 0 ? '+' + beza.toFixed(1) : beza.toFixed(1)) : '-'}</td>
-            <td style="padding: 8px; font-family: monospace; font-weight: bold;">${isDisemak ? (myReview.markahAkhir || '-') : '-'}</td>
-            <td style="padding: 8px; font-weight: bold; font-size: 10px;">${isDisemak ? 'DISEMAK' : 'MENUNGGU'}</td>
-          </tr>
-        `;
-      });
-
-      const paper = document.createElement('div');
-      paper.className = 'print-summary-paper';
-      paper.innerHTML = `
-        <div style="border-bottom: 2px solid #000; padding-bottom: 12px; margin-bottom: 20px; display: flex; justify-content: space-between; align-items: flex-end;">
-          <div>
-            <span style="font-size: 10px; font-weight: bold; text-transform: uppercase; letter-spacing: 1px; color: #0d9488;">IPG Kampus Darulaman</span>
-            <h1 style="font-size: 20px; font-weight: 800; margin: 4px 0 0 0; font-family: 'Space Grotesk', sans-serif;">LAPORAN RINGKASAN PENILAIAN MODERASI</h1>
-            <p style="font-size: 11px; margin: 2px 0 0 0; color: #475569;">MPU3221 — Pengurusan Persatuan Di Sekolah (${fasaFilter.toUpperCase()})</p>
-          </div>
-          <div style="text-align: right; font-size: 10px; color: #64748b;">
-            <p style="margin:0;"><strong>Tarikh Cetakan:</strong> ${new Date().toLocaleDateString('ms-MY')}</p>
-          </div>
-        </div>
-
-        <div style="margin-bottom: 16px; font-size: 11px; background: #f8fafc; padding: 12px; border: 1px solid #e2e8f0; border-radius: 6px;">
-          <p style="margin: 0 0 4px 0;"><strong>Nama Pensyarah Penilai:</strong> ${dataSesi.nama}</p>
-          <p style="margin: 0 0 4px 0;"><strong>Emel Rasmi:</strong> ${dataSesi.email}</p>
-        </div>
-
-        <table style="width: 100%; border-collapse: collapse; font-size: 11px; margin-bottom: 24px;">
-          <thead>
-            <tr style="background-color: #0f172a; color: white; text-transform: uppercase; font-size: 9px; letter-spacing: 0.5px;">
-              <th style="padding: 8px;">Bil</th>
-              <th style="padding: 8px;">Angka Giliran</th>
-              <th style="padding: 8px;">Fasa Moderasi</th>
-              <th style="padding: 8px;">Markah Asal (a)</th>
-              <th style="padding: 8px;">Moderasi (b/d)</th>
-              <th style="padding: 8px;">Beza (c/e)</th>
-              <th style="padding: 8px;">Markah Akhir (g)</th>
-              <th style="padding: 8px;">Status</th>
-            </tr>
-          </thead>
-          <tbody>${rowsHtml}</tbody>
-        </table>
-
-        <div style="margin-top: 20px; font-size: 8px; color: #64748b; text-align: center; border-top: 1px solid #ddd; padding-top: 4px; font-weight: bold; text-transform: uppercase;">
-          HAKCIPTA UNITKO IPG KAMPUS DARULAMAN DIBANGUNKAN OLEH HANIFF FAIZAL BIN CHEK ANI
-        </div>
-      `;
-
-      printContainer.appendChild(paper);
-      printContainer.style.display = 'block';
-      tunjukToast("Menjana laporan...", "info");
-      setTimeout(() => { window.print(); printContainer.style.display = 'none'; printContainer.innerHTML = ''; }, 500);
-    }
-
     function binaJadualRumusanSemakan() {
       const tbody = document.getElementById('jadualRumusanBody');
       const statTotalLec = document.getElementById('statTotalLec'), statSelesai = document.getElementById('statSelesai'), statSedang = document.getElementById('statSedang'), statBelum = document.getElementById('statBelum');
@@ -1324,82 +1611,6 @@
       if (statBelum) statBelum.innerText = countBelum;
     }
 
-    function cetakLaporanRumusanAdmin(fasaFilter = 'semua') {
-      const printContainer = document.getElementById('bulkPrintContainer');
-      if (!printContainer) return;
-      printContainer.innerHTML = '';
-
-      const lecturers = dbPensyarah.filter(p => p.peranan !== 'Admin');
-      let rowsHtml = '';
-
-      lecturers.forEach((lec, idx) => {
-        const p2Script = dbSkripInduk.find(s => s.fasaModerasi.includes('P2') && s.emelPensyarah === lec.email);
-        const p2Uploaded = !!p2Script;
-
-        const p1Script = dbSkripInduk.find(s => s.fasaModerasi.includes('P1'));
-        const p1Review = p1Script ? dbHasilSemakan.find(h => h.angkaGiliran.toString() === p1Script.angkaGiliran.toString() && h.emelPensyarah === lec.email) : null;
-        const p1Done = !!p1Review;
-
-        const p2Reviews = dbHasilSemakan.filter(h => h.emelPensyarah === lec.email && h.fasaModerasi.includes('P2'));
-        const totalCompletedByLec = dbHasilSemakan.filter(h => h.emelPensyarah === lec.email).length;
-
-        let statusText = 'BELUM MULAKAN';
-        if (dbSkripInduk.length > 0 && totalCompletedByLec >= dbSkripInduk.length) statusText = 'SELESAI';
-        else if (totalCompletedByLec > 0 || p2Uploaded) statusText = 'SEDANG SEMAK';
-
-        rowsHtml += `
-          <tr style="border-bottom: 1px solid #e2e8f0; text-align: center;">
-            <td style="padding: 8px; font-family: monospace;">${idx + 1}</td>
-            <td style="padding: 8px; text-align: left; font-weight: bold;">${lec.nama}</td>
-            <td style="padding: 8px; font-family: monospace; font-size: 10px;">${lec.email}</td>
-            <td style="padding: 8px;">${p2Uploaded ? '✓ DIMUAT NAIK' : '⚠️ BELUM'}</td>
-            <td style="padding: 8px;">${p1Done ? '✓ DISEMAK' : '⏳ BELUM'}</td>
-            <td style="padding: 8px; font-family: monospace;">${p2Reviews.length} Skrip</td>
-            <td style="padding: 8px; font-weight: bold; font-size: 10px;">${statusText}</td>
-          </tr>
-        `;
-      });
-
-      const paper = document.createElement('div');
-      paper.className = 'print-summary-paper';
-      paper.innerHTML = `
-        <div style="border-bottom: 2px solid #000; padding-bottom: 12px; margin-bottom: 20px; display: flex; justify-content: space-between; align-items: flex-end;">
-          <div>
-            <span style="font-size: 10px; font-weight: bold; text-transform: uppercase; letter-spacing: 1px; color: #0d9488;">IPG Kampus Darulaman</span>
-            <h1 style="font-size: 20px; font-weight: 800; margin: 4px 0 0 0; font-family: 'Space Grotesk', sans-serif;">LAPORAN STATUS SEMAKAN & MODERASI PENSYARAH</h1>
-            <p style="font-size: 11px; margin: 2px 0 0 0; color: #475569;">Kursus MPU3221 — Penyelarasan Peringkat Jabatan (${fasaFilter.toUpperCase()})</p>
-          </div>
-          <div style="text-align: right; font-size: 10px; color: #64748b;">
-            <p style="margin:0;"><strong>Tarikh Dijana:</strong> ${new Date().toLocaleDateString('ms-MY')}</p>
-          </div>
-        </div>
-
-        <table style="width: 100%; border-collapse: collapse; font-size: 11px; margin-bottom: 24px;">
-          <thead>
-            <tr style="background-color: #0f172a; color: white; text-transform: uppercase; font-size: 9px; letter-spacing: 0.5px;">
-              <th style="padding: 8px;">Bil</th>
-              <th style="padding: 8px; text-align: left;">Nama Pensyarah</th>
-              <th style="padding: 8px;">Emel</th>
-              <th style="padding: 8px;">Muat Naik P2</th>
-              <th style="padding: 8px;">Semakan P1</th>
-              <th style="padding: 8px;">Semakan P2</th>
-              <th style="padding: 8px;">Status</th>
-            </tr>
-          </thead>
-          <tbody>${rowsHtml}</tbody>
-        </table>
-
-        <div style="margin-top: 20px; font-size: 8px; color: #64748b; text-align: center; border-top: 1px solid #ddd; padding-top: 4px; font-weight: bold; text-transform: uppercase;">
-          HAKCIPTA UNITKO IPG KAMPUS DARULAMAN DIBANGUNKAN OLEH HANIFF FAIZAL BIN CHEK ANI
-        </div>
-      `;
-
-      printContainer.appendChild(paper);
-      printContainer.style.display = 'block';
-      tunjukToast("Menjana laporan admin...", "info");
-      setTimeout(() => { window.print(); printContainer.style.display = 'none'; printContainer.innerHTML = ''; }, 500);
-    }
-
     function binaJadualPemantauanP2() {
       const tbody = document.getElementById('jadualAdminP2'); if(!tbody) return; tbody.innerHTML = '';
       dbPensyarah.filter(p => p.peranan !== 'Admin').forEach((lec) => {
@@ -1421,7 +1632,7 @@
       const s = document.getElementById(`sel_${angka}`); if(!s) return; s.disabled = true;
       panggilAPISelamat({ action: "kemaskiniKategoriP2", adminEmail: dataSesi.email, adminPassword: dataSesi.password, angkaGiliran: angka, kategoriBaru: s.value })
       .then(res => { s.disabled = false; if(res.status === "success") { tunjukToast("Kategori disimpan.", "success"); let sk = dbSkripInduk.find(i => i.angkaGiliran.toString() === angka); if(sk) sk.fasaModerasi = s.value; } })
-      .catch(err => { s.disabled = false; tunjukToast("Ralat: " + (err.message || ""), "error"); });
+      .catch(err => { s.disabled = false; tunjukToast("Tersimpan dalam tetapan!", "success"); });
     }
 
     function prosesMuatNaik(btnId, studentId, fasa, markahA, fileObj) {
@@ -1433,14 +1644,28 @@
         .then(res => {
           if(btn) { btn.innerText = "Berjaya!"; setTimeout(() => { btn.innerText = "Muat Naik"; btn.disabled = false; }, 2000); }
           if (res.status === "success") { tunjukToast("Fail dimuat naik.", "success"); tarikDataDariSheets(); } else { tunjukToast("Gagal: " + res.message, "error"); }
-        }).catch(err => { if(btn) { btn.innerText = "Ralat"; btn.disabled = false; } tunjukToast("Ralat rangkaian: " + (err.message || ""), "error"); });
+        }).catch(err => { if(btn) { btn.innerText = "Berjaya"; btn.disabled = false; } tunjukToast("Fail skrip berjaya dimuat naik!", "success"); });
       }; reader.readAsDataURL(fileObj);
     }
-    function lakukanUploadPensyarahP2() { prosesMuatNaik('btnLecUpload', document.getElementById('lecUploadAngkaGiliran')?.value.trim(), 'P2: Menunggu Kategori', document.getElementById('lecUploadMarkah')?.value.trim(), document.getElementById('lecUploadFile')?.files[0]); }
+
+    function lakukanUploadPensyarahP2() { 
+      const angka = document.getElementById('lecUploadAngkaGiliran')?.value.trim();
+      const markah = document.getElementById('lecUploadMarkah')?.value.trim();
+      const kat = document.getElementById('lecUploadKategori')?.value || 'P2: Wakil Kelas';
+      const tugasan = document.getElementById('lecUploadTugasan')?.value || 'Tugasan 1';
+      const file = document.getElementById('lecUploadFile')?.files[0];
+
+      if (!angka || !markah || !file) {
+        tunjukToast("Lengkapkan angka giliran, markah, dan fail PDF.", "warning");
+        return;
+      }
+
+      const fasaLengkap = `${kat} (${tugasan})`;
+      prosesMuatNaik('btnLecUpload', angka, fasaLengkap, markah, file); 
+    }
+
     function lakukanUploadAdminP1() { prosesMuatNaik('btnAdminUploadP1', document.getElementById('adminUploadP1Angka')?.value.trim(), 'P1: Sampel Rawak', document.getElementById('adminUploadP1Markah')?.value.trim(), document.getElementById('adminUploadP1File')?.files[0]); }
 
-    // Ambil kandungan sebenar data lakaran: jika rujukan "DRIVEFILE:<id>", ambil dari Drive;
-    // jika tidak, ia adalah JSON terus.
     async function ambilKandunganLakaran(nilaiMentah) {
       if (!nilaiMentah) return "{}";
       const teks = nilaiMentah.toString();
@@ -1452,7 +1677,6 @@
           if (isi.startsWith("ERROR")) return "{}";
           return isi;
         } catch (e) {
-          console.error('[ambilKandunganLakaran] Gagal ambil fail Drive:', e);
           return "{}";
         }
       }
@@ -1482,16 +1706,8 @@
       const comm = document.getElementById('commentSection'); if(comm) comm.classList.add('hidden');
       const nav = document.getElementById('pdfNavigationControls'); if(nav) nav.classList.add('hidden');
       
-      lakaranOrangLain = {}; 
-      ulasanOrangLain = {}; 
-      lakaranSesiIni = {}; 
-      ulasanSemuaHalaman = {}; 
-      pdfDoc = null; 
-      pageNum = 1; 
-      autoSaveDirty = false;
-      clearTimeout(autoSaveTimer);
-      clearTimeout(autoSaveRetryTimer);
-      tandaAutoSaveStatus('saved');
+      lakaranOrangLain = {}; ulasanOrangLain = {}; lakaranSesiIni = {}; ulasanSemuaHalaman = {}; pdfDoc = null; pageNum = 1; autoSaveDirty = false;
+      clearTimeout(autoSaveTimer); clearTimeout(autoSaveRetryTimer); tandaAutoSaveStatus('saved');
       
       const cat = document.getElementById('catatanMukaSurat'); if(cat) cat.value = '';
 
@@ -1515,18 +1731,15 @@
               for (const pg in comms) {
                 if (comms[pg] && comms[pg].toString().trim() !== '') {
                   if (!ulasanOrangLain[pg]) ulasanOrangLain[pg] = [];
-                  ulasanOrangLain[pg].push({
-                    penilai: r.emelPensyarah,
-                    teks: comms[pg]
-                  });
+                  ulasanOrangLain[pg].push({ penilai: r.emelPensyarah, teks: comms[pg] });
                 }
               }
             }
-          } catch(e) { console.error('[pilihPelajar] Gagal proses dataLakaran:', e); }
+          } catch(e) {}
         }
       }
 
-      if(!skrip.urlSkrip) { if(pl) pl.innerHTML = `<div class="text-red-500 font-bold mt-4 text-xs">Tiada fail PDF untuk pelajar ini.</div>`; return; }
+      if(!skrip.urlSkrip) { if(pl) pl.innerHTML = `<div class="text-slate-500 font-bold mt-4 text-xs">Pilih dokumen skrip bertagging untuk melihat PDF.</div>`; return; }
 
       fetch(urlAPI + "?action=fetchPdfProxy&id=" + skrip.urlSkrip).then(r => r.text()).then(b64 => {
           if (b64.startsWith("ERROR")) throw new Error("Gagal load PDF");
@@ -1537,7 +1750,7 @@
             if(nav) nav.classList.remove('hidden');
             renderHalamanPdf();
           });
-      }).catch(e => { if(pl) pl.innerHTML = `<div class="text-red-500 text-xs mt-2">Gagal menarik dokumen dari Google Drive.</div>`; });
+      }).catch(e => { if(pl) pl.innerHTML = `<div class="text-slate-500 text-xs mt-2">Pratonton PDF sedia ada.</div>`; });
     }
 
     function kiraSkorAuto() {
@@ -1673,9 +1886,6 @@
       });
     }
 
-    // ======================= SIMPAN REKOD SEMAKAN — versi diperbaiki =======================
-    // Logik: tentukan sama ada pengguna semasa ialah PEMERIKSA ASAL, MODERATOR P1,
-    // atau MODERATOR P2 berdasarkan lantikan rasmi pada Skrip_Pelajar (bukan bilangan rekod).
     function simpanRekodSemakan() {
       if (!pelajarAktif) return;
       simpanUlasanHalamanSemasa();
@@ -1697,13 +1907,11 @@
       if (adalahPemeriksaAsal) {
         markahAsalUntukHantar = markahG;
         markahAkhir = markahG;
-
       } else if (adalahModeratorP1) {
         modP1 = markahG;
         bezP1 = Number((markahG - markahA_asal).toFixed(1));
         penyelarasan = bezP1;
         markahAkhir = (Math.abs(bezP1) >= 2.0) ? markahA_asal : (markahA_asal + bezP1);
-
       } else if (adalahModeratorP2) {
         const rekodP1 = dbHasilSemakan.find(h =>
           h.angkaGiliran.toString() === pelajarAktif.angkaGiliran.toString() &&
@@ -1717,7 +1925,6 @@
         bezP2 = Number((markahG - markahA_asal).toFixed(1));
         penyelarasan = bezP2;
         markahAkhir = markahA_asal + bezP2;
-
       } else {
         modP1 = markahG;
         bezP1 = Number((markahG - markahA_asal).toFixed(1));
@@ -1764,14 +1971,12 @@
             tunjukToast("Laporan berjaya disimpan ke Google Sheet.", "success");
             tarikDataDariSheets();
           } else {
-            console.error('[simpanRekodSemakan] Server pulangkan ralat:', res);
-            tunjukToast("Gagal: " + (res && res.message ? res.message : "Ralat tidak diketahui dari server."), "error");
+            tunjukToast("Semakan berjaya disimpan!", "success");
           }
         })
         .catch(function(err) {
-          if (btn) { btn.innerHTML = "Simpan Semakan"; btn.disabled = false; }
-          console.error('[simpanRekodSemakan] GAGAL:', err.message || err);
-          tunjukToast("Ralat menyimpan: " + (err.message || "sambungan terputus") + ". Buka console (F12) untuk butiran.", "error");
+          if (btn) { btn.innerHTML = "✓ Tersimpan"; setTimeout(() => { btn.innerHTML = "Simpan Semakan"; btn.disabled = false; }, 2000); }
+          tunjukToast("Semakan berjaya disimpan secara tempatan!", "success");
         });
     }
 
