@@ -809,14 +809,45 @@
     function kemaskiniKawalanPenBerdasarkanPeranan() {
       const bHijau = document.getElementById('btnPenHijau');
       const bUngu = document.getElementById('btnPenUngu');
-      
-      if (!semakStatusAdmin()) {
-        if (bHijau) { bHijau.disabled = true; bHijau.classList.add('opacity-40', 'cursor-not-allowed'); bHijau.title = "Disimpan untuk KP / Moderator P1"; }
-        if (bUngu) { bUngu.disabled = true; bUngu.classList.add('opacity-40', 'cursor-not-allowed'); bUngu.title = "Disimpan untuk Admin / KJ / Moderator P2"; }
+      const userEmail = (dataSesi.email || '').toString().trim().toLowerCase();
+      const isAdminKJ = semakStatusAdmin();
+
+      const isLantikP1 = pelajarAktif && pelajarAktif.emelP1 && pelajarAktif.emelP1.toString().trim().toLowerCase() === userEmail;
+      const isLantikP2 = pelajarAktif && pelajarAktif.emelP2 && pelajarAktif.emelP2.toString().trim().toLowerCase() === userEmail;
+
+      const bolehHijau = isAdminKJ || isLantikP1;
+      const bolehUngu  = isAdminKJ || isLantikP2;
+
+      if (bHijau) {
+        if (bolehHijau) {
+          bHijau.disabled = false;
+          bHijau.classList.remove('opacity-40', 'cursor-not-allowed');
+          bHijau.title = "Pen Moderator P1 / KP";
+        } else {
+          bHijau.disabled = true;
+          bHijau.classList.add('opacity-40', 'cursor-not-allowed');
+          bHijau.title = "Disimpan untuk Moderator P1 / KP";
+        }
+      }
+
+      if (bUngu) {
+        if (bolehUngu) {
+          bUngu.disabled = false;
+          bUngu.classList.remove('opacity-40', 'cursor-not-allowed');
+          bUngu.title = "Pen Moderator P2 / Admin";
+        } else {
+          bUngu.disabled = true;
+          bUngu.classList.add('opacity-40', 'cursor-not-allowed');
+          bUngu.title = "Disimpan untuk Moderator P2 / Admin";
+        }
+      }
+
+      if (isLantikP1 && !isAdminKJ) {
+        tukarWarnaPen('#10B981', 'hijau');
+      } else if (isLantikP2 && !isAdminKJ) {
+        tukarWarnaPen('#8B5CF6', 'ungu');
+      } else if (!bolehHijau && !bolehUngu) {
         tukarWarnaPen('#EF4444', 'merah');
-      } else {
-        if (bHijau) { bHijau.disabled = false; bHijau.classList.remove('opacity-40', 'cursor-not-allowed'); }
-        if (bUngu) { bUngu.disabled = false; bUngu.classList.remove('opacity-40', 'cursor-not-allowed'); }
       }
     }
 
@@ -1811,7 +1842,9 @@
     async function pilihPelajar(skrip, rekod) {
       if(pdfDoc) { simpanUlasanHalamanSemasa(); if (autoSaveDirty) hantarAutoSaveLakaran(); }
 
-      pelajarAktif = skrip; binaSenaraiKerjaPensyarah(); 
+      pelajarAktif = skrip;
+      kemaskiniKawalanPenBerdasarkanPeranan();
+      binaSenaraiKerjaPensyarah(); 
       const pb = document.getElementById('panelBorangMarkah'); if(pb) pb.classList.remove('opacity-50', 'pointer-events-none');
       const lb = document.getElementById('labelTugasSemasa'); if(lb) lb.innerText = skrip.angkaGiliran;
       const bA = document.getElementById('borangMarkahA'); if(bA) bA.value = skrip.markahPemeriksa;
