@@ -368,6 +368,24 @@
             </button>
           </div>
 
+          <!-- BAR PENAPIS & SUSUNAN (BY CLASS & BY LECTURER) -->
+          <div class="bg-white p-4 rounded-2xl border border-slate-200 shadow-sm flex flex-wrap gap-4 items-center justify-between">
+            <div class="flex flex-wrap items-center gap-3 w-full sm:w-auto">
+              <span class="text-xs font-bold uppercase text-slate-500 tracking-wider">🔍 Penapis & Susunan:</span>
+              <div class="w-full sm:w-auto">
+                <select id="filterAdminPensyarah" onchange="kemaskiniTampilanAdminDashboard()" class="w-full sm:w-auto text-xs border border-slate-200 rounded-xl px-3 py-2 bg-slate-50 font-bold focus:outline-none focus:border-teal-500">
+                  <option value="">-- Semua Pensyarah --</option>
+                </select>
+              </div>
+              <div class="w-full sm:w-auto">
+                <select id="filterAdminKelas" onchange="kemaskiniTampilanAdminDashboard()" class="w-full sm:w-auto text-xs border border-slate-200 rounded-xl px-3 py-2 bg-slate-50 font-bold focus:outline-none focus:border-teal-500">
+                  <option value="">-- Semua Kelas / Kumpulan --</option>
+                </select>
+              </div>
+            </div>
+            <button onclick="resetPenapisAdmin()" class="text-[11px] font-bold text-teal-700 hover:text-teal-900 underline">Set Semula Penapis</button>
+          </div>
+
           <!-- MODUL LANTIKAN MODERATOR -->
           <div class="bg-white rounded-2xl border border-slate-200 overflow-hidden shadow-sm">
             <div class="p-5 border-b border-slate-100 bg-teal-900 text-white">
@@ -540,6 +558,7 @@
         dbKonfigurasi = data.konfigurasi || {};
         
         if(semakStatusAdmin()) {
+          binaPilihanPenapisAdmin();
           binaJadualLantikanModerator();
           binaJadualPemantauanP2();
         }
@@ -548,17 +567,89 @@
       });
     }
 
+    function binaPilihanPenapisAdmin() {
+      const selLec = document.getElementById('filterAdminPensyarah');
+      const selClass = document.getElementById('filterAdminKelas');
+      if (!selLec || !selClass) return;
+
+      const currentLec = selLec.value;
+      const currentClass = selClass.value;
+
+      selLec.innerHTML = '<option value="">-- Semua Pensyarah --</option>';
+      selClass.innerHTML = '<option value="">-- Semua Kelas / Kumpulan --</option>';
+
+      // Isi senarai pensyarah
+      dbPensyarah.forEach(lec => {
+        selLec.innerHTML += `<option value="${lec.email}">${lec.nama}</option>`;
+      });
+
+      // Kumpul senarai kumpulan / kelas unik
+      const kelasSet = new Set();
+      dbSkripInduk.forEach(s => {
+        if (s.kumpulan) kelasSet.add(s.kumpulan.trim());
+        if (s.fasaModerasi && s.fasaModerasi.includes(':')) {
+          const bahagian = s.fasaModerasi.split(':');
+          if (bahagian.length > 1) kelasSet.add(bahagian[1].trim());
+        }
+      });
+
+      kelasSet.forEach(kls => {
+        if (kls) selClass.innerHTML += `<option value="${kls}">${kls}</option>`;
+      });
+
+      selLec.value = currentLec;
+      selClass.value = currentClass;
+    }
+
+    function kemaskiniTampilanAdminDashboard() {
+      binaJadualLantikanModerator();
+      binaJadualPemantauanP2();
+    }
+
+    function resetPenapisAdmin() {
+      const selLec = document.getElementById('filterAdminPensyarah');
+      const selClass = document.getElementById('filterAdminKelas');
+      if (selLec) selLec.value = '';
+      if (selClass) selClass.value = '';
+      kemaskiniTampilanAdminDashboard();
+    }
+
+    function tapisSkripAdmin(skripList) {
+      const selLecVal = (document.getElementById('filterAdminPensyarah')?.value || '').toLowerCase();
+      const selClassVal = (document.getElementById('filterAdminKelas')?.value || '').toLowerCase();
+
+      return skripList.filter(skrip => {
+        let padanLec = true;
+        if (selLecVal) {
+          const pAsal = (skrip.emelPensyarah || '').toLowerCase();
+          const p1 = (skrip.emelP1 || '').toLowerCase();
+          const p2 = (skrip.emelP2 || '').toLowerCase();
+          padanLec = (pAsal === selLecVal || p1 === selLecVal || p2 === selLecVal);
+        }
+
+        let padanClass = true;
+        if (selClassVal) {
+          const kls = (skrip.kumpulan || skrip.fasaModerasi || '').toLowerCase();
+          padanClass = kls.includes(selClassVal);
+        }
+
+        return padanLec && padanClass;
+      });
+    }
+
     function binaJadualLantikanModerator() {
       const tbody = document.getElementById('jadualLantikanModeratorBody');
       if (!tbody) return;
       tbody.innerHTML = '';
 
-      if (dbSkripInduk.length === 0) {
-        tbody.innerHTML = `<tr><td colspan="6" class="text-center py-4 text-slate-400">Tiada skrip didaftarkan.</td></tr>`;
+      const skripDitapis = tapisSkripAdmin(dbSkripInduk);
+
+      if (skripDitapis.length === 0) {
+        tbody.innerHTML = `<tr><td colspan="6" class="text-center py-4 text-slate-400">Tiada skrip didaftarkan mengikut kriteria penapis.</td></tr>`;
         return;
       }
 
-      dbSkripInduk.forEach((skrip, idx) => {
+      skripDitapis.forEach((skrip, idx) => {
         const tr = document.createElement('tr');
         tr.className = 'hover:bg-slate-50 transition-colors';
 
@@ -588,23 +679,16 @@
       });
     }
 
-    function simpanLantikanModerator(angkaGiliran) {
-      const p1Email = document.getElementById(`selP1_${angkaGiliran}`)?.value || '';
-      const p2Email = document.getElementById(`selP2_${angkaGiliran}`)?.value || '';
-      const btn = document.getElementById(`btnLantik_${angkaGiliran}`);
-      if (btn) { btn.innerText = "Menghantar..."; btn.disabled = true; }
-
-      panggilAPISelamat({ action: "lantikModerator", adminEmail: dataSesi.email, adminPassword: dataSesi.password, angkaGiliran: angkaGiliran, p1Email: p1Email, p2Email: p2Email })
-      .then(res => {
-        if (btn) { btn.innerText = "Lantik & Emel"; btn.disabled = false; }
-        if (res.status === "success") { tunjukToast("Lantikan dikemaskini!", "success"); tarikDataDariSheets(); }
-        else { tunjukToast("Gagal lantik: " + res.message, "error"); }
-      }).catch(err => { if (btn) btn.disabled = false; tunjukToast("Ralat penghantaran lantikan.", "error"); });
-    }
-
     function binaJadualPemantauanP2() {
       const tbody = document.getElementById('jadualAdminP2'); if(!tbody) return; tbody.innerHTML = '';
-      dbSkripInduk.forEach((skrip, idx) => {
+      const skripDitapis = tapisSkripAdmin(dbSkripInduk);
+
+      if (skripDitapis.length === 0) {
+        tbody.innerHTML = `<tr><td colspan="6" class="text-center py-4 text-slate-400">Tiada skrip mengikut penapis.</td></tr>`;
+        return;
+      }
+
+      skripDitapis.forEach((skrip, idx) => {
         const tr = document.createElement('tr');
         const kat = skrip.fasaModerasi || 'Kelompok Sederhana';
         tr.className = 'hover:bg-slate-50 transition-colors';
