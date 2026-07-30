@@ -349,12 +349,23 @@
             </div>
             <div class="space-y-4 bg-slate-50 p-6 rounded-2xl border border-slate-100">
               <div>
-                <label class="text-[10px] font-bold text-slate-500 uppercase tracking-widest block mb-1.5">Kategori Skrip Serahan</label>
-                <select id="lecUploadJenisKategori" class="w-full px-4 py-3 rounded-xl bg-white border border-slate-200 text-xs font-bold focus:outline-none focus:border-teal-500">
+                <label class="text-[10px] font-bold text-slate-500 uppercase tracking-widest block mb-1.5">Jenis Serahan</label>
+                <select id="lecUploadJenisKategori" onchange="tukarPilihanKategoriLecUpload()" class="w-full px-4 py-3 rounded-xl bg-white border border-slate-200 text-xs font-bold focus:outline-none focus:border-teal-500">
                   <option value="Sampel Moderasi">🔵 1 Sampel Moderasi (Wakil Kelas)</option>
                   <option value="Kes Ekstrem Cemerlang">⭐ Kes Ekstrem Cemerlang (Skor Terpencil)</option>
                 </select>
               </div>
+
+              <!-- Pilihan Kelompok Sampel khusus untuk 1 Sampel Moderasi -->
+              <div id="containerSubKelompokLec">
+                <label class="text-[10px] font-bold text-slate-500 uppercase tracking-widest block mb-1.5">Kelompok Sampel Moderasi</label>
+                <select id="lecUploadSubKelompok" class="w-full px-4 py-3 rounded-xl bg-white border border-slate-200 text-xs font-bold focus:outline-none focus:border-teal-500">
+                  <option value="Kelompok Tinggi">🟢 Kelompok Tinggi</option>
+                  <option value="Kelompok Sederhana" selected>🟡 Kelompok Sederhana</option>
+                  <option value="Kelompok Rendah">🔴 Kelompok Rendah</option>
+                </select>
+              </div>
+
               <div>
                 <label class="text-[10px] font-bold text-slate-500 uppercase tracking-widest block mb-1.5">Angka Giliran Pelajar</label>
                 <input type="text" id="lecUploadAngkaGiliran" placeholder="Cth: 2026092340001" class="w-full px-4 py-3 rounded-xl bg-white border border-slate-200 font-mono text-xs focus:outline-none focus:border-teal-500">
@@ -427,7 +438,7 @@
             </div>
           </div>
 
-          <!-- PENETAPAN KATEGORI MANUAL SAMPEL -->
+          <!-- PENETAPAN KATEGORI MANUAL SAMPEL MODERASI -->
           <div class="bg-white rounded-2xl border border-slate-200 overflow-hidden shadow-sm">
             <div class="p-5 border-b border-slate-100 bg-white">
               <h3 class="font-display font-bold text-slate-900 text-sm">Penetapan Kategori Manual Sampel Moderasi</h3>
@@ -747,10 +758,10 @@
           <td class="px-4 py-3 text-center font-mono font-bold">${skrip.markahPemeriksa || '-'}</td>
           <td class="px-4 py-3">
             <select id="selKat_${skrip.angkaGiliran}" class="w-full text-xs border border-slate-200 rounded-lg p-2 font-bold bg-slate-50">
-              <option value="Kelompok Tinggi" ${kat.includes('Tinggi')?'selected':''}>Kelompok Tinggi (Amat Cemerlang)</option>
-              <option value="Kelompok Sederhana" ${kat.includes('Sederhana')?'selected':''}>Kelompok Sederhana</option>
-              <option value="Kelompok Rendah" ${kat.includes('Rendah')?'selected':''}>Kelompok Rendah (Lemah)</option>
-              <option value="Kes Ekstrem Cemerlang" ${kat.includes('Ekstrem')?'selected':''}>⭐ Kes Ekstrem Cemerlang</option>
+              <option value="Kelompok Tinggi" ${kat === 'Kelompok Tinggi' ? 'selected' : ''}>Kelompok Tinggi</option>
+              <option value="Kelompok Sederhana" ${(kat === 'Kelompok Sederhana' || (!kat.includes('Tinggi') && !kat.includes('Rendah') && !kat.includes('Ekstrem'))) ? 'selected' : ''}>Kelompok Sederhana</option>
+              <option value="Kelompok Rendah" ${kat === 'Kelompok Rendah' ? 'selected' : ''}>Kelompok Rendah</option>
+              <option value="Kes Ekstrem Cemerlang" ${kat.includes('Ekstrem') ? 'selected' : ''}>⭐ Kes Ekstrem Cemerlang</option>
             </select>
           </td>
           <td class="px-4 py-3 text-center">
@@ -1245,14 +1256,34 @@
       setTimeout(() => { window.print(); printContainer.style.display = 'none'; printContainer.innerHTML = ''; }, 800);
     }
 
+    function tukarPilihanKategoriLecUpload() {
+      const jenis = document.getElementById('lecUploadJenisKategori')?.value;
+      const subContainer = document.getElementById('containerSubKelompokLec');
+      if (!subContainer) return;
+
+      if (jenis === 'Sampel Moderasi') {
+        subContainer.classList.remove('hidden');
+      } else {
+        subContainer.classList.add('hidden');
+      }
+    }
+
     function lakukanUploadPensyarahP2() {
       const studentId = document.getElementById('lecUploadAngkaGiliran')?.value.trim();
       const markahA = document.getElementById('lecUploadMarkah')?.value.trim();
       const fileObj = document.getElementById('lecUploadFile')?.files[0];
       const jenisKat = document.getElementById('lecUploadJenisKategori')?.value;
+      const subKelompok = document.getElementById('lecUploadSubKelompok')?.value;
       const btn = document.getElementById('btnLecUpload');
 
       if (!studentId || !markahA || !fileObj) { tunjukToast("Lengkapkan maklumat dan fail PDF.", "warning"); return; }
+
+      // Tentukan kategori sebenar yang akan disimpan
+      let fasaDisimpan = jenisKat;
+      if (jenisKat === 'Sampel Moderasi') {
+        fasaDisimpan = subKelompok || 'Kelompok Sederhana';
+      }
+
       if (btn) { btn.innerText = "Memuat Naik..."; btn.disabled = true; }
 
       const reader = new FileReader();
@@ -1263,7 +1294,7 @@
           email: dataSesi.email,
           namaPensyarah: dataSesi.nama,
           angkaGiliran: studentId,
-          fasaModerasi: jenisKat,
+          fasaModerasi: fasaDisimpan,
           markahPemeriksa: markahA,
           fileData: e.target.result
         }).then(res => {
