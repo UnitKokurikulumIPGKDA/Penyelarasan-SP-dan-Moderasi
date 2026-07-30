@@ -75,7 +75,6 @@
   </div>
 
   <!-- ======================== MAIN APP LAYOUT ======================== -->
-
   <div id="appLayout" class="hidden w-full flex h-screen bg-slate-50">
     <aside class="w-64 bg-white border-r border-slate-200 flex flex-col justify-between shrink-0 h-full shadow-sm z-20">
       <div>
@@ -119,19 +118,23 @@
 
           <!-- KONTENA SCROLL UTAMA -->
           <div id="scrollAreaCanvas" class="flex-1 overflow-y-auto bg-[#EBE7DF] p-6 flex flex-col items-center">
+            
             <div id="canvasPlaceholder" class="flex flex-col items-center text-center mt-20">
               <div class="w-16 h-16 bg-white rounded-2xl border border-slate-200 flex items-center justify-center mb-3 shadow-sm"><svg class="w-6 h-6 text-slate-300" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg></div>
               <h3 class="font-display font-bold text-slate-800 text-lg">Ruang Semakan Skrip MPU3221</h3>
               <p class="text-xs text-slate-500 mt-1">Pilih skrip dari senarai di panel kanan.</p>
             </div>
 
+            <!-- KANVAS -->
             <canvas id="scriptCanvas" class="w-full max-w-[800px] h-auto block bg-white border border-slate-200 shadow-xl shrink-0 hidden mb-6"></canvas>
 
+            <!-- KOTAK ULASAN -->
             <div id="commentSection" class="hidden w-full max-w-[800px] bg-white p-6 border border-slate-200 rounded-xl shadow-sm shrink-0 mb-10">
               <div class="flex justify-between items-center mb-4 border-b border-slate-100 pb-3">
                 <h4 class="font-bold text-slate-800">📝 Catatan Ulasan Muka Surat <span id="labelUlasanMuka" class="text-teal-600 font-mono">1</span></h4>
               </div>
               <textarea id="catatanMukaSurat" rows="3" placeholder="Masukkan ulasan atau catatan untuk muka surat ini..." oninput="ulasanSemuaHalaman[pageNum] = this.value; jadualAutoSave();" class="w-full p-3 border border-slate-200 rounded-lg text-xs focus:outline-none focus:border-teal-500 transition-all"></textarea>
+              
               <div id="ulasanRakanContainer" class="mt-3 hidden p-3 bg-slate-50 border border-slate-200 rounded-lg text-xs"></div>
             </div>
 
@@ -185,35 +188,44 @@
                   </div>
                 </div>
                 
+                <!-- BORANG RUBRIK MPU3221 (HP1 & HP5) -->
                 <div class="border border-slate-200 rounded-lg overflow-hidden bg-white shadow-sm">
                   <div class="bg-slate-900 text-white px-3 py-2 text-[9px] font-bold uppercase tracking-widest flex justify-between items-center">
                     <span>Perincian Rubrik HP1 & HP5</span>
                     <span class="text-teal-400 font-mono">Maks 40M</span>
                   </div>
                   <div class="p-3 space-y-3 divide-y divide-slate-100">
+                    
+                    <!-- HP1 (30M) -->
                     <div class="pt-2 first:pt-0">
                       <p class="text-[10px] font-bold text-teal-700 uppercase tracking-wider mb-2">Tugasan 1: HP1 (Maks 30M)</p>
+                      
                       <div class="space-y-2.5">
                         <div class="flex justify-between items-start gap-2">
                           <div class="pr-2"><p class="text-[11px] font-bold text-slate-800">A1. Pengenalan, Konsep & Rasional (/5)</p></div>
                           <input type="number" id="rubric_hp1_a1" min="0" max="5" step="0.5" oninput="kiraSkorAuto()" class="w-14 text-center text-xs font-bold border border-slate-200 rounded p-1 bg-slate-50 shrink-0">
                         </div>
+
                         <div class="flex justify-between items-start gap-2">
                           <div class="pr-2"><p class="text-[11px] font-bold text-slate-800">A2. Rekaan Logo & Moto (/5)</p></div>
                           <input type="number" id="rubric_hp1_a2" min="0" max="5" step="0.5" oninput="kiraSkorAuto()" class="w-14 text-center text-xs font-bold border border-slate-200 rounded p-1 bg-slate-50 shrink-0">
                         </div>
+
                         <div class="flex justify-between items-start gap-2">
                           <div class="pr-2"><p class="text-[11px] font-bold text-slate-800">B1. Struktur AJK & Perlembagaan (/5)</p></div>
                           <input type="number" id="rubric_hp1_b1" min="0" max="5" step="0.5" oninput="kiraSkorAuto()" class="w-14 text-center text-xs font-bold border border-slate-200 rounded p-1 bg-slate-50 shrink-0">
                         </div>
+
                         <div class="flex justify-between items-start gap-2">
                           <div class="pr-2"><p class="text-[11px] font-bold text-slate-800">B2. Takwim Aktiviti Tahunan (/5)</p></div>
                           <input type="number" id="rubric_hp1_b2" min="0" max="5" step="0.5" oninput="kiraSkorAuto()" class="w-14 text-center text-xs font-bold border border-slate-200 rounded p-1 bg-slate-50 shrink-0">
                         </div>
+
                         <div class="flex justify-between items-start gap-2">
                           <div class="pr-2"><p class="text-[11px] font-bold text-slate-800">C1. Carta Alir & Surat Permohonan (/5)</p></div>
                           <input type="number" id="rubric_hp1_c1" min="0" max="5" step="0.5" oninput="kiraSkorAuto()" class="w-14 text-center text-xs font-bold border border-slate-200 rounded p-1 bg-slate-50 shrink-0">
                         </div>
+
                         <div class="flex justify-between items-start gap-2">
                           <div class="pr-2"><p class="text-[11px] font-bold text-slate-800">C2. Analisis Mitigasi Risiko (/5)</p></div>
                           <input type="number" id="rubric_hp1_c2" min="0" max="5" step="0.5" oninput="kiraSkorAuto()" class="w-14 text-center text-xs font-bold border border-slate-200 rounded p-1 bg-slate-50 shrink-0">
@@ -221,21 +233,26 @@
                       </div>
                     </div>
 
+                    <!-- HP5 (10M) -->
                     <div class="pt-3">
                       <p class="text-[10px] font-bold text-teal-700 uppercase tracking-wider mb-2">Tugasan 1: HP5 (Maks 10M)</p>
+                      
                       <div class="space-y-2.5">
                         <div class="flex justify-between items-start gap-2">
                           <div class="pr-2"><p class="text-[11px] font-bold text-slate-800">D1. Kelancaran & Koheren Idea (/2.5)</p></div>
                           <input type="number" id="rubric_hp5_d1" min="0" max="2.5" step="0.1" oninput="kiraSkorAuto()" class="w-14 text-center text-xs font-bold border border-slate-200 rounded p-1 bg-slate-50 shrink-0">
                         </div>
+
                         <div class="flex justify-between items-start gap-2">
                           <div class="pr-2"><p class="text-[11px] font-bold text-slate-800">D2. Justifikasi & Keyakinan Hujah (/2.5)</p></div>
                           <input type="number" id="rubric_hp5_d2" min="0" max="2.5" step="0.1" oninput="kiraSkorAuto()" class="w-14 text-center text-xs font-bold border border-slate-200 rounded p-1 bg-slate-50 shrink-0">
                         </div>
+
                         <div class="flex justify-between items-start gap-2">
                           <div class="pr-2"><p class="text-[11px] font-bold text-slate-800">D3. Keaslian Idea & Laras Bahasa (/2.5)</p></div>
                           <input type="number" id="rubric_hp5_d3" min="0" max="2.5" step="0.1" oninput="kiraSkorAuto()" class="w-14 text-center text-xs font-bold border border-slate-200 rounded p-1 bg-slate-50 shrink-0">
                         </div>
+
                         <div class="flex justify-between items-start gap-2">
                           <div class="pr-2"><p class="text-[11px] font-bold text-slate-800">D4. Ketepatan Tatabahasa & APA 7 (/2.5)</p></div>
                           <input type="number" id="rubric_hp5_d4" min="0" max="2.5" step="0.1" oninput="kiraSkorAuto()" class="w-14 text-center text-xs font-bold border border-slate-200 rounded p-1 bg-slate-50 shrink-0">
@@ -864,7 +881,7 @@
       }
 
       skripRelevan.forEach(skrip => {
-        const rekodSiap = dbHasilSemakan.find(h => h.angkaGiliran.toString() === skrip.angkaGiliran.toString() && h.emelPensyarah === dataSesi.email);
+        const rekodSiap = dbHasilSemakan.find(h => h.angkaGiliran.toString() === skrip.angkaGiliran.toString());
         const isAktif = pelajarAktif && pelajarAktif.angkaGiliran === skrip.angkaGiliran;
         const div = document.createElement('div');
         div.className = `flex justify-between items-center p-3 rounded-lg border cursor-pointer transition-all ${isAktif ? 'bg-teal-50 border-teal-300 ring-1 ring-teal-500' : 'bg-white border-slate-200 hover:bg-slate-50'}`;
@@ -907,12 +924,17 @@
       }
 
       skripDilepaskan.forEach((skrip, idx) => {
-        const myReview = dbHasilSemakan.find(r => r.angkaGiliran.toString() === skrip.angkaGiliran.toString() && r.emelPensyarah === dataSesi.email);
-        const isDisemak = !!myReview;
+        // Cari sebarang rekod semakan untuk skrip ini
+        const allReviewsForScript = dbHasilSemakan.filter(r => r.angkaGiliran.toString() === skrip.angkaGiliran.toString());
+        const myReview = allReviewsForScript.find(r => r.emelPensyarah.toLowerCase() === userEmail);
+        const officialReview = allReviewsForScript.length > 0 ? allReviewsForScript[0] : null;
+
+        const effectiveReview = myReview || officialReview;
+        const isDisemak = !!effectiveReview;
 
         let markahAsal = parseFloat(skrip.markahPemeriksa);
-        let markahModerasi = isDisemak ? parseFloat(myReview.markahModerasiP1 || myReview.markahAkhir) : null;
-        let bezaVal = (isDisemak && !isNaN(markahAsal) && !isNaN(markahModerasi)) ? (markahModerasi - markahAsal) : null;
+        let markahModerasi = isDisemak ? parseFloat(effectiveReview.markahModerasiP1 || effectiveReview.markahModerasiP2 || effectiveReview.markahAkhir) : null;
+        let bezaVal = (isDisemak && !isNaN(markahAsal) && markahModerasi !== null && !isNaN(markahModerasi)) ? (markahModerasi - markahAsal) : null;
 
         const tr = document.createElement('tr');
         tr.className = 'hover:bg-slate-50 transition-colors';
@@ -923,7 +945,7 @@
           <td class="px-4 py-3 text-center font-mono text-slate-600">${!isNaN(markahAsal) ? markahAsal : '-'}</td>
           <td class="px-4 py-3 text-center font-mono font-bold text-slate-800">${(isDisemak && markahModerasi !== null) ? markahModerasi : '-'}</td>
           <td class="px-4 py-3 text-center font-mono font-bold text-slate-600">${bezaVal !== null ? (bezaVal > 0 ? '+' + bezaVal.toFixed(1) : bezaVal.toFixed(1)) : '-'}</td>
-          <td class="px-4 py-3 text-center font-mono font-bold text-teal-700">${(isDisemak && myReview.markahAkhir) ? myReview.markahAkhir : '-'}</td>
+          <td class="px-4 py-3 text-center font-mono font-bold text-teal-700">${(isDisemak && effectiveReview.markahAkhir) ? effectiveReview.markahAkhir : '-'}</td>
           <td class="px-4 py-3 text-center">
             ${isDisemak ? `<span class="px-2.5 py-1 rounded-md text-[9px] font-bold bg-emerald-50 text-emerald-700 border border-emerald-200 uppercase">✓ Disemak</span>` : `<span class="px-2.5 py-1 rounded-md text-[9px] font-bold bg-slate-100 text-slate-400 border border-slate-200 uppercase">Menunggu</span>`}
           </td>
