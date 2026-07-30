@@ -75,6 +75,7 @@
   </div>
 
   <!-- ======================== MAIN APP LAYOUT ======================== -->
+
   <div id="appLayout" class="hidden w-full flex h-screen bg-slate-50">
     <aside class="w-64 bg-white border-r border-slate-200 flex flex-col justify-between shrink-0 h-full shadow-sm z-20">
       <div>
@@ -409,7 +410,7 @@
             </div>
           </div>
 
-          <!-- PENETAPAN KATEGORI MANUAL SAMPOEL -->
+          <!-- PENETAPAN KATEGORI MANUAL SAMPEL -->
           <div class="bg-white rounded-2xl border border-slate-200 overflow-hidden shadow-sm">
             <div class="p-5 border-b border-slate-100 bg-white">
               <h3 class="font-display font-bold text-slate-900 text-sm">Penetapan Kategori Manual Sampel Moderasi</h3>
@@ -441,6 +442,7 @@
   <div id="bulkPrintContainer"></div>
   <div id="toastContainer" class="fixed bottom-6 right-6 z-[200] flex flex-col gap-3 pointer-events-none"></div>
 
+  <!-- ======================== APPLICATION JAVASCRIPT ======================== -->
   <script>
     let urlAPI = 'https://script.google.com/macros/s/AKfycbxwUIQpQ66obbKr_Wttws6e1Gwe5lu5oZbAWpkqh40GEgwXfgSPbkIVse_gfJM3iJI5/exec'; 
     let dataSesi = { email: '', nama: '', peranan: '', password: '' };
@@ -578,12 +580,10 @@
       selLec.innerHTML = '<option value="">-- Semua Pensyarah --</option>';
       selClass.innerHTML = '<option value="">-- Semua Kelas / Kumpulan --</option>';
 
-      // Isi senarai pensyarah
       dbPensyarah.forEach(lec => {
         selLec.innerHTML += `<option value="${lec.email}">${lec.nama}</option>`;
       });
 
-      // Kumpul senarai kumpulan / kelas unik
       const kelasSet = new Set();
       dbSkripInduk.forEach(s => {
         if (s.kumpulan) kelasSet.add(s.kumpulan.trim());
@@ -714,7 +714,7 @@
     }
 
     function simpanKategoriP2Admin(angka) {
-      const s = document.getElementById(`selKat_${angka}`); if(!s) return; s.disabled = true;
+      const s = document.getElementById('selKat_' + angka); if(!s) return; s.disabled = true;
       panggilAPISelamat({ action: "kemaskiniKategoriP2", adminEmail: dataSesi.email, adminPassword: dataSesi.password, angkaGiliran: angka, kategoriBaru: s.value })
       .then(res => { s.disabled = false; if(res.status === "success") { tunjukToast("Kategori disimpan.", "success"); tarikDataDariSheets(); } })
       .catch(err => { s.disabled = false; tunjukToast("Ralat.", "error"); });
@@ -890,7 +890,23 @@
       if (!tbody) return;
       tbody.innerHTML = '';
 
-      dbSkripInduk.forEach((skrip, idx) => {
+      const userEmail = (dataSesi.email || '').toLowerCase();
+      const isAdminKJ = semakStatusAdmin();
+
+      const skripDilepaskan = dbSkripInduk.filter(skrip => {
+        if (isAdminKJ) return true;
+        const pAsal = (skrip.emelPensyarah || '').toLowerCase();
+        const p1 = (skrip.emelP1 || '').toLowerCase();
+        const p2 = (skrip.emelP2 || '').toLowerCase();
+        return (pAsal === userEmail || p1 === userEmail || p2 === userEmail);
+      });
+
+      if (skripDilepaskan.length === 0) {
+        tbody.innerHTML = `<tr><td colspan="8" class="text-center py-6 text-slate-400 text-xs">Tiada skrip muat naik atau tugasan moderasi bagi akaun anda.</td></tr>`;
+        return;
+      }
+
+      skripDilepaskan.forEach((skrip, idx) => {
         const myReview = dbHasilSemakan.find(r => r.angkaGiliran.toString() === skrip.angkaGiliran.toString() && r.emelPensyarah === dataSesi.email);
         const isDisemak = !!myReview;
 
@@ -916,54 +932,36 @@
       });
     }
 
-    function tukarWarnaPen(hex, namaID) {
-      const userEmail = (dataSesi.email || '').toLowerCase();
-      const isAdminKJ = semakStatusAdmin();
-      const isLantikP1 = pelajarAktif && pelajarAktif.emelP1 && pelajarAktif.emelP1.toLowerCase() === userEmail;
-      const isLantikP2 = pelajarAktif && pelajarAktif.emelP2 && pelajarAktif.emelP2.toLowerCase() === userEmail;
-
-      if (namaID === 'hijau' && !(isAdminKJ || isLantikP1)) {
-        tunjukToast("Hanya Admin, KJ, KP, dan Moderator P1 dilantik dibenarkan Pen Hijau.", "warning"); return;
+    async function ambilKandunganLakaran(nilaiMentah) {
+      if (!nilaiMentah) return "{}";
+      const teks = nilaiMentah.toString();
+      if (teks.indexOf("DRIVEFILE:") === 0) {
+        const fileId = teks.substring("DRIVEFILE:".length).trim();
+        try {
+          const resp = await fetch(urlAPI + "?action=fetchLakaranProxy&id=" + fileId);
+          const isi = await resp.text();
+          if (isi.startsWith("ERROR")) return "{}";
+          return isi;
+        } catch (e) {
+          console.error('[ambilKandunganLakaran] Gagal ambil fail Drive:', e);
+          return "{}";
+        }
       }
-      if (namaID === 'ungu' && !(isAdminKJ || isLantikP2)) {
-        tunjukToast("Hanya Admin, KJ, KP, dan Moderator P2 dilantik dibenarkan Pen Ungu.", "warning"); return;
-      }
-
-      warnaPen = hex;
-      ['btnPenMerah', 'btnPenHijau', 'btnPenUngu'].forEach(id => { const el=document.getElementById(id); if(el) el.className = "flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold text-slate-600 hover:bg-white border border-transparent"; });
-      const warnaRing = namaID === 'merah' ? 'red' : namaID === 'hijau' ? 'emerald' : 'violet';
-      const bA = document.getElementById(`btnPen${namaID.charAt(0).toUpperCase() + namaID.slice(1)}`);
-      if(bA) bA.className = `flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold bg-white border border-${warnaRing}-200 text-${warnaRing}-700 shadow-sm ring-1 ring-${warnaRing}-500`;
-    }
-
-    function kemaskiniKawalanPenBerdasarkanPeranan() {
-      const bHijau = document.getElementById('btnPenHijau'), bUngu = document.getElementById('btnPenUngu');
-      const userEmail = (dataSesi.email || '').toLowerCase();
-      const isAdminKJ = semakStatusAdmin();
-      const isLantikP1 = pelajarAktif && pelajarAktif.emelP1 && pelajarAktif.emelP1.toLowerCase() === userEmail;
-      const isLantikP2 = pelajarAktif && pelajarAktif.emelP2 && pelajarAktif.emelP2.toLowerCase() === userEmail;
-
-      if (bHijau) bHijau.disabled = !(isAdminKJ || isLantikP1);
-      if (bUngu)  bUngu.disabled  = !(isAdminKJ || isLantikP2);
-
-      if (isLantikP1 && !isAdminKJ) tukarWarnaPen('#10B981', 'hijau');
-      else if (isLantikP2 && !isAdminKJ) tukarWarnaPen('#8B5CF6', 'ungu');
-      else tukarWarnaPen('#EF4444', 'merah');
+      return teks;
     }
 
     async function pilihPelajar(skrip, rekod) {
-      pelajarAktif = skrip; 
-      binaSenaraiKerjaPensyarah();
-      kemaskiniKawalanPenBerdasarkanPeranan();
+      if(pdfDoc) { simpanUlasanHalamanSemasa(); }
 
+      pelajarAktif = skrip; binaSenaraiKerjaPensyarah(); 
       const pb = document.getElementById('panelBorangMarkah'); if(pb) pb.classList.remove('opacity-50', 'pointer-events-none');
       const lb = document.getElementById('labelTugasSemasa'); if(lb) lb.innerText = skrip.angkaGiliran;
       const bA = document.getElementById('borangMarkahA'); if(bA) bA.value = skrip.markahPemeriksa;
       
       const keysHP1 = ['hp1_a1','hp1_a2','hp1_b1','hp1_b2','hp1_c1','hp1_c2'];
       const keysHP5 = ['hp5_d1','hp5_d2','hp5_d3','hp5_d4'];
-      keysHP1.concat(keysHP5).forEach(k => {
-        const el = document.getElementById(`rubric_${k}`);
+      keysHP1.concat(keysHP5).forEach(function(k) {
+        const el = document.getElementById('rubric_' + k);
         if (el) el.value = rekod ? (rekod[k] || '') : '';
       });
 
@@ -1013,11 +1011,11 @@
       let total = 0; 
       const keysHP1 = ['hp1_a1','hp1_a2','hp1_b1','hp1_b2','hp1_c1','hp1_c2'];
       const keysHP5 = ['hp5_d1','hp5_d2','hp5_d3','hp5_d4'];
-      keysHP1.concat(keysHP5).forEach(k => { 
-        const el = document.getElementById(`rubric_${k}`); 
+      keysHP1.concat(keysHP5).forEach(function(k) { 
+        const el = document.getElementById('rubric_' + k); 
         if(el) total += parseFloat(el.value) || 0; 
       });
-      const jum = document.getElementById('jumlahMarkahRubrik'); if(jum) jum.innerText = `${total.toFixed(1)} / 40`; 
+      const jum = document.getElementById('jumlahMarkahRubrik'); if(jum) jum.innerText = total.toFixed(1) + ' / 40'; 
       const bG = document.getElementById('borangMarkahG'); if(bG) bG.value = total.toFixed(1);
     }
 
